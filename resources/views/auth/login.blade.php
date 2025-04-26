@@ -62,6 +62,11 @@ input:focus {
 
                                 <form method="POST" action="{{ route('login') }}">
                                     @csrf
+                                    @if (session('error'))
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ session('error') }}
+                                    </div>
+                                    @endif
                                     <p>Login to your account</p>
 
                                     <div class="form-floating mb-4">

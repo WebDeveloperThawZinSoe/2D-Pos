@@ -47,7 +47,7 @@ class CreateNewUser implements CreatesNewUsers
 
 
         // Assign a default role to the user
-        $role = Role::where('name', 'Shop')->first(); 
+        $role = Role::where('name', 'User')->first(); 
         if ($role) {
             $user->assignRole($role);
         }

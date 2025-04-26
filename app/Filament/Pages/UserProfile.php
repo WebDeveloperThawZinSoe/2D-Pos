@@ -17,6 +17,8 @@ class UserProfile extends Page
     protected static ?string $slug = 'profile';
     protected static ?string $navigationGroup = 'Settings';
 
+    protected static ?int $navigationSort = 50;
+
     protected static string $view = 'filament.pages.user-profile';
 
     public ?array $data = [];
