@@ -62,7 +62,7 @@ input:focus {
 
                                 <form method="POST" action="{{ route('login') }}">
                                     @csrf
-                                    <p>Please login to your account</p>
+                                    <p>Login to your account</p>
 
                                     <div class="form-floating mb-4">
                                         <input type="email" name="email" id="email"
@@ -94,8 +94,8 @@ input:focus {
                                     </div>
 
                                     <div class="d-flex align-items-center justify-content-center pb-4">
-                                        <p class="mb-0 me-2">Don't have an account?</p>
-                                        <a href="/register" class="btn btn-outline-danger">Create new</a>
+                                        <p class="mb-0 me-2">Forget Your Account Password ?</p>
+                                        <a href="/forgot-password" class="btn btn-outline-danger">Forget Password</a>
                                     </div>
                                 </form>
 

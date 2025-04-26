@@ -29,6 +29,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'join_date',
+        'end_date',
+        'status',
+        'commission',
+        'rate',
+        'max_limit',
+        'manager_id',
     ];
 
     /**
@@ -65,4 +72,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(Shop::class);
     }
+
+
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+    }
+    
+    public function scopeInactive($query)
+    {
+        return $query->where('status', 0);
+    }
+
 }

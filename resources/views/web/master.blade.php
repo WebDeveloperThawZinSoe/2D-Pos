@@ -38,9 +38,9 @@
                 <li class="nav-item">
                     <a class="btn btn-outline-primary me-2 px-3 rounded-pill" href="{{ route('login') }}">Login</a>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a class="btn btn-primary px-3 rounded-pill text-white" href="{{ route('register') }}">Register Shop</a>
-                </li>
+                </li> -->
                 @else
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle fw-semibold" href="#" id="navbarDropdown" role="button"
@@ -80,9 +80,9 @@
                 <li class="nav-item mt-3">
                     <a class="btn btn-outline-primary w-100 mb-2" href="{{ route('login') }}">Login</a>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a class="btn btn-primary w-100 text-white" href="{{ route('register') }}">Register Shop</a>
-                </li>
+                </li> -->
                 @else
                 <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="#">Profile</a></li>
                 <li class="nav-item">

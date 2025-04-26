@@ -23,7 +23,7 @@ Route::middleware([
 });
 
 
-Route::get("/route/check", [RouteCheckController::class, 'check'])->name("routeCheck");
+Route::get("/route/check", [PageController::class, 'index'])->name("routeCheck");
 
 // Route::middleware(['role:admin'])->group(function () {
 //     Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
@@ -42,6 +42,7 @@ Route::get("/route/check", [RouteCheckController::class, 'check'])->name("routeC
 
 
 Route::get("/",[PageController::class, 'index'])->name("home");
+
 
 Route::middleware(['web'])->group(function () {
     Route::post('/logout', function () {
