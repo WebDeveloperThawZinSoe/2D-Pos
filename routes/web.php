@@ -7,7 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RouteCheckController;
 use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Auth;
-
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
 
@@ -52,3 +52,14 @@ Route::middleware(['web'])->group(function () {
         return redirect('/');
     })->name('logout');
 });
+
+
+Route::fallback(function () {
+    if (abort(403)) {
+        return redirect()->route('home');
+    }   
+    if(abort(404)) {
+        return redirect()->route('home');
+    }
+});
+

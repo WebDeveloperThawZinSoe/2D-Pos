@@ -29,6 +29,7 @@ class PageController extends Controller
                     }
                     
                 }elseif($user->hasRole('user')){
+                    
                     return redirect("/user");
                 }else{
                     return abort(403);

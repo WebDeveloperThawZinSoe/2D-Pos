@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer("status")->default(1);
             $table->string("commission")->nullable();
             $table->string("rate")->nullable();
-            $table->string("max_limit")->nullalbe();
+            $table->string("max_limit")->nullable();
         });
     }
 

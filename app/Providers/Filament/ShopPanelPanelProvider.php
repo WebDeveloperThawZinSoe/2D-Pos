@@ -35,9 +35,7 @@ class ShopPanelPanelProvider extends PanelProvider
             ->registration()
             ->discoverResources(in: app_path('Filament/ShopPanel/Resources'), for: 'App\\Filament\\ShopPanel\\Resources')
             ->discoverPages(in: app_path('Filament/ShopPanel/Pages'), for: 'App\\Filament\\ShopPanel\\Pages')
-            ->pages([
-                Pages\Dashboard::class,
-            ])
+           
             ->discoverWidgets(in: app_path('Filament/ShopPanel/Widgets'), for: 'App\\Filament\\ShopPanel\\Widgets')
             ->widgets([
                 // Widgets\StatsOverview::class,
@@ -46,7 +44,9 @@ class ShopPanelPanelProvider extends PanelProvider
             ->login()
             ->passwordReset()
             ->profile()
-            
+            ->pages([
+                Pages\Dashboard::class,
+            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
