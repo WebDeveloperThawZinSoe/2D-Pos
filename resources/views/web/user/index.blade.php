@@ -12,62 +12,109 @@ $pm_close = $setting->close_time_pm; // Example: 17:00
 
 $now = Carbon::now()->format('H:i'); // Current time in "Hour:Minute" 24hr format
 
-if ($now >= $am_open && $now <= $am_close) {
-    $current_section = 'AM';
-} elseif ($now >= $pm_open && $now <= $pm_close) {
-    $current_section = 'PM';
-} else {
-    $current_section = 'Closed';
-}
-@endphp
+if ($now >= $am_open && $now <= $am_close) { $current_section='AM' ; } elseif ($now>= $pm_open && $now <= $pm_close) {
+        $current_section='PM' ; } else { $current_section='Closed' ; } @endphp <style>
+        /* Default styles (desktop and bigger screens) */
+        td {
+        padding: 12px;
+        font-size: 1rem;
+        }
+        button {
+        padding: 12px 0;
+        font-size: 1rem;
+        margin: 0;
+        }
 
-<section
-        class="h-100 gradient-form">
-        <div class="row">
-            <div class="col-10 offset-1 col-md-6 offset-md-3" style="background-color: #eee;">
-                <div style="padding:20px">
+        /* Mobile styles */
+        @media (max-width: 576px) {
+        td {
+        padding: 2px !important;
+        font-size: 0.75rem !important;
+        }
+        button {
+        padding: 6px 4px !important; /* top/bottom 6px, left/right 4px */
+        font-size: 0.75rem !important;
+        margin: 2px !important; /* small margin around button */
+        }
+        .d-flex.flex-column.gap-1 {
+        gap: 2px !important;
+        }
+        .table-responsive {
+        margin: 0 !important;
+        padding: 0 !important;
+        }
+        table {
+        margin: 0 !important;
+        padding: 0 !important;
+        }
+        }
+        </style>
 
-                    <p>
-                        <span style="padding:5px;background:green;color:white"> နာမည် </span> &nbsp; -
-                        {{ Auth::user()->name }} ({{ Auth::user()->email }})
-                    </p>
 
-                    <p>
-                        <span style="padding:5px;background:green;color:white"> သွင်းမည့်အချိန် </span> &nbsp; -
-                        {{ now()->format('Y-m-d') }} {{ $current_section }}
-                    </p>
 
-                    <p>
-                        <span style="padding:5px;background:red;color:white"> ပိတ်ချိန် </span> &nbsp; -
-                        @if ($current_section == 'AM')
-                        {{ $setting->close_time_am }} {{ $current_section }}
-                        @elseif ($current_section == 'PM')
-                        {{ $setting->close_time_pm }} {{ $current_section }}
-                        @endif
-                    </p>
+        <section class="h-100 gradient-form">
+            <div class="row">
+                <div class="col-12  col-md-6 offset-md-3" style="background-color: #eee;">
+                    <div style="padding:20px">
 
-                    <p>
-                        <span style="padding:5px;background:green;color:white"> တစ်ကွက်အများဆုံးခွင့်ပြုငွေ </span>
-                        &nbsp; -
-                        <span style="color:blue;"> {{ number_format(Auth::user()->max_limit) }} Ks </span>
-                    </p>
+                        <p>
+                            <span style="padding:5px;background:green;color:white"> နာမည် </span> &nbsp; -
+                            {{ Auth::user()->name }} ({{ Auth::user()->email }})
+                        </p>
 
-                    <form id="submit_2d_form" action="/lottery_2d_user" method="POST">
-                        @csrf
+                        <p>
+                            <span style="padding:5px;background:green;color:white"> သွင်းမည့်အချိန် </span> &nbsp; -
+                            {{ now()->format('Y-m-d') }} {{ $current_section }}
+                        </p>
 
-                        <div class="row my-4 justify-content-center">
-                            <div class="col-12">
+                        <p>
+                            <span style="padding:5px;background:red;color:white"> ပိတ်ချိန် </span> &nbsp; -
+                            @if ($current_section == 'AM')
+                            {{ $setting->close_time_am }} {{ $current_section }}
+                            @elseif ($current_section == 'PM')
+                            {{ $setting->close_time_pm }} {{ $current_section }}
+                            @endif
+                        </p>
 
-                                <div class="mb-3 row">
-                                    <div class="col-8">
-                                    <input type="text" class="form-control form-control-lg text-center"
-                                        id="add_2D_number_input" placeholder="နံပါတ်ရိုက်ထည့်ပါ..."
-                                        onkeyup="change_format_type(this.value)" onkeydown="add_2D_number(this)">
-                                    </div>
-                                    <div class="col-4">
-                                    <input type="text" class="form-control form-control-lg text-center"
-                                        id="price" placeholder="တင်ငွေရိုက်ထည့်ပါ..."
-                                     >
+                        <p>
+                            <span style="padding:5px;background:green;color:white"> တစ်ကွက်အများဆုံးခွင့်ပြုငွေ </span>
+                            &nbsp; -
+                            <span style="color:blue;"> {{ number_format(Auth::user()->max_limit) }} Ks </span>
+                        </p>
+
+                        <form id="submit_2d_form" action="/user/number_store" method="POST">
+                            @csrf
+                            <input type="hidden">
+                            <div class="row my-4 justify-content-center">
+                                <div class="col-12">
+                                    <input type="hidden" name="date" value="{{ now()->format('Y-m-d') }}">
+                                    <input type="hidden" name="section" value="{{ $current_section }}">
+
+                                    <div class="mb-3 row">
+                                        <div class="col-7">
+                                            <input type="text"
+                                                class="form-control form-control-lg text-center @error('number') is-invalid @enderror"
+                                                id="add_2D_number_input" name="number"
+                                                placeholder="နံပါတ်ထည့်ပါ..."
+                                                onkeyup="change_format_type(this.value)" onkeydown="add_2D_number(this)"
+                                                required maxlength="30">
+                                            @error('number')
+                                            <div class="invalid-feedback text-start">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="col-5">
+                                        <input type="number"
+                                        class="form-control form-control-lg text-center @error('price') is-invalid @enderror"
+                                        id="add_2D_number_input_price" name="price"
+                                        placeholder="တင်ငွေရိုက် ထည့်ပါ..."
+                                        required
+                                        
+                                        max="{{ Auth::user()->max_limit }}">
+
+                                            @error('price')
+                                            <div class="invalid-feedback text-start">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
 
@@ -95,7 +142,7 @@ if ($now >= $am_open && $now <= $am_close) {
                                                         class="btn btn-light w-100 py-3">9</button></td>
                                                 <td><button type="button" onclick="key_enter('S')"
                                                         class="btn btn-info w-100 py-3">စုံ</button></td>
-                                                <td><button type="button" onclick="key_enter('F')"
+                                                <td><button type="button" onclick="key_enter('f')"
                                                         class="btn btn-warning w-100 py-3">နောက်</button></td>
                                             </tr>
                                             <tr>
@@ -122,8 +169,8 @@ if ($now >= $am_open && $now <= $am_close) {
                                                 <td><button type="button" onclick="key_enter('3')"
                                                         class="btn btn-light w-100 py-3">3</button></td>
                                                 <td rowspan="2">
-                                                    <button type="button" onclick="key_enter('save')"
-                                                        class="btn btn-success w-100 h-100 py-4">သိမ်းမည်</button>
+                                                <button type="button" onclick="key_enter(' ')"
+                                                class="btn btn-dark w-100 py-3">Space</button>
                                                 </td>
                                                 <td class="d-flex flex-column gap-1">
                                                     <button type="button" onclick="key_enter('W')"
@@ -149,31 +196,65 @@ if ($now >= $am_open && $now <= $am_close) {
                                         </tbody>
                                     </table>
                                 </div>
-
                             </div>
-                        </div>
 
-                    </form>
+                            <button type="submit" class="btn btn-success w-100 py-4">သိမ်းမည်</button>
+                        </form>
+
+                        <script>
+                        function key_enter(data) {
+                            const add_sound = new Audio("{{ asset('sound/type.mp3') }}");
+                            add_sound.play();
+                            let inputField = document.getElementById('add_2D_number_input');
+                            let inputField2 = document.getElementById('add_2D_number_input_price');
+                            if (data === "del") {
+                                inputField.value = "";
+                                inputField2.value = "";
+                            } else {
+                                inputField.value += data;
+                            }
+                        }
+
+                        // function change_format_type(value) {
+                        //     let formattedValue = '';
+                        //     let inputLength = value.length;
+
+                        //     // Loop through each character in the input value
+                        //     for (let i = 0; i < inputLength; i++) {
+                        //         let char = value[i];
+
+                        //         // If it's an alphabet, append it followed by a comma
+                        //         if (/[a-zA-Z]/.test(char)) {
+                        //             formattedValue += char + ',';
+                        //         }
+                        //         // If it's a number, append it directly to handle digits
+                        //         else if (/\d/.test(char)) {
+                        //             if (i + 1 < inputLength && /\d/.test(value[i + 1])) {
+                        //                 formattedValue += char + value[i + 1] + ',';
+                        //                 i++; // Skip the next digit
+                        //             } else {
+                        //                 formattedValue += char + ',';
+                        //             }
+                        //         }
+                        //     }
+
+                        //     // Trim the last comma
+                        //     if (formattedValue.endsWith(',')) {
+                        //         formattedValue = formattedValue.slice(0, -1);
+                        //     }
+
+                        //     document.getElementById('add_2D_number_input').value = formattedValue;
+                        // }
+                        </script>
 
 
+
+                    </div>
                 </div>
             </div>
-        </div>
         </section>
-        
-        <script>
-            function key_enter(data) {
-                const add_sound = new Audio("{{ asset('sound/type.mp3') }}");
-                add_sound.play();
-                if (data == "del") {
-                    $("#add_2D_number_input").val("")
-                } else if (data == "save") {
-                    add_2D_number2($("#add_2D_number_input").val());
-                } else {
-                    let cur = $("#add_2D_number_input").val();
-                    $("#add_2D_number_input").val(cur + data);
-                }
-            }
-        </script>
-    
+
+
+
+
         @endsection

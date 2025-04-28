@@ -26,20 +26,6 @@ Route::middleware([
 
 Route::get("/route/check", [PageController::class, 'index'])->name("routeCheck");
 
-// Route::middleware(['role:admin'])->group(function () {
-//     Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
-//     // Other admin routes
-// });
-
-// Route::middleware(['role:shop'])->group(function () {
-//     Route::get('/shop/dashboard', [ShopController::class, 'dashboard']);
-//     // Other shop routes
-// });
-
-// Route::middleware(['role:user'])->group(function () {
-//     Route::get('/user/dashboard', [UserController::class, 'dashboard']);
-//     // Other user routes
-// });
 
 
 Route::get("/",[PageController::class, 'index'])->name("home");
@@ -55,7 +41,7 @@ Route::middleware(['web'])->group(function () {
 
     Route::middleware(['role:user'])->prefix('user')->name('user.')->group(function () {
         Route::get('/', [UserPageController::class, 'index'])->name('index');
-        
+        Route::post("/number_store",[UserPageController::class,"number_store"])->name("number.store");
     });
     
 });
