@@ -8,6 +8,7 @@ use App\Http\Controllers\RouteCheckController;
 use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Http\Controllers\UserPageController;
 
 
 
@@ -51,6 +52,12 @@ Route::middleware(['web'])->group(function () {
         request()->session()->regenerateToken();
         return redirect('/');
     })->name('logout');
+
+    Route::middleware(['role:user'])->prefix('user')->name('user.')->group(function () {
+        Route::get('/', [UserPageController::class, 'index'])->name('index');
+        
+    });
+    
 });
 
 

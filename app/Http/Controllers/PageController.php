@@ -15,6 +15,7 @@ class PageController extends Controller
 
             $user = Auth::user();
             if($user->status == 1){
+                // dd($user->getRoleNames());
                 if($user->hasRole('admin')){
                     return redirect("/admin");
                 }elseif($user->hasRole('shop')){
@@ -29,7 +30,7 @@ class PageController extends Controller
                     }
                     
                 }elseif($user->hasRole('user')){
-                    
+                    // dd("Test");
                     return redirect("/user");
                 }else{
                     return abort(403);

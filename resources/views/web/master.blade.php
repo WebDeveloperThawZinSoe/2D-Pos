@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{env('APP_NAME')}}</title>
     
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.js"></script>
 </head>
@@ -38,21 +39,26 @@
                 <li class="nav-item">
                     <a class="btn btn-outline-primary me-2 px-3 rounded-pill" href="{{ route('login') }}">Login</a>
                 </li>
-                <!-- <li class="nav-item">
-                    <a class="btn btn-primary px-3 rounded-pill text-white" href="{{ route('register') }}">Register Shop</a>
-                </li> -->
+            
                 @else
+                <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold"  href="{{ route('routeCheck') }}">ပင်မစာမျက်နှာ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold"  href="{{ route('routeCheck') }}">အရင်အော်ဒါများ</a>
+                </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle fw-semibold" href="#" id="navbarDropdown" role="button"
+                    <a class="nav-link dropdown-toggle  text-dark  fw-semibold" href="#" id="navbarDropdown" role="button"
                         data-mdb-toggle="dropdown" aria-expanded="false">
-                        Account
+                        အကောင့်
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="{{ route('routeCheck') }}">Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{{ route('routeCheck') }}">စကားဝှက်ပြောင်းမည်</a></li>
                         <li>
                             <a class="dropdown-item text-danger" href="{{ route('logout') }}"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                Logout
+                                ထွက်မည်
                             </a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                 @csrf
