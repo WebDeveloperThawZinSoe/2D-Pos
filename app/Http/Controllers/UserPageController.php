@@ -104,8 +104,8 @@ class UserPageController extends Controller
             'manager_rate' => Auth::user()->manager->rate,
             'order_type' => $number,
             'price' => $totalPrice,
-            'status' => 'pending', // Optional default
-            'user_order_status' => 'pending', // Optional default
+            'status' => 0, // Optional default
+            'user_order_status' => 0, // Optional default
             "date" =>  $request->input("date"),
             "section" =>  $request->input("section"),
         ]);
@@ -128,10 +128,47 @@ class UserPageController extends Controller
     }
 
 
-        // Helper function to generate random order number
-        private function generateOrderNumber()
-        {
-            return 'ORD-' . strtoupper(uniqid());
-        }
+    // Helper function to generate random order number
+    private function generateOrderNumber()
+    {
+        return 'ORD-' . strtoupper(uniqid());
+    }
+
+    //order_status
+    public function order_status(Request $request){
+        $id = $request->id;
+        Order::where("id",$id)->update([
+            "user_order_status" => 1
+        ]);
+
+        OrderDetail::where("order_id",$id)->update([
+            "user_order_status" => 1
+        ]);
+        return redirect()->back()->with("success", "Order Confirm successfully!");
+
+    }
+
+    //order_delete
+    public function order_delete(Request $request){
+        $id = $request->id;
+        Order::where("id",$id)->delete();
+
+        OrderDetail::where("order_id",$id)->delete();
+        return redirect()->back()->with("success", "Order Cancel successfully!");
+    }
+
+    //my_order  
+    public function my_order()
+    {
+        $user_id = Auth::user()->id;
+
+        // First paginate the orders
+        $orders = Order::where('user_id', $user_id)
+                    ->orderBy('date', 'desc')
+                    ->paginate(100); // Paginate 30 orders per page
+
+        return view('web.user.orderHistory', compact('orders'));
+    }
+
     
 }

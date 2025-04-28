@@ -42,6 +42,9 @@ Route::middleware(['web'])->group(function () {
     Route::middleware(['role:user'])->prefix('user')->name('user.')->group(function () {
         Route::get('/', [UserPageController::class, 'index'])->name('index');
         Route::post("/number_store",[UserPageController::class,"number_store"])->name("number.store");
+        Route::post("/order/status",[UserPageController::class,"order_status"])->name("order.status");
+        Route::post("/order/delete",[UserPageController::class,"order_delete"])->name("order.delete");
+        Route::get("/my/order",[UserPageController::class,"my_order"])->name("my.order");
     });
     
 });
