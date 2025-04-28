@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string("price");
             $table->string("status")->default("pending");
             $table->string("user_order_status")->default("pending");
+            $table->string("date")->nullable();
+            $table->string("section")->nullable();
             $table->timestamps();
         });
     }

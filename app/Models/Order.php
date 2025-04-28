@@ -18,7 +18,9 @@ class Order extends Model
         'order_type',
         'price',
         'status',
-        'user_order_status'
+        'user_order_status',
+        'date',
+        'section',
     ];
     public function orderDetails()
     {

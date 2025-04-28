@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Auth;
+use App\Models\Order;
+use App\Models\OrderDetail;
 
 class UserPageController extends Controller
 {
@@ -33,7 +35,7 @@ class UserPageController extends Controller
         for ($i = 0; $i < strlen($number); $i++) {
             $char = $number[$i];
             if (ctype_alpha($char)) {
-                $letters[] = strtoupper($char); // force uppercase
+                $letters[] = strtoupper($char);
             } elseif (ctype_digit($char)) {
                 $digits .= $char;
             }
@@ -55,38 +57,28 @@ class UserPageController extends Controller
         ];
 
         $finalResult = [];
-
         $isReverse = in_array('R', $letters);
 
-        // First: add rules based on letters
+        // First: handle letters
         foreach ($letters as $letter) {
             if (isset($rules[$letter])) {
                 $finalResult = array_merge($finalResult, $rules[$letter]);
             }
-            
             if ($letter == 'S') {
-                // Add all even numbers from 00 to 99
-                for ($i = 0; $i <= 99; $i++) {
-                    if ($i % 2 == 0) {
-                        $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
-                    }
+                for ($i = 0; $i <= 99; $i += 2) {
+                    $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
                 }
             }
-
             if ($letter == 'M') {
-                // Add all odd numbers from 00 to 99
-                for ($i = 0; $i <= 99; $i++) {
-                    if ($i % 2 != 0) {
-                        $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
-                    }
+                for ($i = 1; $i <= 99; $i += 2) {
+                    $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
                 }
             }
         }
 
-        // Then: add digit groups
+        // Then: handle number groups
         foreach ($digitGroups as $group) {
             $finalResult[] = $group;
-
             if ($isReverse) {
                 $reverse = strrev($group);
                 if ($reverse !== $group) {
@@ -94,14 +86,52 @@ class UserPageController extends Controller
                 }
             }
         }
-
+        // dd(count($finalResult));
         // Remove duplicates
-        $finalResult = array_unique($finalResult);
+        // $finalResult = array_unique($finalResult);
+        // dd($finalResult.length());
+        $totalPrice = count($finalResult) * $price;
+        if (empty($finalResult)) {
+            return redirect()->back()->with("error", "No valid numbers found to place the order.");
+        }
 
-        // Show the final result
-        dd($finalResult);
+        // Create Order
+        $order = Order::create([
+            'order_number' => $this->generateOrderNumber(),
+            'user_id' => Auth::id(),
+            'manager_id' => Auth::user()->manager_id,
+            'manager_commission' => Auth::user()->manager->commission,
+            'manager_rate' => Auth::user()->manager->rate,
+            'order_type' => $number,
+            'price' => $totalPrice,
+            'status' => 'pending', // Optional default
+            'user_order_status' => 'pending', // Optional default
+            "date" =>  $request->input("date"),
+            "section" =>  $request->input("section"),
+        ]);
+
+        // Create Order Details
+        foreach ($finalResult as $value) {
+            OrderDetail::create([
+                'order_number' => $this->generateOrderNumber(),
+                'order_id' => $order->id,
+                'user_id' => Auth::id(),
+                'manager_id' => Auth::user()->manager_id,
+                'number' => $value,
+                'order_type' => $number,
+                'price' => $price, // you can also divide if needed
+                'user_order_status' => 'pending',
+            ]);
+        }
+
+        return redirect()->back()->with("success", "Order placed successfully!");
     }
 
 
+        // Helper function to generate random order number
+        private function generateOrderNumber()
+        {
+            return 'ORD-' . strtoupper(uniqid());
+        }
     
 }
