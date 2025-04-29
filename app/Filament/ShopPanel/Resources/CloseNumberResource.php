@@ -45,6 +45,11 @@ class CloseNumberResource extends Resource
                     ];
                 }),
 
+            TextInput::make('manager_id')
+                ->required()
+                ->default(Auth::user()->id)->hidden(),
+
+
             TextInput::make('number')
                 ->required()
                 ->maxLength(255)

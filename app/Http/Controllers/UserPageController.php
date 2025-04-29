@@ -7,6 +7,7 @@ use Auth;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use Illuminate\Support\Facades\Hash;
+use App\Models\CloseNumber;
 
 
 class UserPageController extends Controller
@@ -18,31 +19,27 @@ class UserPageController extends Controller
 
     public function number_store(Request $request)
     {
-        // dd($request->all());
         $request->validate([
             'number' => 'required',
         ]);
-
+    
         $full = $request->input('number'); // e.g., "N 600"
-
+    
         if (strpos($full, ' ') === false) {
-            // Handle error if no space found
             return back()->withErrors(['number' => 'တင်ငွေရိုက်ထည့်ပါ။ဥပမာ N 600']);
         }
     
         list($number, $price) = explode(' ', $full, 2);
-
         $number = trim($number); 
         $price = trim($price);   
-
+    
         if (Auth::user()->max_limit < $price) {
             return redirect()->back()->with("error", "တင်ငွေသည်သက်မှတ်ထားသော တကွက်အများဆုံးခွင့်ပြုငွေထက်ကျော်လွန်နေပါသည်။");
         }
-
-        // Split letters and digits
+    
+        // Step 1: Extract letters and digits from input
         $letters = [];
         $digits = '';
-
         for ($i = 0; $i < strlen($number); $i++) {
             $char = $number[$i];
             if (ctype_alpha($char)) {
@@ -51,62 +48,89 @@ class UserPageController extends Controller
                 $digits .= $char;
             }
         }
-
-        // Split digits into two-digit groups
+    
+        // Step 2: Split digits into two-digit groups
         $digitGroups = [];
         for ($i = 0; $i < strlen($digits) - 1; $i += 2) {
             $group = substr($digits, $i, 2);
-            $digitGroups[] = $group;
+            if (strlen($group) == 2) {
+                $digitGroups[] = $group;
+            }
         }
-
-        // Predefined Rules
+    
+        // Step 3: Predefined rules
         $rules = [
             'A' => ["00", "11", "22", "33", "44", "55", "66", "77", "88", "99"],
             'X' => ["01", "09", "10", "12", "21", "23", "32", "34", "43", "45", "54", "56", "65", "67", "76", "78", "87", "89", "90", "98"],
             'N' => ["07", "18", "24", "35", "42", "53", "69", "70", "81", "96"],
             'W' => ["05", "16", "27", "38", "49", "50", "61", "72", "83", "94"],
         ];
-
+    
         $finalResult = [];
         $isReverse = in_array('R', $letters);
-
-        // First: handle letters
+    
+        // Step 4: Apply rules from letters
         foreach ($letters as $letter) {
             if (isset($rules[$letter])) {
                 $finalResult = array_merge($finalResult, $rules[$letter]);
             }
-            if ($letter == 'S') {
+    
+            if ($letter === 'S') {
                 for ($i = 0; $i <= 99; $i += 2) {
                     $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
                 }
             }
-            if ($letter == 'M') {
+    
+            if ($letter === 'M') {
                 for ($i = 1; $i <= 99; $i += 2) {
                     $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
                 }
             }
         }
-
-        // Then: handle number groups
-        foreach ($digitGroups as $group) {
-            $finalResult[] = $group;
-            if ($isReverse) {
-                $reverse = strrev($group);
-                if ($reverse !== $group) {
-                    $finalResult[] = $reverse;
+    
+        // Step 5: Include raw digitGroups if no letter rule was matched
+        if (empty($finalResult) && !empty($digitGroups)) {
+            foreach ($digitGroups as $group) {
+                $finalResult[] = $group;
+    
+                if ($isReverse) {
+                    $reverse = strrev($group);
+                    if ($reverse !== $group) {
+                        $finalResult[] = $reverse;
+                    }
                 }
             }
         }
-        // dd(count($finalResult));
-        // Remove duplicates
-        // $finalResult = array_unique($finalResult);
-        // dd($finalResult.length());
-        $totalPrice = count($finalResult) * $price;
-        if (empty($finalResult)) {
+    
+        // Step 6: Fetch block numbers
+        $blockNumbers = CloseNumber::where("date", $request->input("date"))
+            ->where("section", $request->input("section"))
+            ->where("manager_id", Auth::user()->manager->id)
+            ->first();
+    
+        $blockNumberArray = [];
+        if ($blockNumbers && !empty($blockNumbers->number)) {
+            $blockNumberArray = array_map('trim', explode(',', $blockNumbers->number));
+        }
+    
+        // Step 7: Filter blocked numbers from finalResult
+        $filteredResult = [];
+        foreach ($finalResult as $num) {
+            if (!in_array($num, $blockNumberArray)) {
+                $filteredResult[] = $num;
+            }
+        }
+    
+        // Step 8: Ensure no duplicates
+        $filteredResult = array_unique($filteredResult);
+    
+        if (empty($filteredResult)) {
             return redirect()->back()->with("error", "No valid numbers found to place the order.");
         }
-
-        // Create Order
+    
+        $totalPrice = count($filteredResult) * $price;
+    
+        // Step 9: Create the order
         $order = Order::create([
             'order_number' => $this->generateOrderNumber(),
             'user_id' => Auth::id(),
@@ -115,14 +139,14 @@ class UserPageController extends Controller
             'manager_rate' => Auth::user()->manager->rate,
             'order_type' => $number,
             'price' => $totalPrice,
-            'status' => 0, // Optional default
-            'user_order_status' => 0, // Optional default
+            'status' => 0,
+            'user_order_status' => 0,
             "date" =>  $request->input("date"),
             "section" =>  $request->input("section"),
         ]);
-
-        // Create Order Details
-        foreach ($finalResult as $value) {
+    
+        // Step 10: Create order details
+        foreach ($filteredResult as $value) {
             OrderDetail::create([
                 'order_number' => $this->generateOrderNumber(),
                 'order_id' => $order->id,
@@ -130,20 +154,20 @@ class UserPageController extends Controller
                 'manager_id' => Auth::user()->manager_id,
                 'number' => $value,
                 'order_type' => $number,
-                'price' => $price, // you can also divide if needed
+                'price' => $price,
                 'user_order_status' => 'pending',
             ]);
         }
-
+    
         return redirect()->back()->with("success", "Order placed successfully!");
     }
-
-
-    // Helper function to generate random order number
+    
+    // Helper method
     private function generateOrderNumber()
     {
         return 'ORD-' . strtoupper(uniqid());
     }
+    
 
     //order_status
     public function order_status(Request $request){
