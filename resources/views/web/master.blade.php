@@ -93,7 +93,15 @@
                     <a class="btn btn-primary w-100 text-white" href="{{ route('register') }}">Register Shop</a>
                 </li> -->
                 @else
-                <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="#">Profile</a></li>
+                <li class="nav-item">
+                        <a class="nav-link text-dark fw-semibold" href="{{ route('routeCheck') }}">ပင်မစာမျက်နှာ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-semibold" href="{{ route('user.my.order') }}">အရင်အော်ဒါများ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-semibold" href="{{ route('user.changePassword') }}">စကားဝှက်ပြောင်းမည်</a>
+                    </li>
                 <li class="nav-item">
                     <a class="nav-link text-danger fw-semibold" href="{{ route('logout') }}"
                         onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">

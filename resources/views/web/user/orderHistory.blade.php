@@ -20,12 +20,12 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th>စဉ်</th>
-                                    <th>အော်ဒါအမှတ်</th>
+                                    <!-- <th>အော်ဒါအမှတ်</th> -->
                                     <th>အမျိုးအစား</th>
                                     <th>Date /  Order Section</th>
                                     <th>စုစုပေါင်းတင်‌ငွေ</th>
                                     <th>Order Status</th>
-                                    <th>Created At</th>
+                                    <!-- <th>Created At</th> -->
                                     <th>ဆောင်ရွက်မည်</th>
                                 </tr>
                             </thead>
@@ -33,7 +33,7 @@
                                 @foreach($orderGroup as $key => $order)
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
-                                        <td>{{ $order->order_number }}</td>
+                                        <!-- <td>{{ $order->order_number }}</td> -->
                                         <td>{{ $order->order_type }}</td>
                                         <td>{{ $order->date }} /  {{ $order->section }}</td>
                                         <td>{{ number_format($order->price) }} Ks</td>
@@ -45,7 +45,7 @@
                                             <button class="btn btn-success btn-sm">တင်ပြီပါပြီ</button>
                                             @endif
                                         </td>
-                                        <td>{{ $order->created_at->format('H:i:s') }}</td>
+                                        <!-- <td>{{ $order->created_at->format('H:i:s') }}</td> -->
                                         <td>
                                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#orderDetailModal{{ $order->id }}">
                                                 View

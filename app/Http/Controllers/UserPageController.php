@@ -18,16 +18,25 @@ class UserPageController extends Controller
 
     public function number_store(Request $request)
     {
+        // dd($request->all());
         $request->validate([
             'number' => 'required',
-            'price'  => 'required|numeric',   
         ]);
 
-        $number = $request->input('number');
-        $price = $request->input('price');
+        $full = $request->input('number'); // e.g., "N 600"
+
+        if (strpos($full, ' ') === false) {
+            // Handle error if no space found
+            return back()->withErrors(['number' => 'တင်ငွေရိုက်ထည့်ပါ။ဥပမာ N 600']);
+        }
+    
+        list($number, $price) = explode(' ', $full, 2);
+
+        $number = trim($number); 
+        $price = trim($price);   
 
         if (Auth::user()->max_limit < $price) {
-            return redirect()->back()->with("error", "Your limit is exceeded");
+            return redirect()->back()->with("error", "တင်ငွေသည်သက်မှတ်ထားသော တကွက်အများဆုံးခွင့်ပြုငွေထက်ကျော်လွန်နေပါသည်။");
         }
 
         // Split letters and digits

@@ -145,25 +145,18 @@ if ($now->between($today_am_open, $today_am_close)) {
                     <div class="row my-4 justify-content-center">
                         <div class="col-12">
                             <div class="mb-3 row">
-                                <div class="col-7">
+                                <div class="col-12">
                                     <input type="text"
                                         class="form-control form-control-lg text-center @error('number') is-invalid @enderror"
-                                        id="add_2D_number_input" name="number" placeholder="နံပါတ်ထည့်ပါ..."
-                                        onkeyup="change_format_type(this.value)" onkeydown="add_2D_number(this)"
+                                        id="add_2D_number_input" name="number"
+                                        placeholder="နံပါတ် တင်ငွေရိုက် ထည့်ပါ..." oninput="validate2DNumber(this)"
                                         required maxlength="30">
                                     @error('number')
                                     <div class="invalid-feedback text-start">{{ $message }}</div>
                                     @enderror
+
                                 </div>
-                                <div class="col-5">
-                                    <input type="number"
-                                        class="form-control form-control-lg text-center @error('price') is-invalid @enderror"
-                                        id="add_2D_number_input_price" name="price" placeholder="တင်ငွေရိုက် ထည့်ပါ..."
-                                        required max="{{ Auth::user()->max_limit }}">
-                                    @error('price')
-                                    <div class="invalid-feedback text-start">{{ $message }}</div>
-                                    @enderror
-                                </div>
+
                             </div>
                         </div>
 
@@ -256,14 +249,41 @@ if ($now->between($today_am_open, $today_am_close)) {
                     add_sound.play();
                     let inputField = document.getElementById('add_2D_number_input');
                     let inputField2 = document.getElementById('add_2D_number_input_price');
+
                     if (data === "del") {
                         inputField.value = "";
-                        inputField2.value = "";
+                        if (inputField2) inputField2.value = "";
                     } else {
                         inputField.value += data;
                     }
+
+                    // ✅ After adding data, validate the format
+                    validate2DNumber(inputField);
                 }
                 </script>
+
+                <script>
+                function validate2DNumber(input) {
+                    let value = input.value;
+
+                    // Replace multiple spaces with a single space
+                    value = value.replace(/\s+/g, ' ');
+
+                    // Allow only one space and digits after the space
+                    let parts = value.split(' ');
+                    if (parts.length > 2) {
+                        parts = [parts[0], parts[1]]; // limit to two parts only
+                    }
+
+                    // Only allow digits after the space
+                    if (parts.length === 2) {
+                        parts[1] = parts[1].replace(/\D/g, '');
+                    }
+
+                    input.value = parts.join(' ');
+                }
+                </script>
+
 
                 <hr>
                 <h5> {{ $current_date }} {{ $current_section }} - @if (!empty($alert)) နောက် @else ယခု @endif Section
@@ -294,30 +314,32 @@ if ($now->between($today_am_open, $today_am_close)) {
                             <td>{{ number_format($order->price) }} Ks</td>
                             <td>
                                 @if ($order->user_order_status == 0)
-                                <form action="/user/order/status" method="post"  style="display:inline-block !important;">
+                                <form action="/user/order/status" method="post"
+                                    style="display:inline-block !important;">
                                     @csrf
                                     <input type="hidden" name="id" value="{{$order->id}}">
                                     <button type="submit" class="btn btn-success btn-sm">
-                                  
-                                    <i class="fas fa-check"></i>
-                                </button>
+
+                                        <i class="fas fa-check"></i>
+                                    </button>
                                 </form>
                                 <a class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                     data-bs-target="#orderDetailModal{{ $order->id }}">
                                     <i class="fas fa-info-circle"></i>
-                                </a> 
-                                <form action="/user/order/delete" method="post"  style="display:inline-block !important;">
-                                @csrf
-                                <input type="hidden" name="id" value="{{$order->id}}">
-                                <button type="submit" class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Are you sure you want to delete this order?')">
-                                    <i class="fas fa-trash"></i>
                                 </a>
-                                @else
-                                <a class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#orderDetailModal{{ $order->id }}">
-                                    <i class="fas fa-info-circle"></i>
-                                </a>
+                                <form action="/user/order/delete" method="post"
+                                    style="display:inline-block !important;">
+                                    @csrf
+                                    <input type="hidden" name="id" value="{{$order->id}}">
+                                    <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Are you sure you want to delete this order?')">
+                                        <i class="fas fa-trash"></i>
+                                        </a>
+                                        @else
+                                        <a class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#orderDetailModal{{ $order->id }}">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
                                 </form>
                                 @endif
                             </td>
