@@ -55,8 +55,8 @@
                             အကောင့်
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ route('routeCheck') }}">Dashboard</a></li>
-                            <li><a class="dropdown-item" href="{{ route('routeCheck') }}">စကားဝှက်ပြောင်းမည်</a></li>
+                            <!-- <li><a class="dropdown-item" href="{{ route('routeCheck') }}">Dashboard</a></li> -->
+                            <li><a class="dropdown-item" href="{{ route('user.changePassword') }}">စကားဝှက်ပြောင်းမည်</a></li>
                             <li>
                                 <a class="dropdown-item text-danger" href="{{ route('logout') }}"
                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

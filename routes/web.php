@@ -45,6 +45,8 @@ Route::middleware(['web'])->group(function () {
         Route::post("/order/status",[UserPageController::class,"order_status"])->name("order.status");
         Route::post("/order/delete",[UserPageController::class,"order_delete"])->name("order.delete");
         Route::get("/my/order",[UserPageController::class,"my_order"])->name("my.order");
+        Route::get("/change/password",[UserPageController::class,"changePassword"])->name("changePassword");
+        Route::post('/password/update', [UserPageController::class, 'updatePassword'])->name('password.update')->middleware('auth');
     });
     
 });

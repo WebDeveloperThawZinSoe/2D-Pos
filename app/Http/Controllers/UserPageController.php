@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Auth;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use Illuminate\Support\Facades\Hash;
+
 
 class UserPageController extends Controller
 {
@@ -169,6 +171,35 @@ class UserPageController extends Controller
 
         return view('web.user.orderHistory', compact('orders'));
     }
+
+
+    //changePassword
+    public function changePassword(){
+        return view('web.user.changePassword');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        // Validate inputs
+        $request->validate([
+            'old_password' => 'required',
+            'new_password' => 'required|min:8|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        // Check if old password matches
+        if (!Hash::check($request->old_password, $user->password)) {
+            return back()->withErrors(['old_password' => 'အဟောင်း စကားဝှက် မှားနေပါသည်။']);
+        }
+
+        // Update new password
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return back()->with('success', 'စကားဝှက် ပြောင်းပြီးပါပြီ။');
+    }
+
 
     
 }
