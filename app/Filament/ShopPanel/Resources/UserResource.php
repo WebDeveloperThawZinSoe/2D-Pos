@@ -29,9 +29,9 @@ class UserResource extends Resource
 
 
     protected static ?string $navigationIcon = 'heroicon-o-user';
-    protected static ?string $navigationGroup = 'Users';
+    protected static ?string $navigationGroup = 'အော်ဒါများ';
     protected static ?string $navigationLabel = 'ထိုးသားများ';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 9;
 
     public static function form(Form $form): Form
     {
@@ -156,4 +156,6 @@ class UserResource extends Resource
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
+
+
 }
