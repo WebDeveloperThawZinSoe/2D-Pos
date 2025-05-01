@@ -132,23 +132,24 @@ if ($now->between($today_am_open, $today_am_close)) {
                 <p><span style="padding:5px;background:green;color:white">တစ်ကွက်အများဆုံးခွင့်ပြုငွေ</span> - <span
                         style="color:blue;">{{ number_format(Auth::user()->max_limit) }} Ks</span></p>
                
-                    @php 
-                        use Illuminate\Support\Facades\Auth;
-                        use App\Models\CloseNumber;
+                        @php 
+                            use Illuminate\Support\Facades\Auth;
+                            use App\Models\CloseNumber;
 
-                        $blockNumbers = CloseNumber::where("date", $current_date)
-                            ->where("section", $current_section)
-                            ->where("manager_id", Auth::user()->manager->id)
-                            ->first();
-                    @endphp
+                            $blockNumbers = CloseNumber::where("date", $current_date)
+                                ->where("section", $current_section)
+                                ->where("manager_id", Auth::user()->manager->id)
+                                ->first();
+                        @endphp
 
-                    @if($blockNumbers->count() >= 1)
-                        <p  class="alert alert-info">
-                        ယခု Section အတွက်ဒိုင်မှပိတ်ထားသော <b> {{$blockNumbers->number}} </b> ပိတ်သီးများမှာ အော်ဒါတင်ပါက System မှ အလိုအလျှောက်ဖြတ်ထုတ်သွားပါမည်။
-                        </p>
-                    @else 
-                        <p class="alert alert-info"><b>ယခု Section အတွက်ဒိုင်မှပိတ်ထားသော ပိတ်သီးမရှိပါ။</b></p>
-                    @endif
+                        @if ($blockNumbers)
+                            <p class="alert alert-info">
+                                ယခု Section အတွက်ဒိုင်မှပိတ်ထားသော <b>{{ $blockNumbers->number }}</b> ပိတ်သီးများမှာ အော်ဒါတင်ပါက System မှ အလိုအလျှောက်ဖြတ်ထုတ်သွားပါမည်။
+                            </p>
+                        @else 
+                            <p class="alert alert-info"><b>ယခု Section အတွက်ဒိုင်မှပိတ်ထားသော ပိတ်သီးမရှိပါ။</b></p>
+                        @endif
+
 
                 <form id="submit_2d_form" action="/user/number_store" method="POST">
                     @csrf

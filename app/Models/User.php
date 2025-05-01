@@ -36,6 +36,10 @@ class User extends Authenticatable
         'rate',
         'max_limit',
         'manager_id',
+        'open_time_am',
+        'close_time_am',
+        'open_time_pm',
+        'close_time_pm'
     ];
 
     /**
