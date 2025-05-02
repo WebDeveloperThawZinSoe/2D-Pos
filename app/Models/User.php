@@ -29,6 +29,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'plain_password',
         'join_date',
         'end_date',
         'status',
@@ -39,7 +40,7 @@ class User extends Authenticatable
         'open_time_am',
         'close_time_am',
         'open_time_pm',
-        'close_time_pm'
+        'close_time_pm',
     ];
 
     /**
@@ -78,10 +79,17 @@ class User extends Authenticatable
     }
 
 
+    public function users()
+    {
+        return $this->hasMany(User::class, 'manager_id');
+    }
+
+
     public function manager()
     {
         return $this->belongsTo(User::class, 'manager_id');
     }
+
 
     public function scopeActive($query)
     {

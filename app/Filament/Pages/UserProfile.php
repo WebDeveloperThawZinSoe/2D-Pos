@@ -12,10 +12,10 @@ use Filament\Notifications\Notification;
 class UserProfile extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-user';
-    protected static ?string $navigationLabel = 'My Profile';
-    protected static ?string $title = 'My Profile';
+    protected static ?string $navigationLabel = 'စကားဝှက်ပြောင်းမည်။';
+    protected static ?string $title = 'စကားဝှက်ပြောင်းမည်။';
     protected static ?string $slug = 'profile';
-    protected static ?string $navigationGroup = 'Settings';
+    protected static ?string $navigationGroup = 'ဆက်တင်များ';
 
     protected static ?int $navigationSort = 80;
 

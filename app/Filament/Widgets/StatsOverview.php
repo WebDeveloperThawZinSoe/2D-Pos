@@ -17,9 +17,9 @@ class StatsOverview extends BaseWidget
     {
        
         return [
-            Stat::make('Shop', 1)
-            ->description('Shop Count On Our Platform')
-            ->color('success'),
+            // Stat::make('Shop', 1)
+            // ->description('Shop Count On Our Platform')
+            // ->color('success'),
         ];
     }
 }

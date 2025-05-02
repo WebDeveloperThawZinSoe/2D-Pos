@@ -18,9 +18,9 @@ class StatsOverview extends BaseWidget
       
 
         return [
-            Stat::make('Total Shops', 1)
-                ->description('Shops owned by you')
-                ->color('success'),
+            // Stat::make('Total Shops', 1)
+            //     ->description('Shops owned by you')
+            //     ->color('success'),
 
 
         ];
