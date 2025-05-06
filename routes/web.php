@@ -53,6 +53,7 @@ Route::middleware(['web'])->group(function () {
 
     Route::middleware(['role:shop', 'require.date.section'])->prefix('dine')->name('dine.')->group(function () {
         Route::get("/",[DineController::class,"index"])->name("index");
+        Route::get("/agents",[DineController::class,"agents"])->name("agents");
     });
 
     Route::get('/select-date-section', function (Request $request) {
@@ -65,20 +66,16 @@ Route::middleware(['web'])->group(function () {
                 'selected_date' => $date,
                 'selected_section' => $section,
             ]);
-    
             if (auth()->check()) {
                 if (auth()->user()->hasRole('user')) {
                     return redirect()->route('user.index');
                 }
-    
                 if (auth()->user()->hasRole('shop')) {
                     return redirect()->route('dine.index');
                 }
             }
-    
             return redirect('/'); // fallback
         }
-    
         return view('web.select-date-section')->with('error', 'Please select both date and section.');
     })->name('select.date.section');
     

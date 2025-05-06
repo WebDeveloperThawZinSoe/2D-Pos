@@ -84,6 +84,19 @@
                         <a class="nav-link text-dark fw-semibold" href="{{ route('select.date.section') }}">ရက်ရွှေးမည်</a>
                     </li>
                     <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle  text-dark  fw-semibold" href="#" id="navbarDropdown2"
+                            role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                            စာရင်းချုပ်
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                         
+                            <li><a class="dropdown-item" href="#">နေ့စဉ်</a></li>
+                            <li><a class="dropdown-item" href="#">အပတ်စဉ်</a></li>
+                            <li><a class="dropdown-item" href="#">လစဉ်</a></li>
+                            <li><a class="dropdown-item" href="#">တနစ်စာ</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle  text-dark  fw-semibold" href="#" id="navbarDropdown"
                             role="button" data-mdb-toggle="dropdown" aria-expanded="false">
                             အကောင့်

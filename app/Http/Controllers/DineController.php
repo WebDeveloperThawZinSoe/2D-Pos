@@ -10,4 +10,9 @@ class DineController extends Controller
     public function index(){
        return view("web.dine.index");
     }
+
+    //agents
+    public function agents(){
+        return view("web.dine.agents");
+    }
 }
