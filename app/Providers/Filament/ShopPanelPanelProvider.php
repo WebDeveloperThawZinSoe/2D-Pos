@@ -25,7 +25,7 @@ class ShopPanelPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->id('shop')
+            ->id('shop_filament')
             ->path('shop')
             ->colors([
                 'primary' => Color::Amber,

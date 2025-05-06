@@ -43,8 +43,14 @@
                     </li>
 
                     @else
+                    @auth
+
+                    @if(Auth::user()->hasRole('user'))
                     <li class="nav-item">
                         <a class="nav-link text-dark fw-semibold" href="{{ route('routeCheck') }}">ပင်မစာမျက်နှာ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-semibold" href="{{ route('select.date.section') }}">ရက်ရွှေးမည်</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-dark fw-semibold" href="{{ route('user.my.order') }}">အရင်အော်ဒါများ</a>
@@ -56,7 +62,8 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <!-- <li><a class="dropdown-item" href="{{ route('routeCheck') }}">Dashboard</a></li> -->
-                            <li><a class="dropdown-item" href="{{ route('user.changePassword') }}">စကားဝှက်ပြောင်းမည်</a></li>
+                            <li><a class="dropdown-item"
+                                    href="{{ route('user.changePassword') }}">စကားဝှက်ပြောင်းမည်</a></li>
                             <li>
                                 <a class="dropdown-item text-danger" href="{{ route('logout') }}"
                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -68,6 +75,36 @@
                             </li>
                         </ul>
                     </li>
+
+                    @elseif(Auth::user()->hasRole('shop'))
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-semibold" href="{{ route('routeCheck') }}">ပင်မစာမျက်နှာ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-semibold" href="{{ route('select.date.section') }}">ရက်ရွှေးမည်</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle  text-dark  fw-semibold" href="#" id="navbarDropdown"
+                            role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                            အကောင့်
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <!-- <li><a class="dropdown-item" href="{{ route('routeCheck') }}">Dashboard</a></li> -->
+                            <li><a class="dropdown-item"
+                                    href="{{ route('user.changePassword') }}">စကားဝှက်ပြောင်းမည်</a></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{{ route('logout') }}"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    ထွက်မည်
+                                </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    @endif
+                    @endauth
                     @endguest
                 </ul>
             </div>
@@ -92,16 +129,20 @@
                 <!-- <li class="nav-item">
                     <a class="btn btn-primary w-100 text-white" href="{{ route('register') }}">Register Shop</a>
                 </li> -->
-                @else
+                @endguest
+                @auth
+
+                @if(Auth::user()->hasRole('user'))
                 <li class="nav-item">
-                        <a class="nav-link text-dark fw-semibold" href="{{ route('routeCheck') }}">ပင်မစာမျက်နှာ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark fw-semibold" href="{{ route('user.my.order') }}">အရင်အော်ဒါများ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark fw-semibold" href="{{ route('user.changePassword') }}">စကားဝှက်ပြောင်းမည်</a>
-                    </li>
+                    <a class="nav-link text-dark fw-semibold" href="{{ route('routeCheck') }}">ပင်မစာမျက်နှာ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold" href="{{ route('user.my.order') }}">အရင်အော်ဒါများ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold"
+                        href="{{ route('user.changePassword') }}">စကားဝှက်ပြောင်းမည်</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link text-danger fw-semibold" href="{{ route('logout') }}"
                         onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">
@@ -111,7 +152,27 @@
                         @csrf
                     </form>
                 </li>
-                @endguest
+
+                @elseif(Auth::user()->hasRole('shop'))
+                {{-- Shop role menu items here --}}
+                <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold" href="{{ route('dine.index') }}">ပင်မစာမျက်နှာ</a>
+                </li>
+                {{-- Add more links as needed --}}
+                <li class="nav-item">
+                    <a class="nav-link text-danger fw-semibold" href="{{ route('logout') }}"
+                        onclick="event.preventDefault(); document.getElementById('logout-form-shop').submit();">
+                        Logout
+                    </a>
+                    <form id="logout-form-shop" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+                </li>
+                @endif
+                @endauth
+
+
+
             </ul>
         </div>
     </div>

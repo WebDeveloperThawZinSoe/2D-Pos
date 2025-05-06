@@ -23,7 +23,7 @@ class PageController extends Controller
                     $end_date = $user->end_date;
                     $current_date = Carbon::now();  
                     if($current_date->greaterThanOrEqualTo($start_date) && $current_date->lessThanOrEqualTo($end_date)){
-                        return redirect("/shop");
+                        return redirect("/dine");
                     }else{
                         Auth::logout();
                         return redirect("/login")->with("error", "Your account is expire. Please contact support.");
