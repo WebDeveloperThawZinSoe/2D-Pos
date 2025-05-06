@@ -52,9 +52,14 @@ Route::middleware(['web'])->group(function () {
 
 
     Route::middleware(['role:shop', 'require.date.section'])->prefix('dine')->name('dine.')->group(function () {
-        Route::get("/",[DineController::class,"index"])->name("index");
-        Route::get("/agents",[DineController::class,"agents"])->name("agents");
+        Route::get("/", [DineController::class, "index"])->name("index");
+        Route::get("/agents", [DineController::class, "agents"])->name("agents");
+        Route::post("/agents", [DineController::class, "storeAgent"])->name("storeAgent");
+        Route::get("/agents/{id}/edit", [DineController::class, "editAgent"])->name("editAgent");
+        Route::post("/agents/{id}/update", [DineController::class, "updateAgent"])->name("updateAgent");
+        Route::post("/agents/{id}/delete", [DineController::class, "deleteAgent"])->name("deleteAgent");
     });
+    
 
     Route::get('/select-date-section', function (Request $request) {
         $date = Request::query('get_date');
