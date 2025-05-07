@@ -67,6 +67,9 @@ Route::middleware(['web'])->group(function () {
         Route::post("/multi/number_store",[OrderController::class,"number_store_multi"])->name("number_store_multi.store");
         Route::post("/order/status",[OrderController::class,"order_status"])->name("order.status");
         Route::post("/order/delete",[OrderController::class,"order_delete"])->name("order.delete");
+        Route::post("/order/confirm/all",[OrderController::class,"order_cofirm_all"]);
+        Route::post("/delete/all",[OrderController::class,"delete_all"]);
+        Route::post("/close/number/store",[OrderController::class,"close_number_store"]);
     });
     
 

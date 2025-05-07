@@ -1,266 +1,312 @@
 @extends('web.master')
 
 @section('body')
-<script>
-document.addEventListener('DOMContentLoaded', (event) => {
-    const output = document.getElementById('output');
-
-    document.addEventListener('keypress', function(event) {
-        if (event.key === 'S' || event.key === 's') {
-
-        }
-    });
-});
-</script>
-
-<div class="" style="">
-    <div>
-      <div class="row" >
-            <div class="col-4 shadow p-3 my-3 rounded" style="max-width:400px;">
-
-                <div class="tab-content" id="pills-tabContent">
-                    <div class="tab-pane fade show active" id="admin_sell" role="tabpanel"
-                        aria-labelledby="pills-home-tab" tabindex="0">
-
-                        @include('web.dine.add_number_function')
 
 
+<div class="row">
+    <div class="col-md-4 col-12">
 
-                    </div>
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="admin_sell" role="tabpanel" aria-labelledby="pills-home-tab"
+                tabindex="0">
 
+                @include('web.dine.add_number_function')
 
-
-
-                </div>
-
-
-
-
-
-                <div style="background: greenyellow;">
-                    <table class="table table-bordered table-info">
-                        <tr>
-                            <td>
-                                အရောင်း Sale
-                            </td>
-                            <td style="min-width:200px;">
-
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                ပြန်၀ယ်
-                            </td>
-                            <td style="min-width:200px;">
-
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                အရောင်း အ၀ယ်
-                            </td>
-                            <td style="min-width:200px;">
-
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                ခေါင်း Limit
-                            </td>
-                            <td style="min-width:200px;">
-                                <form action="/admin/set/limit" method="POST" id="form_set_limit"
-                                    style="display: inline;">
-                                    @csrf
-                                    <input hidden type="date" class="form-control"
-                                        value="{{ $request->get_date ?? Carbon\Carbon::now()->format('Y-m-d') }}"
-                                        onchange="change_section()" name="get_date" id="get_date">
-
-
-                                    <select hidden name="get_am_pm" id="get_am_pm" onchange="change_section()"
-                                        class="form-control">
-
-                                        <option>AM
-                                        </option>
-                                        <option>PM
-                                        </option>
-
-
-                                    </select>
-
-
-                                    <input name="amount" type="text"
-                                        onchange="document.getElementById('form_set_limit').submit()"
-                                        class="form-control" value="">
-                                </form>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                ပေါက်သီး
-                            </td>
-                            <td style="min-width:200px;">
-
-
-
-
-                                <form method="POST" action="/admin/set_lucky_number" id="set_lucky_number"
-                                    style="display: inline;">
-                                    @csrf
-                                    <input hidden type="date" class="form-control"
-                                        value="{{ $request->get_date ?? Carbon\Carbon::now()->format('Y-m-d') }}"
-                                        onchange="change_section()" name="get_date" id="get_date">
-
-
-                                    <select hidden name="get_am_pm" id="get_am_pm" onchange="change_section()"
-                                        class="form-control">
-
-                                        <option value="am">AM
-                                        </option>
-                                        <option value="pm">PM
-                                        </option>
-
-
-                                    </select>
-                                    <input type="text" class="form-control" name="number"
-                                        onchange="document.getElementById('set_lucky_number').submit();" value="">
-                                </form>
-                            </td>
-                        </tr>
-
-                        
-
-
-
-                    </table>
-
-
-                </div>
 
 
             </div>
-            <div class="col-8 p-3 " style="max-width:860px;min-height:700px;">
-
-                <div class="row">
-                    <div class="col-8">
-
-
-
-                    </div>
-
-
-                </div>
 
 
 
 
-                <div class="tab-content" id="pills-tabContent">
-                    <div class="tab-pane fade show active" id="pills-home" role="tabpanel"
-                        aria-labelledby="pills-home-tab" tabindex="0">
-
-                        <div id="legure_list">
-
-                        </div>
-
-                        <div class="row">
-                            <div class="col-4">
-                                <div>
-                                    <table class="table table-bordered">
-                                        <tr>
-                                            <th style="width:70px;">
-                                                Mon
-                                            </th>
-                                            <th style="width:70px;">
-                                                Tue
-                                            </th>
-                                            <th style="width:70px;">
-                                                Wed
-                                            </th>
-                                            <th style="width:70px;">
-                                                Thu
-                                            </th>
-                                            <th style="width:70px;">
-                                                Fri
-                                            </th>
-
-                                        </tr>
-                                        <tr>
-
-                                        </tr>
-
-                                        <tr>
-
-                                        </tr>
+        </div>
 
 
 
-                                    </table>
+
+
+        <div style="background: greenyellow;">
+            <table class="table table-bordered table-info">
+                <tr>
+                    <td>
+                        အရောင်း Sale
+                    </td>
+                    <td style="min-width:200px;">
+                        @php
+                        $user_id = Auth::id(); // Add this if not already defined
+                        $date = session('selected_date');
+                        $section = session('selected_section');
+
+                        $orders = App\Models\Order::where("manager_id", $user_id)
+                        ->where("date", $date)
+                        ->where("section", $section)
+                        ->where("status", 1)
+                        ->sum('price');
+                        @endphp
+                        {{number_format($orders)}} Ks
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        ပြန်၀ယ်
+                    </td>
+                    <td style="min-width:200px;">
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        အရောင်း အ၀ယ်
+                    </td>
+                    <td style="min-width:200px;">
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        ခေါင်း Limit
+                    </td>
+                    <td style="min-width:200px;">
+                        <form action="/admin/set/limit" method="POST" id="form_set_limit" style="display: inline;">
+                            @csrf
+                            <input hidden type="date" class="form-control"
+                                value="{{ $request->get_date ?? Carbon\Carbon::now()->format('Y-m-d') }}"
+                                onchange="change_section()" name="get_date" id="get_date">
+
+
+                            <select hidden name="get_am_pm" id="get_am_pm" onchange="change_section()"
+                                class="form-control">
+
+                                <option>AM
+                                </option>
+                                <option>PM
+                                </option>
+
+
+                            </select>
+
+
+                            <input name="amount" type="text"
+                                onchange="document.getElementById('form_set_limit').submit()" class="form-control"
+                                value="">
+                        </form>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        ပေါက်သီး
+                    </td>
+                    <td style="min-width:200px;">
+
+
+
+
+                        <form method="POST" action="/admin/set_lucky_number" id="set_lucky_number"
+                            style="display: inline;">
+                            @csrf
+                            <input hidden type="date" class="form-control"
+                                value="{{ $request->get_date ?? Carbon\Carbon::now()->format('Y-m-d') }}"
+                                onchange="change_section()" name="get_date" id="get_date">
+
+
+                            <select hidden name="get_am_pm" id="get_am_pm" onchange="change_section()"
+                                class="form-control">
+
+                                <option value="am">AM
+                                </option>
+                                <option value="pm">PM
+                                </option>
+
+
+                            </select>
+                            <input type="text" class="form-control" name="number"
+                                onchange="document.getElementById('set_lucky_number').submit();" value="">
+                        </form>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        ပိတ်သီး
+                    </td>
+                    <td style="min-width:200px;">
+                        @php
+                        $date = session('selected_date');
+                        $section = session('selected_section');
+                        $user_id = Auth::user()->id;
+                        $close_numbers =
+                        App\Models\CloseNumber::where("manager_id",$user_id)->where("date",$date)->where("section",$section)->get();
+                        if(count($close_numbers) > 0){
+                        foreach($close_numbers as $close_number)
+                        @endphp
+                        {{$close_number}} &nbsp;
+                        @php
+                        }else{
+                        @endphp
+                        <button class="btn btn-primary w-100" data-bs-toggle="modal"
+                        data-bs-target="#closeData"> ပိတ်သီးထည့်မည်။ </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="closeData" tabindex="-1" aria-labelledby="customModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content rounded-4 shadow-lg">
+                                    <div class="modal-header border-bottom-0">
+                                        <h5 class="modal-title" id="customModalLabel">ပိတ်သီးထည့်မည်။ <br>
+                                            ရွှေးထားသည့်အချိန် -
+                                            {{ session('selected_date', 'Not set') }} <span style="color:blue;">
+                                                {{ ucfirst(session('selected_section', 'Not set')) }}</h5>
+                                        <a  class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></a>
+                                    </div>
+
+                                    <div class="modal-body pt-0">
+                                        <form action="/close/number/store" method="post">
+                                            @csrf
+                                            <input type="hidden" name="date"
+                                                value="{{ session('selected_date', 'Not set') }}">
+                                            <input type="hidden" name="section"
+                                                value="{{ session('selected_section', 'Not set') }}">
+                                           
+                                            <div class="mb-3">
+                                                <label class="form-label">အကွက်များ * </label>
+                                                <input type="text" id="patternInput2" class="form-control"
+                                                    placeholder="ဥပမာ: 34-23-32-45-32" name="numbers" required>
+                                            </div>
+
+                                          
+
+                                            <div class="text-end">
+                                                <button type="submit" class="btn btn-primary px-4">ထည့်မည်။</button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-8">
-                                <a href="" class="btn btn-primary mx-1"> ပြန်၀ယ်မည် </a>
-                                <a href="" class="btn btn-primary mx-1"> Search </a>
-
-                            </div>
                         </div>
 
+                        <script>
+                        document.getElementById('patternInput2').addEventListener('input', function(e) {
+                            let value = e.target.value.replace(/[^0-9]/g, ''); // Remove non-digits
+                            let formatted = value.match(/.{1,2}/g)?.join('-') || '';
+                            e.target.value = formatted;
+                        });
+                        </script>
+                        @php
+                        }
+                        @endphp
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        အကုန်ဖြတ်မည်
+                    </td>
+                    <td style="min-width:200px;">
+                        <form action="/delete/all" method="post">
+                            @csrf
+                            <input type="hidden" name="date" value="{{ session('selected_date', 'Not set') }}">
+                            <input type="hidden" name="section" value="{{ session('selected_section', 'Not set') }}">
+                        <button type="submit" onclick="return confirm('Are You Sure To Do This Action ?')" class="btn btn-danger w-100" > ယခု Section နှင့်ပက်သက်သော ထိုးထားသမျှအကုန်ဖြတ်မည်။
+                        </button>
+                        </form>
+                    </td>
+                </tr>
+
+            </table>
 
 
+        </div>
 
 
+    </div>
+    @php
+    $totalItems = 100;
+    $itemsPerColumn = 34;
+    $columns = 3;
+    @endphp
+
+    <div class="col-md-5 col-12">
+        <div class="row">
+            @for ($col = 0; $col < $columns; $col++) <div class="col-md-4 col-12">
+                @php
+                $start = $col * $itemsPerColumn;
+                $end = min($start + $itemsPerColumn - 1, $totalItems - 1);
+                @endphp
+
+                @for ($i = $start; $i <= $end; $i++) @php $number=str_pad($i, 2, '0' , STR_PAD_LEFT);
+                    $user_id=Auth::user()->id;
+
+                    $orders = App\Models\Order::where("manager_id", $user_id)
+                    ->where("date", $date)
+                    ->where("section", $section)
+                    ->where("status", 1)
+                    ->get();
+
+                    $data = 0;
+                    $orderDetails = collect(); // ← START with empty collection
+
+                    foreach ($orders as $order) {
+                    $details = App\Models\OrderDetail::where("order_id", $order->id)
+                    ->where("number", $number)
+                    ->get();
+
+                    $orderDetails = $orderDetails->merge($details); // ← MERGE details
+
+                    foreach ($details as $detail) {
+                    $data += $detail->price;
+                    }
+                    }
+                    @endphp
+
+                    <div class="mb-2">
+                        <span class="badge bg-primary p-2" style="cursor:pointer;" data-bs-toggle="modal"
+                            data-bs-target="#modal-{{ $number }}">
+                            {{ $number }}
+                        </span>
+                        <span>{{ $data }} Ks</span>
                     </div>
 
-
-
-
-                </div>
-
-
-
-
-            </div>
-
+                    <!-- Modal -->
+                    <div class="modal fade" id="modal-{{ $number }}" tabindex="-1"
+                        aria-labelledby="modalLabel{{ $number }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Details for Number {{ $number }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Total amount: {{ $data }} Ks
+                                    <hr>
+                                    @foreach ($orderDetails as $orderDetail)
+                                    <p><strong>User Name:</strong> {{ $orderDetail->user->name }}</p>
+                                    <p><strong>Order Type:</strong> {{ $orderDetail->order_type }}</p>
+                                    <p><strong>Price:</strong> {{ number_format($orderDetail->price) }} Ks</p>
+                                    <hr>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endfor
         </div>
-
-        <!-- /.row -->
-    </div>
-    <!-- /.container-fluid -->
-</div>
-
-<div class="modal fade" id="detail_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="staticBackdropLabel"> Detail </h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th> # </th>
-                            <th> User </th>
-                            <th> Amount </th>
-
-                        </tr>
-                    </thead>
-                    <tbody id="detail_lottery">
-
-                    </tbody>
-
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
-            </div>
-        </div>
+        @endfor
     </div>
 </div>
+
+</div>
+
+
+</div>
+
+
+
 
 
 

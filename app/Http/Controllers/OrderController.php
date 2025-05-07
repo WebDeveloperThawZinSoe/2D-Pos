@@ -13,11 +13,15 @@ use Auth;
 
 class OrderController extends Controller
 {
+
+    //number_store
     public function number_store(Request $request)
     {
         $request->validate([
             'number' => 'required',
         ]);
+    
+        $user_id = $request->client;
     
         $full = $request->input('number'); // e.g., "N 600"
     
@@ -29,7 +33,14 @@ class OrderController extends Controller
         $number = trim($number); 
         $price = trim($price);   
     
-        if (Auth::user()->max_limit < $price) {
+        // ❌ FIXED: Incorrect use of ->get() on a single find()
+        $user = User::find($user_id); // Removed ->get()
+    
+        if (!$user) {
+            return redirect()->back()->with("error", "User not found.");
+        }
+    
+        if ($user->max_limit < $price) {
             return redirect()->back()->with("error", "တင်ငွေသည်သက်မှတ်ထားသော တကွက်အများဆုံးခွင့်ပြုငွေထက်ကျော်လွန်နေပါသည်။");
         }
     
@@ -101,7 +112,7 @@ class OrderController extends Controller
         // Step 6: Fetch block numbers
         $blockNumbers = CloseNumber::where("date", $request->input("date"))
             ->where("section", $request->input("section"))
-            ->where("manager_id", Auth::user()->manager->id)
+            ->where("manager_id", $user->manager_id) // ✅ safer to use manager_id directly
             ->first();
     
         $blockNumberArray = [];
@@ -129,16 +140,17 @@ class OrderController extends Controller
         // Step 9: Create the order
         $order = Order::create([
             'order_number' => $this->generateOrderNumber(),
-            'user_id' => Auth::id(),
-            'manager_id' => Auth::user()->manager_id,
-            'manager_commission' => Auth::user()->manager->commission,
-            'manager_rate' => Auth::user()->manager->rate,
-            'order_type' => $number,
+            'user_id' => $user->id,
+            'manager_id' => $user->manager_id,
+            'manager_commission' => $user->manager->commission ?? 0,
+            'manager_rate' => $user->manager->rate ?? 0,
+            'order_type' => $full,
             'price' => $totalPrice,
             'status' => 0,
             'user_order_status' => 0,
             "date" =>  $request->input("date"),
             "section" =>  $request->input("section"),
+            "created_by" => Auth::id()
         ]);
     
         // Step 10: Create order details
@@ -147,9 +159,9 @@ class OrderController extends Controller
                 'order_number' => $this->generateOrderNumber(),
                 'order_id' => $order->id,
                 'user_id' => Auth::id(),
-                'manager_id' => Auth::user()->manager_id,
+                'manager_id' => $user->manager_id,
                 'number' => $value,
-                'order_type' => $number,
+                'order_type' => $full,
                 'price' => $price,
                 'user_order_status' => 'pending',
             ]);
@@ -157,6 +169,7 @@ class OrderController extends Controller
     
         return redirect()->back()->with("success", "Order placed successfully!");
     }
+    
     
     // Helper method
     private function generateOrderNumber()
@@ -220,9 +233,11 @@ class OrderController extends Controller
         // Step 4: Split into valid 2-digit segments
         $finalNumbers = str_split($joined, 2);
     
-        $number_type = $joined . $price;
+        $number_type = $numbers . "_" . $price;
 
-         // Step 9: Create the order
+        $total_price = $price * count( $finalNumbers);
+
+         // Step 5: Create the order
          $order = Order::create([
             'order_number' => $this->generateOrderNumber(),
             'user_id' => $user->id,
@@ -230,7 +245,7 @@ class OrderController extends Controller
             'commission' => $user->id,
             'rate' =>  $user->rate,
             'order_type' => $number_type,
-            'price' => $price,
+            'price' => $total_price,
             'status' => 0,
             'user_order_status' => 0,
             "date" =>  $date,
@@ -238,7 +253,7 @@ class OrderController extends Controller
             'created_by' => Auth::user()->id
         ]);
     
-        // Step 10: Create order details
+        // Step 6: Create order details
         foreach ($finalNumbers as $value) {
             OrderDetail::create([
                 'order_number' => $this->generateOrderNumber(),
@@ -253,6 +268,68 @@ class OrderController extends Controller
         }
     
         return redirect()->back()->with("success", "Order placed successfully!");
+
+    }
+
+
+    //order_cofirm_all
+    public function order_cofirm_all(Request $request)
+    {
+        $date = $request->date;
+        $section = $request->section;
+        $user_id = Auth::id();
+    
+        // Get matching orders
+        $orders = Order::where("date", $date)
+            ->where("section", $section)
+            ->where("created_by", $user_id)
+            ->where("manager_id", $user_id)
+            ->where("status", 0)
+            ->get();
+    
+        // Update orders
+        foreach ($orders as $order) {
+            $order->update(['status' => 1]);
+    
+            // Update related OrderDetails
+            OrderDetail::where("order_id", $order->id)->update([
+                "user_order_status" => 1
+            ]);
+        }
+    
+        return redirect()->back()->with("success", "Order(s) confirmed successfully!");
+    }
+    
+
+    //delete_all
+    public function delete_all(Request $request)
+    {
+        $user_id = Auth::id();
+        $date = $request->input("date");
+        $section = $request->input("section");
+    
+        // Get all orders matching the criteria
+        $orders = Order::where("manager_id", $user_id)
+            ->where("date", $date)
+            ->where("section", $section)
+            ->get();
+    
+        // Delete all related OrderDetail records
+        foreach ($orders as $order) {
+            OrderDetail::where("order_id", $order->id)->delete();
+        }
+    
+        // Now delete the orders themselves
+        Order::where("manager_id", $user_id)
+            ->where("date", $date)
+            ->where("section", $section)
+            ->delete();
+    
+        return redirect()->back()->with("success", "All cleared successfully!");
+    }
+
+    //close_number_store
+    public function close_number_store(Request $request){
 
     }
     
