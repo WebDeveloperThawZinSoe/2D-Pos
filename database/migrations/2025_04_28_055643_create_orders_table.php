@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string("order_number")->unique();
             $table->string("user_id")->nullable()->constrained('users')->onDelete('cascade');
             $table->string("manager_id")->nullable()->constrained('users')->onDelete('cascade');
-            $table->integer("manager_commission")->nullable();
-            $table->integer("manager_rate")->nullable();
+            $table->string("created_by")->nullable()->constrained('users')->onDelete('cascade');
+            $table->integer("commission")->nullable();
+            $table->integer("rate")->nullable();
             $table->string("order_type");
             $table->string("price");
             $table->string("status")->default("pending");

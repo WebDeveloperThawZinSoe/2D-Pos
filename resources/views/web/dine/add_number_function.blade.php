@@ -3,8 +3,7 @@
 
 
 <div style="background-color:beige;" class="p-2">
-    <form id="submit_2d_form" action="/lottery_2d_admin" method="POST">
-        @csrf
+   
 
         <div class="row">
             <div class="col-12">
@@ -65,7 +64,7 @@
         <hr>
 
         <!-- Button trigger -->
-        <button type="button" class="btn btn-primary btn-full" data-bs-toggle="modal" data-bs-target="#customModal">
+        <button type="button" class="btn btn-primary btn-full btn-lg w-100" data-bs-toggle="modal" data-bs-target="#customModal">
             အကွက်မတူငွေတူ
         </button>
 
@@ -74,15 +73,19 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content rounded-4 shadow-lg">
                     <div class="modal-header border-bottom-0">
-                        <h5 class="modal-title" id="customModalLabel">အကွက်မတူငွေတူ</h5>
+                        <h5 class="modal-title" id="customModalLabel">အကွက်မတူငွေတူ  <br> ရွှေးထားသည့်အချိန် - {{ session('selected_date', 'Not set') }} <span style="color:blue;">
+                        {{ ucfirst(session('selected_section', 'Not set')) }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
                     <div class="modal-body pt-0">
-                        <form>
+                        <form action="/multi/number_store" method="post">
+                            @csrf
+                            <input type="hidden" name="date" value="{{ session('selected_date', 'Not set') }}">
+                            <input type="hidden" name="section" value="{{ session('selected_section', 'Not set') }}">
                             <div class="mb-3">
-                                <label for="client" class="form-label">ထိုးသားကိုရွှေးပါ</label>
-                                <select name="client" id="client" class="form-select">
+                                <label for="client" class="form-label">ထိုးသားကိုရွှေးပါ * </label>
+                                <select name="client" required id="client" class="form-select">
                                     <option value="">ထိုးသားကိုရွှေးပါ။</option>
                                     @php
                                     $parent_id = Auth::user()->id;
@@ -95,14 +98,14 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">အကွက်များ</label>
+                                <label class="form-label">အကွက်များ  *  </label>
                                 <input type="text" id="patternInput" class="form-control"
-                                    placeholder="ဥပမာ: 34-23-32-45-32">
+                                    placeholder="ဥပမာ: 34-23-32-45-32" name="numbers" required>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">ငွေပမာဏ</label>
-                                <input type="number" class="form-control" placeholder="ငွေပမာဏထည့်ပါ">
+                                <label class="form-label">ငွေပမာဏ  *  </label>
+                                <input type="number" class="form-control" name="amount" required placeholder="ငွေပမာဏထည့်ပါ">
                             </div>
 
                             <div class="text-end">
@@ -122,7 +125,7 @@
         });
         </script>
 
-        <br>
+        <br> <br>
 
         <!-- <div class="row my-3" id="number_looping">
             <div class="col-12">
@@ -199,5 +202,12 @@
                 </table>
             </div>
         </div>
-    </form>
+   
+       
+          <!-- Button trigger -->
+          <button type="button" class="btn btn-primary btn-lg w-100">
+            တင်သည်။
+        </button>
+
+        <br>
 </div>

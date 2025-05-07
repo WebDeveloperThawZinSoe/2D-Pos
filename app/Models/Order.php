@@ -13,13 +13,14 @@ class Order extends Model
         'order_number',
         'user_id',
         'manager_id',
-        'manager_commission',
-        'manager_rate',
+        'commission',
+        'rate',
         'order_type',
         'price',
         'status',
         'user_order_status',
         'date',
+        'created_by',
         'section',
     ];
     public function orderDetails()

@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 <div class="" style="">
     <div>
-      <div class="row" style="min-width:1700px;">
+      <div class="row" >
             <div class="col-4 shadow p-3 my-3 rounded" style="max-width:400px;">
 
                 <div class="tab-content" id="pills-tabContent">

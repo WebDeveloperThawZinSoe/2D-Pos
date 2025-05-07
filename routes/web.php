@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RouteCheckController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\DineController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Http\Controllers\UserPageController;
@@ -58,6 +59,14 @@ Route::middleware(['web'])->group(function () {
         Route::get("/agents/{id}/edit", [DineController::class, "editAgent"])->name("editAgent");
         Route::post("/agents/{id}/update", [DineController::class, "updateAgent"])->name("updateAgent");
         Route::post("/agents/{id}/delete", [DineController::class, "deleteAgent"])->name("deleteAgent");
+    });
+
+
+    Route::middleware(['require.date.section'])->group(function () {
+        Route::post("/number_store",[OrderController::class,"number_store"])->name("number.store");
+        Route::post("/multi/number_store",[OrderController::class,"number_store_multi"])->name("number_store_multi.store");
+        Route::post("/order/status",[OrderController::class,"order_status"])->name("order.status");
+        Route::post("/order/delete",[OrderController::class,"order_delete"])->name("order.delete");
     });
     
 

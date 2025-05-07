@@ -108,7 +108,7 @@
                         <tbody>
                             @php
                             $parent_id = Auth::user()->id;
-                            $clients = App\Models\User::where("manager_id", $parent_id)->get();
+                            $clients = App\Models\User::where("manager_id", $parent_id)->orderBy('id','desc')->get();
                             @endphp
                             @forelse($clients as $key => $client)
                             <tr>
