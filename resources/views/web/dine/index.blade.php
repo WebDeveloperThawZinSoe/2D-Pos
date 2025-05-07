@@ -130,25 +130,35 @@
                 </tr>
 
                 <tr>
-                    <td>
-                        ပိတ်သီး
-                    </td>
+                    <td>ပိတ်သီး</td>
                     <td style="min-width:200px;">
                         @php
                         $date = session('selected_date');
                         $section = session('selected_section');
                         $user_id = Auth::user()->id;
-                        $close_numbers =
-                        App\Models\CloseNumber::where("manager_id",$user_id)->where("date",$date)->where("section",$section)->get();
-                        if(count($close_numbers) > 0){
-                        foreach($close_numbers as $close_number)
+
+                        $close_numbers = App\Models\CloseNumber::where("manager_id", $user_id)
+                        ->where("date", $date)
+                        ->where("section", $section)
+                        ->get();
                         @endphp
-                        {{$close_number}} &nbsp;
-                        @php
-                        }else{
-                        @endphp
-                        <button class="btn btn-primary w-100" data-bs-toggle="modal"
-                        data-bs-target="#closeData"> ပိတ်သီးထည့်မည်။ </button>
+
+                        @if ($close_numbers->count() > 0)
+                        @foreach ($close_numbers as $close_number)
+                        <span class="btn btn-danger">{{ $close_number->number }}</span> <br> <br>
+                       
+                        @endforeach
+                        <form action="/close/number/delete" method="post">
+                            @csrf
+                            <input type="hidden" name="date" value="{{ session('selected_date') }}">
+                                            <input type="hidden" name="section"
+                                                value="{{ session('selected_section') }}">
+                        <button class="btn btn-danger ">Delete All</button>
+                        </form>
+                        @else
+                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#closeData">
+                            ပိတ်သီးထည့်မည်။
+                        </button>
 
                         <!-- Modal -->
                         <div class="modal fade" id="closeData" tabindex="-1" aria-labelledby="customModalLabel"
@@ -156,29 +166,28 @@
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content rounded-4 shadow-lg">
                                     <div class="modal-header border-bottom-0">
-                                        <h5 class="modal-title" id="customModalLabel">ပိတ်သီးထည့်မည်။ <br>
-                                            ရွှေးထားသည့်အချိန် -
-                                            {{ session('selected_date', 'Not set') }} <span style="color:blue;">
-                                                {{ ucfirst(session('selected_section', 'Not set')) }}</h5>
-                                        <a  class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></a>
+                                        <h5 class="modal-title" id="customModalLabel">
+                                            ပိတ်သီးထည့်မည်။ <br>
+                                            ရွှေးထားသည့်အချိန် - {{ session('selected_date', 'Not set') }}
+                                            <span
+                                                style="color:blue;">{{ ucfirst(session('selected_section', 'Not set')) }}</span>
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
                                     </div>
 
                                     <div class="modal-body pt-0">
-                                        <form action="/close/number/store" method="post">
+                                        <form action="/close/number/store" method="POST">
                                             @csrf
-                                            <input type="hidden" name="date"
-                                                value="{{ session('selected_date', 'Not set') }}">
+                                            <input type="hidden" name="date" value="{{ session('selected_date') }}">
                                             <input type="hidden" name="section"
-                                                value="{{ session('selected_section', 'Not set') }}">
-                                           
-                                            <div class="mb-3">
-                                                <label class="form-label">အကွက်များ * </label>
-                                                <input type="text" id="patternInput2" class="form-control"
-                                                    placeholder="ဥပမာ: 34-23-32-45-32" name="numbers" required>
-                                            </div>
+                                                value="{{ session('selected_section') }}">
 
-                                          
+                                            <div class="mb-3">
+                                                <label class="form-label">အကွက်များ *</label>
+                                                <input type="text" id="patternInput2" class="form-control"
+                                                    placeholder="ဥပမာ: 34,23,32,45,32" name="numbers" required>
+                                            </div>
 
                                             <div class="text-end">
                                                 <button type="submit" class="btn btn-primary px-4">ထည့်မည်။</button>
@@ -191,16 +200,15 @@
 
                         <script>
                         document.getElementById('patternInput2').addEventListener('input', function(e) {
-                            let value = e.target.value.replace(/[^0-9]/g, ''); // Remove non-digits
-                            let formatted = value.match(/.{1,2}/g)?.join('-') || '';
+                            let value = e.target.value.replace(/[^0-9]/g, '');
+                            let formatted = value.match(/.{1,2}/g)?.join(',') || '';
                             e.target.value = formatted;
                         });
                         </script>
-                        @php
-                        }
-                        @endphp
+                        @endif
                     </td>
                 </tr>
+
 
                 <tr>
                     <td>
@@ -211,8 +219,9 @@
                             @csrf
                             <input type="hidden" name="date" value="{{ session('selected_date', 'Not set') }}">
                             <input type="hidden" name="section" value="{{ session('selected_section', 'Not set') }}">
-                        <button type="submit" onclick="return confirm('Are You Sure To Do This Action ?')" class="btn btn-danger w-100" > ယခု Section နှင့်ပက်သက်သော ထိုးထားသမျှအကုန်ဖြတ်မည်။
-                        </button>
+                            <button type="submit" onclick="return confirm('Are You Sure To Do This Action ?')"
+                                class="btn btn-danger w-100"> ယခု Section နှင့်ပက်သက်သော ထိုးထားသမျှအကုန်ဖြတ်မည်။
+                            </button>
                         </form>
                     </td>
                 </tr>

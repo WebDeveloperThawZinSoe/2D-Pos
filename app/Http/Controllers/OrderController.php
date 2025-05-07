@@ -170,6 +170,34 @@ class OrderController extends Controller
         return redirect()->back()->with("success", "Order placed successfully!");
     }
     
+    //order_cofirm_all
+    public function order_cofirm_all(Request $request)
+    {
+        $date = $request->date;
+        $section = $request->section;
+        $user_id = Auth::id();
+    
+        // Get matching orders
+        $orders = Order::where("date", $date)
+            ->where("section", $section)
+            ->where("created_by", $user_id)
+            ->where("manager_id", $user_id)
+            ->where("status", 0)
+            ->get();
+    
+        // Update orders
+        foreach ($orders as $order) {
+            $order->update(['status' => 1]);
+    
+            // Update related OrderDetails
+            OrderDetail::where("order_id", $order->id)->update([
+                "user_order_status" => 1
+            ]);
+        }
+    
+        return redirect()->back()->with("success", "Order(s) confirmed successfully!");
+    }
+    
     
     // Helper method
     private function generateOrderNumber()
@@ -203,103 +231,105 @@ class OrderController extends Controller
 
 
     //number_store_multi
-    public function number_store_multi(Request $request){
+    public function number_store_multi(Request $request)
+    {
         $client = $request->client;
         $numbers = $request->numbers;
         $price = $request->amount;
         $date = $request->date;
         $section = $request->section;
-    
-        if ($date == null || $section == null || $date == "Not set" || $section == "Not set") {
-            return redirect()->back()->with("error", "Date Section မရွှေးထားပါ");
+
+        if (!$date || !$section || $date === "Not set" || $section === "Not set") {
+            return redirect()->back()->with("error", "Date Section မရွေးထားပါ။");
         }
-    
-        $user = User::where("id", $client)->first();
+
+        $user = User::find($client);
+
+        if (!$user) {
+            return redirect()->back()->with("error", "သုံးစွဲသူမတွေ့ပါ။");
+        }
+
         if ($price > $user->max_limit) {
             return redirect()->back()->with("error", "သက်မှတ်ထားသော အများဆုံးထိုးငွေပမာဏထက်ကျော်လွန်နေသည်။");
         }
-    
-        // Step 1: Explode numbers by dash
+
+        // Step 1: Clean & Extract valid 2-digit numbers
         $numberArray = explode('-', $numbers);
-    
-        // Step 2: Remove any 1-digit entries
-        $filtered = array_filter($numberArray, function($num) {
-            return strlen($num) == 2;
+        $filtered = array_filter($numberArray, function ($num) {
+            return strlen(trim($num)) == 2 && is_numeric($num);
         });
-    
-        // Step 3: Recombine to a single string
-        $joined = implode('', $filtered);
-    
-        // Step 4: Split into valid 2-digit segments
-        $finalNumbers = str_split($joined, 2);
-    
-        $number_type = $numbers . "_" . $price;
 
-        $total_price = $price * count( $finalNumbers);
+        // Step 2: Remove duplicates and reindex
+        $validNumbers = array_values(array_unique($filtered));
 
-         // Step 5: Create the order
-         $order = Order::create([
-            'order_number' => $this->generateOrderNumber(),
+        if (empty($validNumbers)) {
+            return redirect()->back()->with("error", "မှန်ကန်သော ၂လုံးဂဏန်း မရှိပါ။");
+        }
+
+        // Step 3: Fetch closed (blocked) numbers
+        $closeNumber = CloseNumber::where("date", $date)
+            ->where("section", $section)
+            ->where("manager_id", $user->manager_id)
+            ->first();
+
+        $blockedNumbers = [];
+
+        if ($closeNumber && !empty($closeNumber->number)) {
+            // Support comma-separated or dash-separated close numbers
+            $delimiter = str_contains($closeNumber->number, '-') ? '-' : ',';
+            $blockedNumbers = array_map('trim', explode($delimiter, $closeNumber->number));
+        }
+
+        // Step 4: Remove blocked numbers from input
+        $finalNumbers = array_filter($validNumbers, function ($num) use ($blockedNumbers) {
+            return !in_array($num, $blockedNumbers);
+        });
+
+        if (empty($finalNumbers)) {
+            return redirect()->back()->with("error", "ပိတ်သီးများကြောင့် တင်သွင်းနိုင်သော ဂဏန်းမရှိပါ။");
+        }
+
+        // Step 5: Prepare metadata
+        $number_type = implode('-', $validNumbers) . "_" . $price;
+        $total_price = $price * count($finalNumbers);
+        $order_number = $this->generateOrderNumber();
+
+        // Step 6: Create the main order
+        $order = Order::create([
+            'order_number' =>  $this->generateOrderNumber(),
             'user_id' => $user->id,
-            'manager_id' => Auth::user()->id,
+            'manager_id' => Auth::id(),
             'commission' => $user->id,
-            'rate' =>  $user->rate,
+            'rate' => $user->rate,
             'order_type' => $number_type,
             'price' => $total_price,
             'status' => 0,
             'user_order_status' => 0,
-            "date" =>  $date,
-            "section" =>  $section,
-            'created_by' => Auth::user()->id
+            'date' => $date,
+            'section' => $section,
+            'created_by' => Auth::id(),
         ]);
-    
-        // Step 6: Create order details
-        foreach ($finalNumbers as $value) {
+
+        // Step 7: Create order details
+        foreach ($finalNumbers as $number) {
             OrderDetail::create([
-                'order_number' => $this->generateOrderNumber(),
+                'order_number' =>  $this->generateOrderNumber(),
                 'order_id' => $order->id,
                 'user_id' => $user->id,
-                'manager_id' =>  Auth::user()->id,
-                'number' => $value,
+                'manager_id' => Auth::id(),
+                'number' => $number,
                 'order_type' => $number_type,
                 'price' => $price,
                 'user_order_status' => 'pending',
             ]);
         }
-    
-        return redirect()->back()->with("success", "Order placed successfully!");
 
+        return redirect()->back()->with("success", "အော်ဒါတင်ခြင်း အောင်မြင်ပါသည်။");
     }
 
 
-    //order_cofirm_all
-    public function order_cofirm_all(Request $request)
-    {
-        $date = $request->date;
-        $section = $request->section;
-        $user_id = Auth::id();
-    
-        // Get matching orders
-        $orders = Order::where("date", $date)
-            ->where("section", $section)
-            ->where("created_by", $user_id)
-            ->where("manager_id", $user_id)
-            ->where("status", 0)
-            ->get();
-    
-        // Update orders
-        foreach ($orders as $order) {
-            $order->update(['status' => 1]);
-    
-            // Update related OrderDetails
-            OrderDetail::where("order_id", $order->id)->update([
-                "user_order_status" => 1
-            ]);
-        }
-    
-        return redirect()->back()->with("success", "Order(s) confirmed successfully!");
-    }
-    
+
+
 
     //delete_all
     public function delete_all(Request $request)
@@ -330,7 +360,35 @@ class OrderController extends Controller
 
     //close_number_store
     public function close_number_store(Request $request){
+        $numbers = $request->numbers;
+        $date = $request->date;
+        $section = $request->section;
+    
+        if ($date == null || $section == null || $date == "Not set" || $section == "Not set") {
+            return redirect()->back()->with("error", "Date Section မရွှေးထားပါ");
+        }
+    
+       
 
+
+        CloseNumber::create([
+            'manager_id' =>  Auth::user()->id,
+            'date' => $date,
+            'section' => $section,
+            'number' => $numbers
+        ]);
+    
+        return redirect()->back()->with("success", "ပိတ်သီးထည့်ခြင်းအောင်မြင်ပါသည်။");
+
+    }
+
+    //close_number_delete
+    public function close_number_delete(Request $request){
+        $date = $request->date;
+        $section = $request->section;
+        CloseNumber::where("manager_id", Auth::user()->id)->where("date",$date)->where("section",$section)->delete();
+
+        return redirect()->back()->with("success", "ပိတ်သီးဖြတ်ခြင်းအောင်မြင်ပါသည်။");
     }
     
 }

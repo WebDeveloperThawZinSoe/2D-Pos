@@ -70,6 +70,7 @@ Route::middleware(['web'])->group(function () {
         Route::post("/order/confirm/all",[OrderController::class,"order_cofirm_all"]);
         Route::post("/delete/all",[OrderController::class,"delete_all"]);
         Route::post("/close/number/store",[OrderController::class,"close_number_store"]);
+        Route::post("/close/number/delete",[OrderController::class,"close_number_delete"]);
     });
     
 
