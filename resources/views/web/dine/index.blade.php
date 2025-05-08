@@ -5,26 +5,12 @@
 
 <div class="row">
     <div class="col-md-4 col-12">
-
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="admin_sell" role="tabpanel" aria-labelledby="pills-home-tab"
                 tabindex="0">
-
                 @include('web.dine.add_number_function')
-
-
-
             </div>
-
-
-
-
         </div>
-
-
-
-
-
         <div style="background: greenyellow;">
             <table class="table table-bordered table-info">
                 <tr>
@@ -40,7 +26,7 @@
                         $orders = App\Models\Order::where("manager_id", $user_id)
                         ->where("date", $date)
                         ->where("section", $section)
-                        ->where("status", 1)
+                        ->where("status", 1)->where("buy_sell_type","sell")
                         ->sum('price');
                         @endphp
                         {{number_format($orders)}} Ks
@@ -70,28 +56,25 @@
                         ခေါင်း Limit
                     </td>
                     <td style="min-width:200px;">
-                        <form action="/admin/set/limit" method="POST" id="form_set_limit" style="display: inline;">
+
+                        @php
+                        $existingLimit = App\Models\DineHeadLimit::where('manager_id', auth()->id())
+                        ->where('section', session('selected_section'))
+                        ->where('date', session('selected_date'))
+                        ->first();
+
+                        @endphp
+                        <form action="/limit/store" method="post" class="d-flex align-items-center gap-2">
                             @csrf
-                            <input hidden type="date" class="form-control"
-                                value="{{ $request->get_date ?? Carbon\Carbon::now()->format('Y-m-d') }}"
-                                onchange="change_section()" name="get_date" id="get_date">
+                            <input type="hidden" name="date" value="{{ session('selected_date') }}">
+                            <input type="hidden" name="section" value="{{ session('selected_section') }}">
+                            <input type="hidden" name="manager_id" value="{{ Auth::user()->id }}">
+                            <input type="number" name="limit" class="form-control form-control-sm"
+                                placeholder="Enter limit" required value="{{  $existingLimit->amount ?? '' }}">
 
-
-                            <select hidden name="get_am_pm" id="get_am_pm" onchange="change_section()"
-                                class="form-control">
-
-                                <option>AM
-                                </option>
-                                <option>PM
-                                </option>
-
-
-                            </select>
-
-
-                            <input name="amount" type="text"
-                                onchange="document.getElementById('form_set_limit').submit()" class="form-control"
-                                value="">
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                Submit
+                            </button>
                         </form>
                     </td>
                 </tr>
@@ -129,6 +112,8 @@
                     </td>
                 </tr>
 
+
+
                 <tr>
                     <td>ပိတ်သီး</td>
                     <td style="min-width:200px;">
@@ -145,17 +130,17 @@
 
                         @if ($close_numbers->count() > 0)
                         @foreach ($close_numbers as $close_number)
-                        <span class="btn btn-danger">{{ $close_number->number }}</span> <br> <br>
-                       
+                        <span class="btn btn-danger mb-2">{{ $close_number->number }}</span><br>
                         @endforeach
-                        <form action="/close/number/delete" method="post">
+
+                        <form action="/close/number/delete" method="POST" class="mt-3">
                             @csrf
-                            <input type="hidden" name="date" value="{{ session('selected_date') }}">
-                                            <input type="hidden" name="section"
-                                                value="{{ session('selected_section') }}">
-                        <button class="btn btn-danger ">Delete All</button>
+                            <input type="hidden" name="date" value="{{ $date }}">
+                            <input type="hidden" name="section" value="{{ $section }}">
+                            <button class="btn btn-danger">Delete All</button>
                         </form>
                         @else
+                        <!-- Trigger Button -->
                         <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#closeData">
                             ပိတ်သီးထည့်မည်။
                         </button>
@@ -167,10 +152,9 @@
                                 <div class="modal-content rounded-4 shadow-lg">
                                     <div class="modal-header border-bottom-0">
                                         <h5 class="modal-title" id="customModalLabel">
-                                            ပိတ်သီးထည့်မည်။ <br>
-                                            ရွှေးထားသည့်အချိန် - {{ session('selected_date', 'Not set') }}
-                                            <span
-                                                style="color:blue;">{{ ucfirst(session('selected_section', 'Not set')) }}</span>
+                                            ပိတ်သီးထည့်မည်။<br>
+                                            ရွှေးထားသည့်အချိန် - {{ $date }}
+                                            <span style="color:blue;">{{ ucfirst($section) }}</span>
                                         </h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
@@ -179,9 +163,8 @@
                                     <div class="modal-body pt-0">
                                         <form action="/close/number/store" method="POST">
                                             @csrf
-                                            <input type="hidden" name="date" value="{{ session('selected_date') }}">
-                                            <input type="hidden" name="section"
-                                                value="{{ session('selected_section') }}">
+                                            <input type="hidden" name="date" value="{{ $date }}">
+                                            <input type="hidden" name="section" value="{{ $section }}">
 
                                             <div class="mb-3">
                                                 <label class="form-label">အကွက်များ *</label>
@@ -198,6 +181,7 @@
                             </div>
                         </div>
 
+                        <!-- Auto Format Input -->
                         <script>
                         document.getElementById('patternInput2').addEventListener('input', function(e) {
                             let value = e.target.value.replace(/[^0-9]/g, '');
@@ -205,9 +189,25 @@
                             e.target.value = formatted;
                         });
                         </script>
+
+                        <!-- Fallback Fix: Ensure aria-hidden is false when modal is visible -->
+                        <script>
+                        const modal = document.getElementById('closeData');
+                        const observer = new MutationObserver(() => {
+                            if (modal.style.display === 'block' && modal.getAttribute('aria-hidden') ===
+                                'true') {
+                                modal.setAttribute('aria-hidden', 'false');
+                            }
+                        });
+                        observer.observe(modal, {
+                            attributes: true,
+                            attributeFilter: ['style', 'aria-hidden']
+                        });
+                        </script>
                         @endif
                     </td>
                 </tr>
+
 
 
                 <tr>
@@ -230,18 +230,15 @@
 
 
         </div>
-
-
     </div>
-    @php
-    $totalItems = 100;
-    $itemsPerColumn = 34;
-    $columns = 3;
-    @endphp
-
     <div class="col-md-5 col-12">
+        @php
+        $totalItems = 100;
+        $itemsPerColumn = 34;
+        $columns = 3;
+        @endphp
         <div class="row">
-            @for ($col = 0; $col < $columns; $col++) <div class="col-md-4 col-12">
+            @for ($col = 0; $col < $columns; $col++) <div class="col-md-4 col-4">
                 @php
                 $start = $col * $itemsPerColumn;
                 $end = min($start + $itemsPerColumn - 1, $totalItems - 1);
@@ -253,7 +250,7 @@
                     $orders = App\Models\Order::where("manager_id", $user_id)
                     ->where("date", $date)
                     ->where("section", $section)
-                    ->where("status", 1)
+                    ->where("status", 1)->where("buy_sell_type","sell")
                     ->get();
 
                     $data = 0;
@@ -261,7 +258,7 @@
 
                     foreach ($orders as $order) {
                     $details = App\Models\OrderDetail::where("order_id", $order->id)
-                    ->where("number", $number)
+                    ->where("number", $number)->where("buy_sell_type","sell")
                     ->get();
 
                     $orderDetails = $orderDetails->merge($details); // ← MERGE details
@@ -308,7 +305,55 @@
         @endfor
     </div>
 </div>
+<div class="col-md-3 col-12">
+    <h5 class="card-title fw-bold text-primary mb-3">ခေါင်းကျော်နေသော အကွက်များ</h5>
+    <table class="table table-bordered table-hover text-center align-middle">
+        <thead>
+            <tr>
+                <th>Num</th>
+                <th>Last Over</th>
+                <th>Over</th>
+                <th>Buy</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $user_id = Auth::id();
+                $date = session('selected_date');
+                $section = session('selected_section');
 
+                $orderDetails = App\Models\OrderDetail::where("manager_id", $user_id)
+                    ->where("date", $date)
+                    ->where("section", $section)
+                    ->where("user_order_status", 1)->where("buy_sell_type","sell")
+                    ->get()
+                    ->groupBy('number');
+
+                $limitHead = App\Models\DineHeadLimit::where("manager_id", $user_id)
+                    ->where("date", $date)
+                    ->where("section", $section)
+                    ->first();
+
+                $limitHeadPrice = $limitHead->amount ?? 0;
+            @endphp
+
+            @foreach ($orderDetails as $number => $items)
+                @php
+                    $totalPrice = $items->sum('price');
+                    $lastOver = $items->last();
+                @endphp
+
+                @if ($totalPrice > $limitHeadPrice)
+                    <tr>
+                    <td style="background-color: green !important; color: white !important;">{{ $number }}</td>
+                        <td>- {{ $totalPrice - $limitHeadPrice }}</td>
+                        <td>{{ $totalPrice - $limitHeadPrice }}</td>
+                        <td>0</td>
+                    </tr>
+                @endif
+            @endforeach
+        </tbody>
+    </table>
 </div>
 
 

@@ -11,18 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_details', function (Blueprint $table) {
+        Schema::create('dine_head_limits', function (Blueprint $table) {
             $table->id();
-            $table->string("order_number")->unique();
-            $table->string("order_id")->nullable()->constrained('orders')->onDelete('cascade');
-            $table->string("user_id")->nullable()->constrained('users')->onDelete('cascade');
             $table->string("manager_id")->nullable()->constrained('users')->onDelete('cascade');
-            $table->string("number")->nullable();
-            $table->string("order_type");
-            $table->string("price");
             $table->string("date")->nullable();
             $table->string("section")->nullable();
-            $table->string("user_order_status")->default("pending");
+            $table->string("amount");
             $table->timestamps();
         });
     }
@@ -32,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_details');
+        Schema::dropIfExists('dine_head_limits');
     }
 };

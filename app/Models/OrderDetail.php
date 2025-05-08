@@ -17,7 +17,13 @@ class OrderDetail extends Model
         'number',
         'order_type',
         'price',
-        'user_order_status'
+        'user_order_status',
+        'date',
+        'section',
+        'buy_sell_type',
+        'dine_id',
+        'commission',
+        'rate',
     ];
 
     public function order()

@@ -22,6 +22,8 @@ class Order extends Model
         'date',
         'created_by',
         'section',
+        'buy_sell_type',
+        'dine_id'
     ];
     public function orderDetails()
     {

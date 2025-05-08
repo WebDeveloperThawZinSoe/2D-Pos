@@ -62,7 +62,7 @@ Route::middleware(['web'])->group(function () {
     });
 
 
-    Route::middleware(['require.date.section'])->group(function () {
+    Route::middleware(['require.date.section','role:shop'])->group(function () {
         Route::post("/number_store",[OrderController::class,"number_store"])->name("number.store");
         Route::post("/multi/number_store",[OrderController::class,"number_store_multi"])->name("number_store_multi.store");
         Route::post("/order/status",[OrderController::class,"order_status"])->name("order.status");
@@ -71,6 +71,7 @@ Route::middleware(['web'])->group(function () {
         Route::post("/delete/all",[OrderController::class,"delete_all"]);
         Route::post("/close/number/store",[OrderController::class,"close_number_store"]);
         Route::post("/close/number/delete",[OrderController::class,"close_number_delete"]);
+        Route::post("/limit/store",[OrderController::class,"limit_store"]);
     });
     
 

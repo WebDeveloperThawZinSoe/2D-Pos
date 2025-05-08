@@ -8,6 +8,7 @@ use App\Models\OrderDetail;
 use Illuminate\Support\Facades\Hash;
 use App\Models\CloseNumber;
 use App\Models\User;
+use App\Models\DineHeadLimit;
 use Auth;
 
 
@@ -142,15 +143,16 @@ class OrderController extends Controller
             'order_number' => $this->generateOrderNumber(),
             'user_id' => $user->id,
             'manager_id' => $user->manager_id,
-            'manager_commission' => $user->manager->commission ?? 0,
-            'manager_rate' => $user->manager->rate ?? 0,
+            'commission' => $user->commission ?? 0,
+            'rate' => $user->rate ?? 0,
             'order_type' => $full,
             'price' => $totalPrice,
             'status' => 0,
             'user_order_status' => 0,
             "date" =>  $request->input("date"),
             "section" =>  $request->input("section"),
-            "created_by" => Auth::id()
+            "created_by" => Auth::id(),
+            "buy_sell_type" => "sell"
         ]);
     
         // Step 10: Create order details
@@ -164,6 +166,11 @@ class OrderController extends Controller
                 'order_type' => $full,
                 'price' => $price,
                 'user_order_status' => 'pending',
+                "date" =>  $request->input("date"),
+                "section" =>  $request->input("section"),
+                "buy_sell_type" => "sell",
+                'commission' => $user->commission,
+                'rate' => $user->rate,
             ]);
         }
     
@@ -299,7 +306,7 @@ class OrderController extends Controller
             'order_number' =>  $this->generateOrderNumber(),
             'user_id' => $user->id,
             'manager_id' => Auth::id(),
-            'commission' => $user->id,
+            'commission' => $user->commission,
             'rate' => $user->rate,
             'order_type' => $number_type,
             'price' => $total_price,
@@ -308,6 +315,7 @@ class OrderController extends Controller
             'date' => $date,
             'section' => $section,
             'created_by' => Auth::id(),
+             "buy_sell_type" => "sell"
         ]);
 
         // Step 7: Create order details
@@ -321,6 +329,11 @@ class OrderController extends Controller
                 'order_type' => $number_type,
                 'price' => $price,
                 'user_order_status' => 'pending',
+                "date" =>  $request->input("date"),
+                "section" =>  $request->input("section"),
+                 "buy_sell_type" => "sell",
+                 'commission' => $user->commission,
+                'rate' => $user->rate,
             ]);
         }
 
@@ -391,4 +404,36 @@ class OrderController extends Controller
         return redirect()->back()->with("success", "ပိတ်သီးဖြတ်ခြင်းအောင်မြင်ပါသည်။");
     }
     
+
+    //limit_store
+    public function limit_store(Request $request)
+    {
+        $validated = $request->validate([
+            'manager_id' => 'required|integer',
+            'section' => 'required|string',
+            'date' => 'required|date',
+            'limit' => 'required|numeric|min:0',
+        ]);
+    
+        $existing = DineHeadLimit::where('manager_id', $validated['manager_id'])
+            ->where('section', $validated['section'])
+            ->where('date', $validated['date'])
+            ->first();
+    
+        if ($existing) {
+            $existing->update([
+                'amount' => $validated['limit'],
+            ]);
+        } else {
+            DineHeadLimit::create([
+                'manager_id' => $validated['manager_id'],
+                'section' => $validated['section'],
+                'date' => $validated['date'],
+                'amount' => $validated['limit'],
+            ]);
+        }
+    
+        return back()->with('success', 'ခေါင်ကျော် Limit သက်မှတ်ပြီးပါပြီ။');
+    }
+
 }

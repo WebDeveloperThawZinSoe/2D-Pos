@@ -192,14 +192,7 @@
 
 
     <div class="container mt-4">
-
-
-
-
-        @yield('body')
-
-
-
+    @yield('body')
     </div>
 
 
