@@ -777,12 +777,7 @@ class OrderController extends Controller
                 return redirect()->back()->with("error", "Date Section မရွေးထားပါ။");
             }
         
-            $user = $clientId ? User::find($clientId) : null;
-        
-            if (!$user) {
-                return redirect()->back()->with("error", "ဒိုင် သုံးစွဲသူမတွေ့ပါ။");
-            }
-        
+            $user = ReDine::find($clientId);
             $commission = $user->commission ?? 0;
             $rate = $user->rate ?? 80;
         
