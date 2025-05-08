@@ -436,4 +436,10 @@ class OrderController extends Controller
         return back()->with('success', 'ခေါင်ကျော် Limit သက်မှတ်ပြီးပါပြီ။');
     }
 
+
+    //rebuy
+    public function rebuy(){
+        return view("web.dine.rebuy");
+    }
+
 }

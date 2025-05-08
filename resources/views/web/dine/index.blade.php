@@ -318,42 +318,44 @@
         </thead>
         <tbody>
             @php
-                $user_id = Auth::id();
-                $date = session('selected_date');
-                $section = session('selected_section');
+            $user_id = Auth::id();
+            $date = session('selected_date');
+            $section = session('selected_section');
 
-                $orderDetails = App\Models\OrderDetail::where("manager_id", $user_id)
-                    ->where("date", $date)
-                    ->where("section", $section)
-                    ->where("user_order_status", 1)->where("buy_sell_type","sell")
-                    ->get()
-                    ->groupBy('number');
+            $orderDetails = App\Models\OrderDetail::where("manager_id", $user_id)
+            ->where("date", $date)
+            ->where("section", $section)
+            ->where("user_order_status", 1)->where("buy_sell_type","sell")
+            ->get()
+            ->groupBy('number');
 
-                $limitHead = App\Models\DineHeadLimit::where("manager_id", $user_id)
-                    ->where("date", $date)
-                    ->where("section", $section)
-                    ->first();
+            $limitHead = App\Models\DineHeadLimit::where("manager_id", $user_id)
+            ->where("date", $date)
+            ->where("section", $section)
+            ->first();
 
-                $limitHeadPrice = $limitHead->amount ?? 0;
+            $limitHeadPrice = $limitHead->amount ?? 0;
             @endphp
 
             @foreach ($orderDetails as $number => $items)
-                @php
-                    $totalPrice = $items->sum('price');
-                    $lastOver = $items->last();
-                @endphp
+            @php
+            $totalPrice = $items->sum('price');
+            $lastOver = $items->last();
+            @endphp
 
-                @if ($totalPrice > $limitHeadPrice)
-                    <tr>
-                    <td style="background-color: green !important; color: white !important;">{{ $number }}</td>
-                        <td>- {{ $totalPrice - $limitHeadPrice }}</td>
-                        <td>{{ $totalPrice - $limitHeadPrice }}</td>
-                        <td>0</td>
-                    </tr>
-                @endif
+            @if ($totalPrice > $limitHeadPrice)
+            <tr>
+                <td class="bg-success text-white py-1">{{ $number }}</td>
+                <td class="py-1">- {{ $totalPrice - $limitHeadPrice }}</td>
+                <td class="py-1">{{ $totalPrice - $limitHeadPrice }}</td>
+                <td class="py-1">0</td>
+            </tr>
+            @endif
             @endforeach
         </tbody>
+
     </table>
+    <a href="/rebuy"  class="btn btn-primary w-100">ပြန်ဝယ်မည်။</a>
 </div>
 
 

@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\ReDine;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -93,5 +94,12 @@ class DineController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
         return redirect()->route('dine.agents')->with('success', 'Agent deleted.');
+    }
+
+
+    public function redine(){
+        $parent_id = Auth::id();
+        $clients = ReDine::where('manager_id', $parent_id)->get();
+        return view('web.dine.redine', compact('clients'));
     }
 }

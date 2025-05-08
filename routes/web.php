@@ -59,6 +59,11 @@ Route::middleware(['web'])->group(function () {
         Route::get("/agents/{id}/edit", [DineController::class, "editAgent"])->name("editAgent");
         Route::post("/agents/{id}/update", [DineController::class, "updateAgent"])->name("updateAgent");
         Route::post("/agents/{id}/delete", [DineController::class, "deleteAgent"])->name("deleteAgent");
+        Route::get("/redine", [DineController::class, "redine"])->name("redine");
+        Route::post("/redine", [DineController::class, "storeRedine"])->name("storeRedine");
+        Route::get("/redine/{id}/edit", [DineController::class, "editRedine"])->name("editRedine");
+        Route::post("/redine/{id}/update", [DineController::class, "updateRedine"])->name("updateRedine");
+        Route::post("/redine/{id}/delete", [DineController::class, "updateRedine"])->name("updateRedine");
     });
 
 
@@ -72,6 +77,7 @@ Route::middleware(['web'])->group(function () {
         Route::post("/close/number/store",[OrderController::class,"close_number_store"]);
         Route::post("/close/number/delete",[OrderController::class,"close_number_delete"]);
         Route::post("/limit/store",[OrderController::class,"limit_store"]);
+        Route::get("/rebuy",[OrderController::class,"rebuy"]);
     });
     
 
