@@ -102,4 +102,57 @@ class DineController extends Controller
         $clients = ReDine::where('manager_id', $parent_id)->get();
         return view('web.dine.redine', compact('clients'));
     }
+
+    
+    public function storeRedine(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'commission' => 'nullable|numeric',
+            'rate' => 'nullable|numeric',
+            'max_limit' => 'nullable|numeric',
+        ]);
+
+        $user = new ReDine();
+        $user->manager_id = Auth::id();
+        $user->name = $request->name;
+        $user->commission = $request->commission ?? 0;
+        $user->rate = $request->rate ?? 80;
+        $user->save();
+
+        return redirect()->route('dine.redine')->with('success', 'Dine created successfully.');
+    }
+
+    public function editRedine($id)
+    {
+        $agent = ReDine::findOrFail($id);
+        $parent_id = Auth::id();
+        $clients = ReDine::where('manager_id', $parent_id)->get();
+        return view('web.dine.edit_redine', compact('agent',"clients"));
+    }
+
+    public function updateRedine(Request $request, $id)
+    {
+        $user = ReDine::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required',
+        ]);
+
+        $user->name = $request->name;
+
+        $user->commission = $request->commission ?? 0;
+        $user->rate = $request->rate ?? 80;
+        $user->save();
+
+        return redirect()->route('dine.redine')->with('success', 'Dine updated successfully.');
+    }
+
+    public function deleteRedine($id)
+    {
+        $user = ReDine::findOrFail($id);
+        $user->delete();
+        return redirect()->route('dine.redine')->with('success', 'Dine deleted.');
+    }
+
 }

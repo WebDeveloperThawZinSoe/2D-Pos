@@ -63,7 +63,7 @@ Route::middleware(['web'])->group(function () {
         Route::post("/redine", [DineController::class, "storeRedine"])->name("storeRedine");
         Route::get("/redine/{id}/edit", [DineController::class, "editRedine"])->name("editRedine");
         Route::post("/redine/{id}/update", [DineController::class, "updateRedine"])->name("updateRedine");
-        Route::post("/redine/{id}/delete", [DineController::class, "updateRedine"])->name("updateRedine");
+        Route::post("/redine/{id}/delete", [DineController::class, "deleteRedine"])->name("deleteRedine");
     });
 
 
