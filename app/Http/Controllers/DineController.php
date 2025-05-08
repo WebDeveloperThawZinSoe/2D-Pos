@@ -155,4 +155,6 @@ class DineController extends Controller
         return redirect()->route('dine.redine')->with('success', 'Dine deleted.');
     }
 
+
+
 }

@@ -761,4 +761,88 @@ class OrderController extends Controller
             return view("web.dine.rebuy");
         }
 
+
+        //rebuy_store
+        public function rebuy_store(Request $request)
+        {
+            $clientId = $request->dine; // dine is used as the rebuy client
+            $numbers = $request->numbers ?? [];
+            $rebuyPercent = $request->rebuy_percent ?? 100;
+            $date = $request->date;
+            $section = $request->section;
+            $managerId = $request->manager_id;
+            $buySellType = $request->buy_sell ?? 'buy';
+        
+            if (!$date || !$section || $date === "Not set" || $section === "Not set") {
+                return redirect()->back()->with("error", "Date Section မရွေးထားပါ။");
+            }
+        
+            $user = $clientId ? User::find($clientId) : null;
+        
+            if (!$user) {
+                return redirect()->back()->with("error", "ဒိုင် သုံးစွဲသူမတွေ့ပါ။");
+            }
+        
+            $commission = $user->commission ?? 0;
+            $rate = $user->rate ?? 80;
+        
+            $rebuyNumberTexts = [];
+            $totalRebuyPrice = 0;
+        
+            // Step 1: Create main Order
+            $order = Order::create([
+                'order_number' => $this->generateOrderNumber(),
+                'user_id' => $clientId,
+                'manager_id' => $managerId,
+                'commission' => $commission,
+                'rate' => $rate,
+                'order_type' => 'rebuy_auto',
+                'price' => 0, // temp, updated below
+                'status' => 0,
+                'user_order_status' => 0,
+                'date' => $date,
+                'section' => $section,
+                'created_by' => Auth::id(),
+                'buy_sell_type' => $buySellType,
+                'dine_id' => $clientId,
+            ]);
+        
+            // Step 2: Create OrderDetails for each number
+            foreach ($numbers as $num => $detail) {
+                $originalAmount = abs($detail['amount']); // ensure positive
+                $rebuyAmount = round($originalAmount * ($rebuyPercent / 100));
+        
+                if ($rebuyAmount <= 0) continue;
+        
+                OrderDetail::create([
+                    'order_number' => $this->generateOrderNumber(),
+                    'order_id' => $order->id,
+                    'user_id' => $clientId,
+                    'manager_id' => $managerId,
+                    'number' => $num,
+                    'order_type' => "rebuy_{$rebuyAmount}",
+                    'price' => $rebuyAmount,
+                    'user_order_status' => 'pending',
+                    'date' => $date,
+                    'section' => $section,
+                    'buy_sell_type' => $buySellType,
+                    'commission' => $commission,
+                    'rate' => $rate,
+                    'dine_id' => $clientId,
+                ]);
+        
+                $totalRebuyPrice += $rebuyAmount;
+                $rebuyNumberTexts[] = $num;
+            }
+        
+            // Update total price & order type summary
+            $order->update([
+                'price' => $totalRebuyPrice,
+                'order_type' => implode('-', $rebuyNumberTexts) . '_' . $rebuyPercent . '%',
+            ]);
+        
+            return redirect()->back()->with('success', 'ပြန်ဝယ်မှု အောင်မြင်ပါသည်။');
+        }
+        
+    
 }

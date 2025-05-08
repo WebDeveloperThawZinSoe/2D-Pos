@@ -64,6 +64,7 @@ Route::middleware(['web'])->group(function () {
         Route::get("/redine/{id}/edit", [DineController::class, "editRedine"])->name("editRedine");
         Route::post("/redine/{id}/update", [DineController::class, "updateRedine"])->name("updateRedine");
         Route::post("/redine/{id}/delete", [DineController::class, "deleteRedine"])->name("deleteRedine");
+      
     });
 
 
@@ -78,6 +79,7 @@ Route::middleware(['web'])->group(function () {
         Route::post("/close/number/delete",[OrderController::class,"close_number_delete"]);
         Route::post("/limit/store",[OrderController::class,"limit_store"]);
         Route::get("/rebuy",[OrderController::class,"rebuy"]);
+        Route::post("/rebuy/store",[OrderController::class,"rebuy_store"])->name("rebuy_store");
     });
     
 
