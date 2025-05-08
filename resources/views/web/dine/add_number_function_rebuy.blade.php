@@ -26,12 +26,14 @@
         @csrf
         <input type="hidden" name="date" value="{{ session('selected_date', 'Not set') }}">
         <input type="hidden" name="section" value="{{ session('selected_section', 'Not set') }}">
+        <input type="hidden" name="buy_sell" value="buy">
+        <input type="hidden" name="manager_id" value="{{Auth::user()->id}}">
         <div class="row gx-0 my-2">
             <div class="col-2 d-flex align-items-center">
                 <div> ဒိုင် </div>
             </div>
             <div class="col">
-                <select name="client" id="client" required class="form-control">
+                <select name="dine" id="client" required class="form-control">
                     <option value="">ဒိုင်ကိုရွှေးမည်။</option>
                     @php
                     $parent_id = Auth::user()->id;
@@ -94,13 +96,15 @@
                         @csrf
                         <input type="hidden" name="date" value="{{ session('selected_date', 'Not set') }}">
                         <input type="hidden" name="section" value="{{ session('selected_section', 'Not set') }}">
+                        <input type="hidden" name="buy_sell" value="buy">
+                        <input type="hidden" name="manager_id" value="{{Auth::user()->id}}">
                         <div class="mb-3">
-                            <label for="client" class="form-label">ထိုးသားကိုရွှေးပါ * </label>
-                            <select name="client" required id="client" class="form-select">
-                                <option value="">ထိုးသားကိုရွှေးပါ။</option>
+                            <label for="dine" class="form-label">ဒိုင်ကိုရွှေးမည်။ * </label>
+                            <select name="dine" required id="dine" class="form-select">
+                                <option value="">ဒိုင်ကိုရွှေးမည်။</option>
                                 @php
                                 $parent_id = Auth::user()->id;
-                                $clients = App\Models\User::where("manager_id",$parent_id)->get();
+                                $clients = App\Models\ReDine::where("manager_id",$parent_id)->get();
                                 @endphp
                                 @foreach($clients as $client)
                                 <option value="{{$client->id}}">{{$client->name}}</option>
@@ -150,7 +154,7 @@
                     $date = session('selected_date');
                     $section = session('selected_section');
                     $orders =
-                    App\Models\Order::where("created_by",$user_id)->where("date",$date)->where("section",$section)->where("status",0)->get();
+                    App\Models\Order::where("created_by",$user_id)->where("date",$date)->where("section",$section)->where("buy_sell_type",'buy')->where("status",0)->get();
                     @endphp
                     @foreach($orders as $order)
                     <div class="d-inline-block position-relative me-2">
@@ -188,10 +192,11 @@
                                 </div>
                                 <div class="modal-body">
                                     <p><strong>Type:</strong> {{ $order->order_type }}</p>
-                                    <p><strong>Client:</strong> {{$order->user->name}} </p>
+                                    <p><strong>Client:</strong> {{$order->user->name ?? ""}} </p>
                                     <p><strong>Total Amount:</strong> {{ $order->price }} Ks</p>
                                     <p><strong>Date:</strong> {{ $order->date }}</p>
                                     <p><strong>Section:</strong> {{ $order->section }}</p>
+                                    <p><strong>Buy Or Sell:</strong> {{ $order->buy_sell_type }}</p>
                                     <table class="table table-responsive">
                                         <thead>
                                             <tr>
@@ -293,6 +298,7 @@
         @csrf
         <input type="hidden" name="date" value="{{ session('selected_date', 'Not set') }}">
         <input type="hidden" name="section" value="{{ session('selected_section', 'Not set') }}">
+        <input type="hidden" name="buy_sell" value="buy">
         <button type="submit" class="btn btn-primary btn-lg w-100">
             တင်သည်။
         </button>

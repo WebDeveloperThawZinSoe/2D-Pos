@@ -62,7 +62,7 @@
                 @if ($totalPrice > $limitHeadPrice)
                 <tr>
                     <td class="bg-success text-white py-1">{{ $number }}</td>
-                    <td class="py-1">- {{ $totalPrice - $limitHeadPrice }}</td>
+                    <td class="py-1">-{{ $totalPrice - $limitHeadPrice }}</td>
                     <td class="py-1">{{ $totalPrice - $limitHeadPrice }}</td>
                     <td class="py-1">0</td>
                 </tr>
