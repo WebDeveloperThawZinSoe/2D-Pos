@@ -23,13 +23,13 @@
                         $date = session('selected_date');
                         $section = session('selected_section');
 
-                        $orders = App\Models\Order::where("manager_id", $user_id)
+                        $sells = App\Models\Order::where("manager_id", $user_id)
                         ->where("date", $date)
                         ->where("section", $section)
                         ->where("status", 1)->where("buy_sell_type","sell")
                         ->sum('price');
                         @endphp
-                        {{number_format($orders)}} Ks
+                        {{number_format($sells)}} Ks
                     </td>
                 </tr>
 
@@ -38,7 +38,18 @@
                         ပြန်၀ယ်
                     </td>
                     <td style="min-width:200px;">
+                        @php
+                        $user_id = Auth::id(); // Add this if not already defined
+                        $date = session('selected_date');
+                        $section = session('selected_section');
 
+                        $buys = App\Models\Order::where("manager_id", $user_id)
+                        ->where("date", $date)
+                        ->where("section", $section)
+                        ->where("status", 1)->where("buy_sell_type","buy")
+                        ->sum('price');
+                        @endphp
+                        {{number_format($buys)}} Ks
                     </td>
                 </tr>
 
@@ -47,7 +58,10 @@
                         အရောင်း အ၀ယ်
                     </td>
                     <td style="min-width:200px;">
-
+                        @php
+                        $buy_sell = $sells - $buys;
+                        @endphp
+                        {{number_format($buy_sell)}} Ks
                     </td>
                 </tr>
 
@@ -237,6 +251,7 @@
         $itemsPerColumn = 34;
         $columns = 3;
         @endphp
+
         <div class="row">
             @for ($col = 0; $col < $columns; $col++) <div class="col-md-4 col-4">
                 @php
@@ -250,21 +265,33 @@
                     $orders = App\Models\Order::where("manager_id", $user_id)
                     ->where("date", $date)
                     ->where("section", $section)
-                    ->where("status", 1)->where("buy_sell_type","sell")
+                    ->where("status", 1)
                     ->get();
 
-                    $data = 0;
-                    $orderDetails = collect(); // ← START with empty collection
+                    $sellTotal = 0;
+                    $buyTotal = 0;
+                    $orderDetailsSell = collect();
+                    $orderDetailsBuy = collect();
 
                     foreach ($orders as $order) {
-                    $details = App\Models\OrderDetail::where("order_id", $order->id)
-                    ->where("number", $number)->where("buy_sell_type","sell")
+                    $sellDetails = App\Models\OrderDetail::where("order_id", $order->id)
+                    ->where("number", $number)
+                    ->where("buy_sell_type", "sell")
                     ->get();
 
-                    $orderDetails = $orderDetails->merge($details); // ← MERGE details
+                    $orderDetailsSell = $orderDetailsSell->merge($sellDetails);
+                    foreach ($sellDetails as $detail) {
+                    $sellTotal += $detail->price;
+                    }
 
-                    foreach ($details as $detail) {
-                    $data += $detail->price;
+                    $buyDetails = App\Models\OrderDetail::where("order_id", $order->id)
+                    ->where("number", $number)
+                    ->where("buy_sell_type", "buy")
+                    ->get();
+
+                    $orderDetailsBuy = $orderDetailsBuy->merge($buyDetails);
+                    foreach ($buyDetails as $detail) {
+                    $buyTotal += $detail->price;
                     }
                     }
                     @endphp
@@ -273,8 +300,13 @@
                         <span class="badge bg-primary p-2" style="cursor:pointer;" data-bs-toggle="modal"
                             data-bs-target="#modal-{{ $number }}">
                             {{ $number }}
+
                         </span>
-                        <span>{{ $data }} Ks</span>
+                        @php
+                        $final = $sellTotal - $buyTotal;
+                        @endphp
+                        <span>{{number_format($final)}} Ks</span>
+
                     </div>
 
                     <!-- Modal -->
@@ -288,14 +320,29 @@
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    Total amount: {{ $data }} Ks
+                                    <strong class="text-success">Total Buy: {{ number_format($buyTotal) }}
+                                        Ks</strong><br>
+                                    <strong class="text-danger">Total Sell: {{ number_format($sellTotal) }} Ks</strong>
                                     <hr>
-                                    @foreach ($orderDetails as $orderDetail)
-                                    <p><strong>User Name:</strong> {{ $orderDetail->user->name }}</p>
-                                    <p><strong>Order Type:</strong> {{ $orderDetail->order_type }}</p>
-                                    <p><strong>Price:</strong> {{ number_format($orderDetail->price) }} Ks</p>
+                                    <h6 class="text-success">Buy Orders</h6>
+                                    @forelse ($orderDetailsBuy as $detail)
+                                    <p><strong>User Name:</strong> {{ $detail->user->name ?? ""}}</p>
+                                    <p><strong>Order Type:</strong> {{ $detail->order_type }}</p>
+                                    <p><strong>Buy Price:</strong> {{ number_format($detail->price) }} Ks</p>
                                     <hr>
-                                    @endforeach
+                                    @empty
+                                    <p>No buy orders.</p>
+                                    @endforelse
+
+                                    <h6 class="text-danger">Sell Orders</h6>
+                                    @forelse ($orderDetailsSell as $detail)
+                                    <p><strong>User Name:</strong> {{ $detail->user->name  ?? ""}}</p>
+                                    <p><strong>Order Type:</strong> {{ $detail->order_type }}</p>
+                                    <p><strong>Sell Price:</strong> {{ number_format($detail->price) }} Ks</p>
+                                    <hr>
+                                    @empty
+                                    <p>No sell orders.</p>
+                                    @endforelse
                                 </div>
                             </div>
                         </div>
@@ -304,6 +351,7 @@
         </div>
         @endfor
     </div>
+
 </div>
 <div class="col-md-3 col-12">
     <h5 class="card-title fw-bold text-primary mb-3">ခေါင်းကျော်နေသော အကွက်များ</h5>
@@ -322,10 +370,19 @@
             $date = session('selected_date');
             $section = session('selected_section');
 
-            $orderDetails = App\Models\OrderDetail::where("manager_id", $user_id)
+            $sellDetails = App\Models\OrderDetail::where("manager_id", $user_id)
             ->where("date", $date)
             ->where("section", $section)
-            ->where("user_order_status", 1)->where("buy_sell_type","sell")
+            ->where("user_order_status", 1)
+            ->where("buy_sell_type", "sell")
+            ->get()
+            ->groupBy('number');
+
+            $buyDetails = App\Models\OrderDetail::where("manager_id", $user_id)
+            ->where("date", $date)
+            ->where("section", $section)
+            ->where("user_order_status", 1)
+            ->where("buy_sell_type", "buy")
             ->get()
             ->groupBy('number');
 
@@ -337,26 +394,31 @@
             $limitHeadPrice = $limitHead->amount ?? 0;
             @endphp
 
-            @foreach ($orderDetails as $number => $items)
+            @foreach ($sellDetails as $number => $sellItems)
             @php
-            $totalPrice = $items->sum('price');
-            $lastOver = $items->last();
+            $sellTotal = $sellItems->sum('price');
+            $buyTotal = $buyDetails->has($number) ? $buyDetails[$number]->sum('price') : 0;
+
+            $lastOver = $sellTotal - $limitHeadPrice;
+
+            $calLastOver = (-$lastOver) + $buyTotal;
             @endphp
 
-            @if ($totalPrice > $limitHeadPrice)
+            @if ($sellTotal > $limitHeadPrice)
             <tr>
                 <td class="bg-success text-white py-1">{{ $number }}</td>
-                <td class="py-1">-{{ $totalPrice - $limitHeadPrice }}</td>
-                <td class="py-1">{{ $totalPrice - $limitHeadPrice }}</td>
-                <td class="py-1">0</td>
+                <td class="py-1">{{ number_format($calLastOver) }}</td>
+                <td class="py-1">{{ number_format($lastOver) }}</td>
+                <td class="py-1">{{ number_format($buyTotal) }}</td>
             </tr>
             @endif
             @endforeach
-        </tbody>
 
+        </tbody>
     </table>
-    <a href="/rebuy"  class="btn btn-primary w-100">ပြန်ဝယ်မည်။</a>
+    <a href="/rebuy" class="btn btn-primary w-100">ပြန်ဝယ်မည်။</a>
 </div>
+
 
 
 </div>
