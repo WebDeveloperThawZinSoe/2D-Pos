@@ -64,7 +64,7 @@ Route::middleware(['web'])->group(function () {
         Route::get("/redine/{id}/edit", [DineController::class, "editRedine"])->name("editRedine");
         Route::post("/redine/{id}/update", [DineController::class, "updateRedine"])->name("updateRedine");
         Route::post("/redine/{id}/delete", [DineController::class, "deleteRedine"])->name("deleteRedine");
-      
+        Route::get("/buy/sell/log",[DineController::class,"buy_sell_log"])->name("buy_sell_log");
     });
 
 

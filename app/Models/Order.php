@@ -39,5 +39,10 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'manager_id', 'id');
     }
+
+        public function dine()
+    {
+        return $this->belongsTo(ReDine::class, 'dine_id', 'id');
+    }
     
 }

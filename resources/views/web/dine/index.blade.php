@@ -393,7 +393,7 @@
 
             $limitHeadPrice = $limitHead->amount ?? 0;
             @endphp
-
+            @if($limitHead->amount > 0)
             @foreach ($sellDetails as $number => $sellItems)
             @php
             $sellTotal = $sellItems->sum('price');
@@ -413,10 +413,16 @@
             </tr>
             @endif
             @endforeach
-
+            @else 
+            <tr>
+                <td colspan=4>ခေါင်ကျော်ခြင်းမရှိပါ။</td>
+            </tr>
+            @endif
         </tbody>
     </table>
     <a href="/rebuy" class="btn btn-primary w-100">ပြန်ဝယ်မည်။</a>
+<br>    <br>
+    <a href="/dine/buy/sell/log" class="btn btn-primary w-100">အရောင်းအဝယ်စာရင်း</a>
 </div>
 
 

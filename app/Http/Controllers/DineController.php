@@ -6,6 +6,9 @@ use App\Models\User;
 use App\Models\ReDine;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Order;
+use App\Models\OrderDetail;
+
 
 class DineController extends Controller
 {
@@ -155,6 +158,13 @@ class DineController extends Controller
         return redirect()->route('dine.redine')->with('success', 'Dine deleted.');
     }
 
+    public function buy_sell_log(){
+        $date = session('selected_date');
+        $section = session('selected_section');
+        $buyOrders = Order::where("manager_id",Auth::user()->id)->where("status",1)->where("date",$date)->where("section",$section)->where("buy_sell_type","buy")->get();
+        $sellOrders = Order::where("manager_id",Auth::user()->id)->where("status",1)->where("date",$date)->where("section",$section)->where("buy_sell_type","sell")->get();
+        return view("web.dine.buy_sell_log",compact("buyOrders","sellOrders"));
+    }
 
 
 }
