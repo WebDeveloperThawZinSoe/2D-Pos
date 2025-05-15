@@ -24,6 +24,7 @@ class OrderDetail extends Model
         'dine_id',
         'commission',
         'rate',
+        'win_lose'
     ];
 
     public function order()

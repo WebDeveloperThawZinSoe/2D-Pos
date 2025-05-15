@@ -18,7 +18,7 @@
             <thead class="table-dark">
                 <tr>
                     <th>စဉ်</th>
-                    <th>အော်ဒါနံပတ်</th>
+                   
                     <th>ထိုးသားအမည်</th>
                     <th>ထိုးကွက်စုစုပေါင်း</th>
                     <th>ထိုးငွေ</th>
@@ -29,7 +29,7 @@
                 @foreach($sellOrders as $key => $order)
                 <tr>
                     <td>{{ $key + 1 }}</td>
-                    <td>{{ $order->order_number }}</td>
+                   
                     <td>{{ $order->user->name }}</td>
                     <td>
                         {{ \App\Models\OrderDetail::where('order_id', $order->id)->count() }}
@@ -106,7 +106,7 @@
             <thead class="table-dark">
                 <tr>
                     <th>စဉ်</th>
-                    <th>အော်ဒါနံပတ်</th>
+                   
                     <th>ဒိုင်အမည်</th>
                     <th>ထိုးကွက်စုစုပေါင်း</th>
                     <th>ထိုးငွေ</th>
@@ -117,7 +117,7 @@
                 @foreach($buyOrders as $key => $order)
                 <tr>
                     <td>{{ $key + 1 }}</td>
-                    <td>{{ $order->order_number }}</td>
+                  
                     <td>{{ $order->dine->name }}</td>
                     <td>
                         {{ \App\Models\OrderDetail::where('order_id', $order->id)->count() }}

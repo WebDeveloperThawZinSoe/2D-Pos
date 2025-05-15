@@ -297,7 +297,7 @@
                     ->where('date', session('selected_date'))
                     ->first();
 
-                    $winNumber = $win->number ?? '0';
+                    $winNumber = $win->number ?? '1000';
                     $isWinner = $winNumber == $number;
                     $final = $sellTotal - $buyTotal;
                     @endphp

@@ -687,6 +687,22 @@ class OrderController extends Controller
                 ->where("date", $date)
                 ->where("section", $section)
                 ->delete();
+            
+            CloseNumber::where("manager_id", $user_id)
+                ->where("date", $date)
+                ->where("section", $section)
+                ->delete();
+
+            DineHeadLimit::where("manager_id", $user_id)
+                ->where("date", $date)
+                ->where("section", $section)
+                ->delete();
+
+            
+            WinNumber::where("manager_id", $user_id)
+                ->where("date", $date)
+                ->where("section", $section)
+                ->delete();
         
             return redirect()->back()->with("success", "All cleared successfully!");
         }
@@ -769,14 +785,33 @@ class OrderController extends Controller
                 ->where('section', $validated['section'])
                 ->where('date', $validated['date'])
                 ->first();
+            
+     
+            
         
            if ($request->number == "" || $request->number == 0) {
                 if ($existing) {
                     $existing->delete();
+                     OrderDetail::where('manager_id', $validated['manager_id'])
+                    ->where('section', $validated['section'])
+                    ->where('date', $validated['date'])->update([
+                        "win_lose" => 0
+                    ]);
                     return back()->with('success', 'ပေါက်သီး ဖြတ်ပြီးပါပြီ။');
                 } else {
+                    OrderDetail::where('manager_id', $validated['manager_id'])
+                    ->where('section', $validated['section'])
+                    ->where('date', $validated['date'])->update([
+                        "win_lose" => 0
+                    ]);
                     return back()->with('error', 'ပေါက်သီး မရှိသေးပါ။ ဖြတ်ရန်အချက်အလက် မတွေ့ပါ။');
                 }
+            }else{
+                OrderDetail::where('manager_id', $validated['manager_id'])
+                ->where('section', $validated['section'])
+                ->where('date', $validated['date'])->where("number",$request->number)->update([
+                    "win_lose" => 1
+                ]);
             }
 
             if ($existing) {

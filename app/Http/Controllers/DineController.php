@@ -167,28 +167,78 @@ class DineController extends Controller
         return view("web.dine.buy_sell_log",compact("buyOrders","sellOrders"));
     }
 
-    public function report_daily(){
-        $date = session('selected_date');
-        $section = session('selected_section');
-        $buyOrders = Order::select('user_id', DB::raw('SUM(price) as total_amount'))
-            ->where("manager_id", Auth::user()->id)
-            ->where("status", 1)
-            ->where("date", $date)
-            ->where("section", $section)
-            ->where("buy_sell_type", "buy")
-            ->groupBy('user_id')
+
+public function report()
+{
+    $date = session('selected_date');
+    $section = session('selected_section');
+
+    // ✅ Buy orders grouped by dine_id with dine name
+    $buyOrders = Order::select('dine_id', DB::raw('SUM(price) as total_amount'), 're_dines.name as dine_name')
+        ->join('re_dines', 'orders.dine_id', '=', 're_dines.id')
+        ->where("orders.manager_id", Auth::user()->id)
+        ->where("orders.status", 1)
+        ->where("orders.date", $date)
+        ->where("orders.section", $section)
+        ->where("orders.buy_sell_type", "buy")
+        ->groupBy('dine_id', 're_dines.name')
+        ->get();
+
+    foreach ($buyOrders as $order) {
+        $dine = \App\Models\ReDine::find($order->dine_id);
+
+        $winningDetails = OrderDetail::where('manager_id', Auth::user()->id)
+            ->where('dine_id', $order->dine_id)
+            ->where('date', $date)
+            ->where('section', $section)
+            ->where('buy_sell_type', 'buy')
+            ->where('win_lose', 1)
             ->get();
 
-       $sellOrders = Order::select('dine_id', DB::raw('SUM(price) as total_amount'))
-    ->where("manager_id", Auth::user()->id)
-    ->where("status", 1)
-    ->where("date", $date)
-    ->where("section", $section)
-    ->where("buy_sell_type", "sell")
-    ->groupBy('dine_id')
-    ->get();
-        return view("web.dine.report.daily",compact("buyOrders","sellOrders"));
+        $rate = $dine->rate ?? 0;
+        $totalNumber = $winningDetails->sum('price');
+        $dethPauk = $totalNumber * $rate;
+
+        $order->deth_pauk = $dethPauk;
+        $order->dine = $dine;
     }
+
+    // ✅ Sell orders grouped by user_id with user name
+    $sellOrders = Order::select('user_id', DB::raw('SUM(price) as total_amount'), 'users.name as user_name')
+        ->join('users', 'orders.user_id', '=', 'users.id')
+        ->where("orders.manager_id", Auth::user()->id)
+        ->where("orders.status", 1)
+        ->where("orders.date", $date)
+        ->where("orders.section", $section)
+        ->where("orders.buy_sell_type", "sell")
+        ->groupBy('user_id', 'users.name')
+        ->get();
+
+    // ✅ Calculate Deth Pauk & attach user
+    foreach ($sellOrders as $order) {
+        $user = \App\Models\User::find($order->user_id);
+
+        $winningDetails = OrderDetail::where('manager_id', Auth::user()->id)
+            ->where('user_id', $order->user_id)
+            ->where('date', $date)
+            ->where('section', $section)
+            ->where('buy_sell_type', 'sell')
+            ->where('win_lose', 1)
+            ->get();
+
+        $rate = $user->rate ?? 0;
+        $totalNumber = $winningDetails->sum('price');
+        $dethPauk = $totalNumber * $rate;
+
+        $order->deth_pauk = $dethPauk;
+        $order->user = $user;
+    }
+
+    return view("web.dine.report.daily", compact("buyOrders", "sellOrders"));
+}
+
+
+
 
 
 }
