@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use Illuminate\Support\Facades\DB;
 
 
 class DineController extends Controller
@@ -164,6 +165,29 @@ class DineController extends Controller
         $buyOrders = Order::where("manager_id",Auth::user()->id)->where("status",1)->where("date",$date)->where("section",$section)->where("buy_sell_type","buy")->get();
         $sellOrders = Order::where("manager_id",Auth::user()->id)->where("status",1)->where("date",$date)->where("section",$section)->where("buy_sell_type","sell")->get();
         return view("web.dine.buy_sell_log",compact("buyOrders","sellOrders"));
+    }
+
+    public function report_daily(){
+        $date = session('selected_date');
+        $section = session('selected_section');
+        $buyOrders = Order::select('user_id', DB::raw('SUM(price) as total_amount'))
+            ->where("manager_id", Auth::user()->id)
+            ->where("status", 1)
+            ->where("date", $date)
+            ->where("section", $section)
+            ->where("buy_sell_type", "buy")
+            ->groupBy('user_id')
+            ->get();
+
+       $sellOrders = Order::select('dine_id', DB::raw('SUM(price) as total_amount'))
+    ->where("manager_id", Auth::user()->id)
+    ->where("status", 1)
+    ->where("date", $date)
+    ->where("section", $section)
+    ->where("buy_sell_type", "sell")
+    ->groupBy('dine_id')
+    ->get();
+        return view("web.dine.report.daily",compact("buyOrders","sellOrders"));
     }
 
 

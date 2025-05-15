@@ -34,7 +34,7 @@
                     <td>
                         {{ \App\Models\OrderDetail::where('order_id', $order->id)->count() }}
                     </td>
-                    <td>{{ number_format($order->price) }} Ks</td>
+                    <td>{{ number_format($order->price) }}   </td>
                     <td>
                         <button class="btn btn-info btn-sm" data-bs-toggle="modal"
                             data-bs-target="#orderModal{{ $order->id }}">အသေးစိတ်</button>
@@ -64,7 +64,7 @@
                             <div class="modal-body">
                                 <p><strong>Type:</strong> {{ $order->order_type }}</p>
                                 <p><strong>Client:</strong> {{$order->user->name ?? ""}} </p>
-                                <p><strong>Total Amount:</strong> {{ $order->price }} Ks</p>
+                                <p><strong>Total Amount:</strong> {{ $order->price }}   </p>
                                 <p><strong>Date:</strong> {{ $order->date }}</p>
                                 <p><strong>Section:</strong> {{ $order->section }}</p>
 
@@ -76,7 +76,7 @@
                                 <div class="border rounded p-2 mb-2">
                                     <p class="mb-1"><strong>စဉ်:</strong> {{ $key + 1 }}</p>
                                     <p class="mb-1"><strong>နံပါတ်:</strong> {{ $detail->number }}</p>
-                                    <p class="mb-0"><strong>ဈေးနှုန်း:</strong> {{ number_format($detail->price) }} Ks
+                                    <p class="mb-0"><strong>ဈေးနှုန်း:</strong> {{ number_format($detail->price) }}   
                                     </p>
                                 </div>
                                 @endforeach
@@ -91,7 +91,7 @@
                 <!-- Summary row -->
                 <tr class="fw-bold bg-light">
                     <td colspan="4" class="text-end">ထိုးငွေစုစုပေါင်း</td>
-                    <td colspan="2">{{ number_format($sellOrders->sum('price')) }} Ks</td>
+                    <td colspan="2">{{ number_format($sellOrders->sum('price')) }}   </td>
                 </tr>
             </tbody>
         </table>
@@ -122,7 +122,7 @@
                     <td>
                         {{ \App\Models\OrderDetail::where('order_id', $order->id)->count() }}
                     </td>
-                    <td>{{ number_format($order->price) }} Ks</td>
+                    <td>{{ number_format($order->price) }}   </td>
                     <td>
                         <button class="btn btn-info btn-sm" data-bs-toggle="modal"
                             data-bs-target="#orderModal{{ $order->id }}">အသေးစိတ်</button>
@@ -152,7 +152,7 @@
                             <div class="modal-body">
                                 <p><strong>Type:</strong> {{ $order->order_type }}</p>
                                 <p><strong>Client:</strong> {{$order->dine->name ?? ""}} </p>
-                                <p><strong>Total Amount:</strong> {{ $order->price }} Ks</p>
+                                <p><strong>Total Amount:</strong> {{ $order->price }}   </p>
                                 <p><strong>Date:</strong> {{ $order->date }}</p>
                                 <p><strong>Section:</strong> {{ $order->section }}</p>
 
@@ -164,7 +164,7 @@
                                 <div class="border rounded p-2 mb-2">
                                     <p class="mb-1"><strong>စဉ်:</strong> {{ $key + 1 }}</p>
                                     <p class="mb-1"><strong>နံပါတ်:</strong> {{ $detail->number }}</p>
-                                    <p class="mb-0"><strong>ဈေးနှုန်း:</strong> {{ number_format($detail->price) }} Ks
+                                    <p class="mb-0"><strong>ဈေးနှုန်း:</strong> {{ number_format($detail->price) }}   
                                     </p>
                                 </div>
                                 @endforeach
@@ -179,7 +179,7 @@
                 <!-- Summary row -->
                 <tr class="fw-bold bg-light">
                     <td colspan="4" class="text-end">ထိုးငွေစုစုပေါင်း</td>
-                    <td colspan="2">{{ number_format($buyOrders->sum('price')) }} Ks</td>
+                    <td colspan="2">{{ number_format($buyOrders->sum('price')) }}   </td>
                 </tr>
             </tbody>
         </table>

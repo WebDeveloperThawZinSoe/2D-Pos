@@ -10,6 +10,7 @@ use App\Models\CloseNumber;
 use App\Models\User;
 use App\Models\DineHeadLimit;
 use App\Models\ReDine;
+use App\Models\WinNumber;
 use Auth;
 
 
@@ -753,6 +754,45 @@ class OrderController extends Controller
             }
         
             return back()->with('success', 'ခေါင်ကျော် Limit သက်မှတ်ပြီးပါပြီ။');
+        }
+
+        //win_store
+        public function win_store(Request $request){
+             $validated = $request->validate([
+                'manager_id' => 'required|integer',
+                'section' => 'required|string',
+                'date' => 'required|date',
+                
+            ]);
+        
+            $existing = WinNumber::where('manager_id', $validated['manager_id'])
+                ->where('section', $validated['section'])
+                ->where('date', $validated['date'])
+                ->first();
+        
+           if ($request->number == "" || $request->number == 0) {
+                if ($existing) {
+                    $existing->delete();
+                    return back()->with('success', 'ပေါက်သီး ဖြတ်ပြီးပါပြီ။');
+                } else {
+                    return back()->with('error', 'ပေါက်သီး မရှိသေးပါ။ ဖြတ်ရန်အချက်အလက် မတွေ့ပါ။');
+                }
+            }
+
+            if ($existing) {
+                $existing->update([
+                    'number' => $request->number,
+                ]);
+            } else {
+                WinNumber::create([
+                    'manager_id' => $validated['manager_id'],
+                    'section' => $validated['section'],
+                    'date' => $validated['date'],
+                    'number' => $request->number,
+                ]);
+            }
+        
+            return back()->with('success', 'ပေါက်သီး သက်မှတ်ပြီးပါပြီ။');
         }
 
 

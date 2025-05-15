@@ -50,7 +50,8 @@
                         <a class="nav-link text-dark fw-semibold" href="{{ route('routeCheck') }}">ပင်မစာမျက်နှာ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark fw-semibold" href="{{ route('select.date.section') }}">ရက်ရွှေးမည်</a>
+                        <a class="nav-link text-dark fw-semibold"
+                            href="{{ route('select.date.section') }}">ရက်ရွှေးမည်</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-dark fw-semibold" href="{{ route('user.my.order') }}">အရင်အော်ဒါများ</a>
@@ -81,7 +82,8 @@
                         <a class="nav-link text-dark fw-semibold" href="{{ route('routeCheck') }}">ပင်မစာမျက်နှာ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark fw-semibold" href="{{ route('select.date.section') }}">ရက်ရွှေးမည်</a>
+                        <a class="nav-link text-dark fw-semibold"
+                            href="{{ route('select.date.section') }}">ရက်ရွှေးမည်</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle  text-dark  fw-semibold" href="#" id="navbarDropdown2"
@@ -89,7 +91,7 @@
                             စာရင်းချုပ်
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                         
+
                             <li><a class="dropdown-item" href="#">နေ့စဉ်</a></li>
                             <li><a class="dropdown-item" href="#">အပတ်စဉ်</a></li>
                             <li><a class="dropdown-item" href="#">လစဉ်</a></li>
@@ -145,6 +147,7 @@
                 @endguest
                 @auth
 
+
                 @if(Auth::user()->hasRole('user'))
                 <li class="nav-item">
                     <a class="nav-link text-dark fw-semibold" href="{{ route('routeCheck') }}">ပင်မစာမျက်နှာ</a>
@@ -167,22 +170,35 @@
                 </li>
 
                 @elseif(Auth::user()->hasRole('shop'))
-                {{-- Shop role menu items here --}}
                 <li class="nav-item">
                     <a class="nav-link text-dark fw-semibold" href="{{ route('dine.index') }}">ပင်မစာမျက်နှာ</a>
                 </li>
-                {{-- Add more links as needed --}}
+                <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold" href="{{ route('select.date.section') }}">ရက်ရွှေးမည်</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold" href="{{ route('select.date.section') }}">စာရင်းချုပ်</a>
+                </li>
+
+                 <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold"
+                        href="{{ route('user.changePassword') }}">စကားဝှက်ပြောင်းမည်</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link text-danger fw-semibold" href="{{ route('logout') }}"
-                        onclick="event.preventDefault(); document.getElementById('logout-form-shop').submit();">
+                        onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">
                         Logout
                     </a>
-                    <form id="logout-form-shop" action="{{ route('logout') }}" method="POST" class="d-none">
+                    <form id="logout-form-mobile" action="{{ route('logout') }}" method="POST" class="d-none">
                         @csrf
                     </form>
                 </li>
+
+
+                
                 @endif
                 @endauth
+
 
 
 
@@ -192,7 +208,7 @@
 
 
     <div class="container mt-4">
-    @yield('body')
+        @yield('body')
     </div>
 
 

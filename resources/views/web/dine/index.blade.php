@@ -29,7 +29,7 @@
                         ->where("status", 1)->where("buy_sell_type","sell")
                         ->sum('price');
                         @endphp
-                        {{number_format($sells)}} Ks
+                        {{number_format($sells)}}
                     </td>
                 </tr>
 
@@ -49,7 +49,7 @@
                         ->where("status", 1)->where("buy_sell_type","buy")
                         ->sum('price');
                         @endphp
-                        {{number_format($buys)}} Ks
+                        {{number_format($buys)}}
                     </td>
                 </tr>
 
@@ -61,7 +61,7 @@
                         @php
                         $buy_sell = $sells - $buys;
                         @endphp
-                        {{number_format($buy_sell)}} Ks
+                        {{number_format($buy_sell)}}
                     </td>
                 </tr>
 
@@ -98,30 +98,24 @@
                         ပေါက်သီး
                     </td>
                     <td style="min-width:200px;">
+                        @php
+                        $winNumber = App\Models\WinNumber::where('manager_id', auth()->id())
+                        ->where('section', session('selected_section'))
+                        ->where('date', session('selected_date'))
+                        ->first();
 
-
-
-
-                        <form method="POST" action="/admin/set_lucky_number" id="set_lucky_number"
-                            style="display: inline;">
+                        @endphp
+                        <form action="/win/store" method="post" class="d-flex align-items-center gap-2">
                             @csrf
-                            <input hidden type="date" class="form-control"
-                                value="{{ $request->get_date ?? Carbon\Carbon::now()->format('Y-m-d') }}"
-                                onchange="change_section()" name="get_date" id="get_date">
+                            <input type="hidden" name="date" value="{{ session('selected_date') }}">
+                            <input type="hidden" name="section" value="{{ session('selected_section') }}">
+                            <input type="hidden" name="manager_id" value="{{ Auth::user()->id }}">
+                            <input type="number" name="number" class="form-control form-control-sm"
+                                placeholder="Enter Win Number" value="{{  $winNumber->number ?? '' }}">
 
-
-                            <select hidden name="get_am_pm" id="get_am_pm" onchange="change_section()"
-                                class="form-control">
-
-                                <option value="am">AM
-                                </option>
-                                <option value="pm">PM
-                                </option>
-
-
-                            </select>
-                            <input type="text" class="form-control" name="number"
-                                onchange="document.getElementById('set_lucky_number').submit();" value="">
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                Submit
+                            </button>
                         </form>
                     </td>
                 </tr>
@@ -250,6 +244,8 @@
         $totalItems = 100;
         $itemsPerColumn = 34;
         $columns = 3;
+
+
         @endphp
 
         <div class="row">
@@ -295,19 +291,28 @@
                     }
                     }
                     @endphp
+                    @php
+                    $win = App\Models\WinNumber::where('manager_id', auth()->id())
+                    ->where('section', session('selected_section'))
+                    ->where('date', session('selected_date'))
+                    ->first();
+
+                    $winNumber = $win->number ?? '0';
+                    $isWinner = $winNumber == $number;
+                    $final = $sellTotal - $buyTotal;
+                    @endphp
 
                     <div class="mb-2">
-                        <span class="badge bg-primary p-2" style="cursor:pointer;" data-bs-toggle="modal"
+                        <span class="badge p-2 
+        {{ $isWinner ? 'bg-success' : 'bg-primary' }}" style="cursor:pointer;" data-bs-toggle="modal"
                             data-bs-target="#modal-{{ $number }}">
                             {{ $number }}
-
                         </span>
-                        @php
-                        $final = $sellTotal - $buyTotal;
-                        @endphp
-                        <span>{{number_format($final)}} Ks</span>
 
+                        <span>{{ number_format($final) }}</span>
                     </div>
+
+
 
                     <!-- Modal -->
                     <div class="modal fade" id="modal-{{ $number }}" tabindex="-1"
@@ -321,14 +326,14 @@
                                 </div>
                                 <div class="modal-body">
                                     <strong class="text-success">Total Buy: {{ number_format($buyTotal) }}
-                                        Ks</strong><br>
-                                    <strong class="text-danger">Total Sell: {{ number_format($sellTotal) }} Ks</strong>
+                                    </strong><br>
+                                    <strong class="text-danger">Total Sell: {{ number_format($sellTotal) }} </strong>
                                     <hr>
                                     <h6 class="text-success">Buy Orders</h6>
                                     @forelse ($orderDetailsBuy as $detail)
                                     <p><strong>User Name:</strong> {{ $detail->user->name ?? ""}}</p>
                                     <p><strong>Order Type:</strong> {{ $detail->order_type }}</p>
-                                    <p><strong>Buy Price:</strong> {{ number_format($detail->price) }} Ks</p>
+                                    <p><strong>Buy Price:</strong> {{ number_format($detail->price) }} </p>
                                     <hr>
                                     @empty
                                     <p>No buy orders.</p>
@@ -338,7 +343,7 @@
                                     @forelse ($orderDetailsSell as $detail)
                                     <p><strong>User Name:</strong> {{ $detail->user->name  ?? ""}}</p>
                                     <p><strong>Order Type:</strong> {{ $detail->order_type }}</p>
-                                    <p><strong>Sell Price:</strong> {{ number_format($detail->price) }} Ks</p>
+                                    <p><strong>Sell Price:</strong> {{ number_format($detail->price) }} </p>
                                     <hr>
                                     @empty
                                     <p>No sell orders.</p>
@@ -393,7 +398,7 @@
 
             $limitHeadPrice = $limitHead->amount ?? 0;
             @endphp
-            @if($limitHead->amount > 0)
+            @if($limitHeadPrice > 0)
             @foreach ($sellDetails as $number => $sellItems)
             @php
             $sellTotal = $sellItems->sum('price');
@@ -413,7 +418,7 @@
             </tr>
             @endif
             @endforeach
-            @else 
+            @else
             <tr>
                 <td colspan=4>ခေါင်ကျော်ခြင်းမရှိပါ။</td>
             </tr>
@@ -421,8 +426,22 @@
         </tbody>
     </table>
     <a href="/rebuy" class="btn btn-primary w-100">ပြန်ဝယ်မည်။</a>
-<br>    <br>
+    <br> <br>
     <a href="/dine/buy/sell/log" class="btn btn-primary w-100">အရောင်းအဝယ်စာရင်း</a>
+        <br> <br>
+        
+                            <!-- <li><a class="dropdown-item" href="#">နေ့စဉ်</a></li>
+                            <li><a class="dropdown-item" href="#">အပတ်စဉ်</a></li>
+                            <li><a class="dropdown-item" href="#">လစဉ်</a></li>
+                            <li><a class="dropdown-item" href="#">တနစ်စာ</a></li> -->
+    <a href="/dine/report/daily" class="btn btn-primary w-100">စာရင်းချုပ် ( နေ့စဉ် ) </a>
+    <br>  <br>
+    <a href="/dine/report/weekly" class="btn btn-primary w-100">စာရင်းချုပ် ( အပတ်စဉ် ) </a>
+    <br>  <br>
+    <a href="/dine/report/monthly" class="btn btn-primary w-100">စာရင်းချုပ် ( လစဉ် ) </a>
+    <br>  <br>
+    <a href="/dine/report/daily" class="btn btn-primary w-100">စာရင်းချုပ် ( တနစ်စာ ) </a>
+    <br>
 </div>
 
 
