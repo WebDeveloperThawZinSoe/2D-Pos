@@ -440,7 +440,7 @@
     <br>  <br>
     <a href="/dine/report/monthly" class="btn btn-primary w-100">စာရင်းချုပ် ( လစဉ် ) </a>
     <br>  <br>
-    <a href="/dine/report/daily" class="btn btn-primary w-100">စာရင်းချုပ် ( တနစ်စာ ) </a>
+    <a href="/dine/report/yearly" class="btn btn-primary w-100">စာရင်းချုပ် ( တနစ်စာ ) </a>
     <br>
 </div>
 

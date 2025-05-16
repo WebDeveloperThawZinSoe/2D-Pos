@@ -92,10 +92,10 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
 
-                            <li><a class="dropdown-item" href="#">နေ့စဉ်</a></li>
-                            <li><a class="dropdown-item" href="#">အပတ်စဉ်</a></li>
-                            <li><a class="dropdown-item" href="#">လစဉ်</a></li>
-                            <li><a class="dropdown-item" href="#">တနစ်စာ</a></li>
+                            <li><a class="dropdown-item" href="/dine/report/daily">နေ့စဉ်</a></li>
+                            <li><a class="dropdown-item" href="/dine/report/weekly">အပတ်စဉ်</a></li>
+                            <li><a class="dropdown-item" href="/dine/report/monthly">လစဉ်</a></li>
+                            <li><a class="dropdown-item" href="/dine/report/yearly">တနစ်စာ</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -177,7 +177,19 @@
                     <a class="nav-link text-dark fw-semibold" href="{{ route('select.date.section') }}">ရက်ရွှေးမည်</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-dark fw-semibold" href="{{ route('select.date.section') }}">စာရင်းချုပ်</a>
+                    <a class="nav-link text-dark fw-semibold" href="/dine/report/daily">စာရင်းချုပ် ( နေ့စဉ် ) </a>
+                </li>
+
+                 <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold" href="/dine/report/weekly">စာရင်းချုပ် ( အပတ်စဉ် )</a>
+                </li>
+
+                 <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold" href="/dine/report/monthly">စာရင်းချုပ် ( လစဉ် )</a>
+                </li>
+
+                 <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold" href="/dine/report/yearly">စာရင်းချုပ် ( တနစ်စာ )</a>
                 </li>
 
                  <li class="nav-item">

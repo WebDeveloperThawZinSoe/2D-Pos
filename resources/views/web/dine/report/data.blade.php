@@ -3,9 +3,9 @@
 @section('body')
 
 <h4 class="mb-4">
-    <b>
-        နေ့စဉ် စာရင်းချုပ် (ရွေးထားသည့်အချိန် - {{ session('selected_date', 'Not set') }}
-        <span class="text-primary">{{ ucfirst(session('selected_section', 'Not set')) }}</span>)
+     <b>
+        {{ ucfirst($type) }} စာရင်းချုပ် 
+        ({{ $startDate->format('Y-m-d') }} မှ {{ $endDate->format('Y-m-d') }})
     </b>
 </h4>
 
@@ -123,5 +123,12 @@
         </tbody>
     </table>
 </div>
+
+@php 
+        $finalMoney = $finalTotal - $buyTotal;
+@endphp 
+
+<h4>စာရင်းချုပ်ငွေ  :  {{number_format($finalMoney)}} Ks </h4>
+
 
 @endsection
