@@ -179,8 +179,10 @@ class DineController extends Controller
         $startDate = $endDate = Carbon::parse($date);
 
         switch ($type) {
-            case 'daily':
-                $startDate = $endDate = Carbon::parse($date);
+           case 'daily':
+                $startDate = Carbon::parse($date)->startOfDay();
+                $endDate = Carbon::parse($date)->endOfDay();
+              
                 break;
 
             case 'weekly':
@@ -202,61 +204,119 @@ class DineController extends Controller
                 abort(400, 'Invalid report type.');
         }
 
-        // ✅ Buy Orders
-        $buyOrders = Order::select('dine_id', DB::raw('SUM(price) as total_amount'), 're_dines.name as dine_name')
-            ->join('re_dines', 'orders.dine_id', '=', 're_dines.id')
-            ->where('orders.manager_id', $managerId)
-            ->where('orders.status', 1)
-            ->whereBetween('orders.date', [$startDate, $endDate])
-            ->where('orders.buy_sell_type', 'buy')
-            ->groupBy('dine_id', 're_dines.name')
-            ->get();
+        if($type != "daily"){
+            // ✅ Buy Orders
+            $buyOrders = Order::select('dine_id', DB::raw('SUM(price) as total_amount'), 're_dines.name as dine_name')
+                ->join('re_dines', 'orders.dine_id', '=', 're_dines.id')
+                ->where('orders.manager_id', $managerId)
+                ->where('orders.status', 1)
+                ->whereBetween('orders.date', [$startDate, $endDate])
+                ->where('orders.buy_sell_type', 'buy')
+                ->groupBy('dine_id', 're_dines.name')
+                ->get();
+            foreach ($buyOrders as $order) {
+                $dine = \App\Models\ReDine::find($order->dine_id);
 
-        foreach ($buyOrders as $order) {
-            $dine = \App\Models\ReDine::find($order->dine_id);
+                $winningDetails = OrderDetail::where('manager_id', $managerId)
+                    ->where('dine_id', $order->dine_id)
+                    ->whereBetween('date', [$startDate, $endDate])
+                    ->where('buy_sell_type', 'buy')
+                    ->where('win_lose', 1)
+                    ->get();
 
-            $winningDetails = OrderDetail::where('manager_id', $managerId)
-                ->where('dine_id', $order->dine_id)
-                ->whereBetween('date', [$startDate, $endDate])
-                ->where('buy_sell_type', 'buy')
-                ->where('win_lose', 1)
+                $rate = $dine->rate ?? 0;
+                $totalNumber = $winningDetails->sum('price');
+                $dethPauk = $totalNumber * $rate;
+
+                $order->deth_pauk = $dethPauk;
+                $order->dine = $dine;
+            }
+
+            // ✅ Sell Orders
+            $sellOrders = Order::select('user_id', DB::raw('SUM(price) as total_amount'), 'users.name as user_name')
+                ->join('users', 'orders.user_id', '=', 'users.id')
+                ->where('orders.manager_id', $managerId)
+                ->where('orders.status', 1)
+                ->whereBetween('orders.date', [$startDate, $endDate])
+                ->where('orders.buy_sell_type', 'sell')
+                ->groupBy('user_id', 'users.name')
+                ->get();
+            foreach ($sellOrders as $order) {
+                $user = \App\Models\User::find($order->user_id);
+
+                $winningDetails = OrderDetail::where('manager_id', $managerId)
+                    ->where('user_id', $order->user_id)
+                    ->whereBetween('date', [$startDate, $endDate])
+                    ->where('buy_sell_type', 'sell')
+                    ->where('win_lose', 1)
+                    ->get();
+
+                $rate = $user->rate ?? 0;
+                $totalNumber = $winningDetails->sum('price');
+                $dethPauk = $totalNumber * $rate;
+
+                $order->deth_pauk = $dethPauk;
+                $order->user = $user;
+            }
+        }else{
+            // ✅ Buy orders grouped by dine_id with dine name
+            $buyOrders = Order::select('dine_id', DB::raw('SUM(price) as total_amount'), 're_dines.name as dine_name')
+                ->join('re_dines', 'orders.dine_id', '=', 're_dines.id')
+                ->where("orders.manager_id", Auth::user()->id)
+                ->where("orders.status", 1)
+                ->where("orders.date", $date)
+                ->where("orders.buy_sell_type", "buy")
+                ->groupBy('dine_id', 're_dines.name')
                 ->get();
 
-            $rate = $dine->rate ?? 0;
-            $totalNumber = $winningDetails->sum('price');
-            $dethPauk = $totalNumber * $rate;
+            foreach ($buyOrders as $order) {
+                $dine = \App\Models\ReDine::find($order->dine_id);
 
-            $order->deth_pauk = $dethPauk;
-            $order->dine = $dine;
-        }
+                $winningDetails = OrderDetail::where('manager_id', Auth::user()->id)
+                    ->where('dine_id', $order->dine_id)
+                    ->where('date', $date)
+                    ->where('buy_sell_type', 'buy')
+                    ->where('win_lose', 1)
+                    ->get();
 
-        // ✅ Sell Orders
-        $sellOrders = Order::select('user_id', DB::raw('SUM(price) as total_amount'), 'users.name as user_name')
-            ->join('users', 'orders.user_id', '=', 'users.id')
-            ->where('orders.manager_id', $managerId)
-            ->where('orders.status', 1)
-            ->whereBetween('orders.date', [$startDate, $endDate])
-            ->where('orders.buy_sell_type', 'sell')
-            ->groupBy('user_id', 'users.name')
-            ->get();
+                $rate = $dine->rate ?? 0;
+                $totalNumber = $winningDetails->sum('price');
+                $dethPauk = $totalNumber * $rate;
 
-        foreach ($sellOrders as $order) {
-            $user = \App\Models\User::find($order->user_id);
+                $order->deth_pauk = $dethPauk;
+                $order->dine = $dine;
+            }
 
-            $winningDetails = OrderDetail::where('manager_id', $managerId)
-                ->where('user_id', $order->user_id)
-                ->whereBetween('date', [$startDate, $endDate])
-                ->where('buy_sell_type', 'sell')
-                ->where('win_lose', 1)
+            // ✅ Sell orders grouped by user_id with user name
+            $sellOrders = Order::select('user_id', DB::raw('SUM(price) as total_amount'), 'users.name as user_name')
+                ->join('users', 'orders.user_id', '=', 'users.id')
+                ->where("orders.manager_id", Auth::user()->id)
+                ->where("orders.status", 1)
+                ->where("orders.date", $date)
+                ->where("orders.buy_sell_type", "sell")
+                ->groupBy('user_id', 'users.name')
                 ->get();
 
-            $rate = $user->rate ?? 0;
-            $totalNumber = $winningDetails->sum('price');
-            $dethPauk = $totalNumber * $rate;
+            // ✅ Calculate Deth Pauk & attach user
+            foreach ($sellOrders as $order) {
+                $user = \App\Models\User::find($order->user_id);
 
-            $order->deth_pauk = $dethPauk;
-            $order->user = $user;
+                $winningDetails = OrderDetail::where('manager_id', Auth::user()->id)
+                    ->where('user_id', $order->user_id)
+                    ->where('date', $date)
+                    ->where('buy_sell_type', 'sell')
+                    ->where('win_lose', 1)
+                    ->get();
+
+                $rate = $user->rate ?? 0;
+                $totalNumber = $winningDetails->sum('price');
+                $dethPauk = $totalNumber * $rate;
+
+                $order->deth_pauk = $dethPauk;
+                $order->user = $user;
+            }
         }
+
 
         return view("web.dine.report.data", compact("buyOrders", "sellOrders", "type", "startDate", "endDate"));
     }
