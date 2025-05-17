@@ -4,6 +4,89 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
+/* Base Button */
+.btnTzs {
+    display: inline-block;
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.5;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+        background-color 0.2s ease-in-out,
+        color 0.2s ease-in-out,
+        border-color 0.2s ease-in-out,
+        box-shadow 0.2s ease-in-out;
+}
+
+/* Prevent layout shift */
+.btnTzs:focus,
+.btnTzs:active {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Primary */
+.btnTzs-primary {
+    background-color: #0d6efd;
+    color: #fff;
+    border-color: #0d6efd;
+}
+
+.btnTzs-primary:hover,
+.btnTzs-primary:focus,
+.btnTzs-primary:active {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* Info */
+.btnTzs-info {
+    background-color: #0dcaf0;
+    color: #fff;
+    border-color: #0dcaf0;
+}
+
+.btnTzs-info:hover,
+.btnTzs-info:focus,
+.btnTzs-info:active {
+    background-color: #31d2f2;
+    border-color: #25cff2;
+}
+
+/* Warning */
+.btnTzs-warning {
+    background-color: #ffc107;
+    color: #212529;
+    border-color: #ffc107;
+}
+
+.btnTzs-warning:hover,
+.btnTzs-warning:focus,
+.btnTzs-warning:active {
+    background-color: #ffca2c;
+    border-color: #ffcd39;
+}
+
+/* Danger */
+.btnTzs-danger {
+    background-color: #dc3545;
+    color: #fff;
+    border-color: #dc3545;
+}
+
+.btnTzs-danger:hover,
+.btnTzs-danger:focus,
+.btnTzs-danger:active {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+}
+
 /* Default styles (desktop and bigger screens) */
 td {
     padding: 12px;
@@ -45,9 +128,6 @@ button {
         padding: 0 !important;
     }
 }
-
-
-
 </style>
 
 <?php
@@ -143,24 +223,24 @@ $timezone = 'Asia/Yangon';
 
 
                 @php
-            
 
-                    $now = Carbon::now('Asia/Yangon');
-                    $selectedDateTime = null;
-                    $isClosed = false;
 
-                    if ($date && $section) {
-                        $user = Auth::user();
-                        $end_am = $user->end_am ?? '11:30:00';
-                        $end_pm = $user->end_pm ?? '15:30:00';
+                $now = Carbon::now('Asia/Yangon');
+                $selectedDateTime = null;
+                $isClosed = false;
 
-                        $selectedTime = $section === 'am' ? $end_am : $end_pm;
+                if ($date && $section) {
+                $user = Auth::user();
+                $end_am = $user->end_am ?? '11:30:00';
+                $end_pm = $user->end_pm ?? '15:30:00';
 
-                        if ($selectedTime) {
-                            $selectedDateTime = Carbon::parse($date . ' ' . $selectedTime, 'Asia/Yangon');
-                            $isClosed = $now->greaterThan($selectedDateTime);
-                        }
-                    }
+                $selectedTime = $section === 'am' ? $end_am : $end_pm;
+
+                if ($selectedTime) {
+                $selectedDateTime = Carbon::parse($date . ' ' . $selectedTime, 'Asia/Yangon');
+                $isClosed = $now->greaterThan($selectedDateTime);
+                }
+                }
                 @endphp
                 @if(!$isClosed)
                 <form id="submit_2d_form" action="/user/number_store" method="POST">
@@ -191,74 +271,74 @@ $timezone = 'Asia/Yangon';
                                 <tbody>
                                     <tr>
                                         <td><button type="button" onclick="key_enter('del')"
-                                                class="btn btn-danger w-100 py-3">ဖျက်</button></td>
+                                                class="btnTzs btnTzs-danger w-100 py-3">ဖျက်</button></td>
                                         <td><button type="button" onclick="key_enter('P')"
-                                                class="btn btn-primary w-100 py-3">အပါ</button></td>
+                                                class="btnTzs btnTzs-primary w-100 py-3">အပါ</button></td>
                                         <td><button type="button" onclick="key_enter('R')"
-                                                class="btn btn-primary w-100 py-3">အာ</button></td>
+                                                class="btnTzs btnTzs-primary w-100 py-3">အာ</button></td>
                                         <td><button type="button" onclick="key_enter('A')"
-                                                class="btn btn-primary w-100 py-3">အပူး</button></td>
+                                                class="btnTzs btnTzs-primary w-100 py-3">အပူး</button></td>
                                         <td><button type="button" onclick="key_enter('F')"
-                                                class="btn btn-warning w-100 py-3">ထိပ်</button></td>
+                                                class="btnTzs btnTzs-warning w-100 py-3">ထိပ်</button></td>
                                     </tr>
                                     <tr>
                                         <td><button type="button" onclick="key_enter('7')"
-                                                class="btn btn-light w-100 py-3">7</button></td>
+                                                class="btnTzs btnTzs-light w-100 py-3">7</button></td>
                                         <td><button type="button" onclick="key_enter('8')"
-                                                class="btn btn-light w-100 py-3">8</button></td>
+                                                class="btnTzs btnTzs-light w-100 py-3">8</button></td>
                                         <td><button type="button" onclick="key_enter('9')"
-                                                class="btn btn-light w-100 py-3">9</button></td>
+                                                class="btnTzs btnTzs-light w-100 py-3">9</button></td>
                                         <td><button type="button" onclick="key_enter('S')"
-                                                class="btn btn-info w-100 py-3">စုံ</button></td>
+                                                class="btnTzs btnTzs-info w-100 py-3">စုံ</button></td>
                                         <td><button type="button" onclick="key_enter('f')"
-                                                class="btn btn-warning w-100 py-3">နောက်</button></td>
+                                                class="btnTzs btnTzs-warning w-100 py-3">နောက်</button></td>
                                     </tr>
                                     <tr>
                                         <td><button type="button" onclick="key_enter('4')"
-                                                class="btn btn-light w-100 py-3">4</button></td>
+                                                class="btnTzs btnTzs-light w-100 py-3">4</button></td>
                                         <td><button type="button" onclick="key_enter('5')"
-                                                class="btn btn-light w-100 py-3">5</button></td>
+                                                class="btnTzs btnTzs-light w-100 py-3">5</button></td>
                                         <td><button type="button" onclick="key_enter('6')"
-                                                class="btn btn-light w-100 py-3">6</button></td>
+                                                class="btnTzs btnTzs-light w-100 py-3">6</button></td>
                                         <td><button type="button" onclick="key_enter('M')"
-                                                class="btn btn-secondary w-100 py-3">မ</button></td>
+                                                class="btnTzs btnTzs-info w-100 py-3">မ</button></td>
                                         <td class="d-flex flex-column gap-1">
                                             <button type="button" onclick="key_enter('B')"
-                                                class="btn btn-dark w-100 py-1">ဘရိတ်</button>
+                                                class="btnTzs btnTzs-warning w-100 py-1">ဘရိတ်</button>
                                             <button type="button" onclick="key_enter('N')"
-                                                class="btn btn-dark w-100 py-1">နက္ခ</button>
+                                                class="btnTzs btnTzs-warning w-100 py-1">နက္ခ</button>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td><button type="button" onclick="key_enter('1')"
-                                                class="btn btn-light w-100 py-3">1</button></td>
+                                                class="btnTzs btnTzs-light w-100 py-3">1</button></td>
                                         <td><button type="button" onclick="key_enter('2')"
-                                                class="btn btn-light w-100 py-3">2</button></td>
+                                                class="btnTzs btnTzs-light w-100 py-3">2</button></td>
                                         <td><button type="button" onclick="key_enter('3')"
-                                                class="btn btn-light w-100 py-3">3</button></td>
+                                                class="btnTzs btnTzs-light w-100 py-3">3</button></td>
                                         <td rowspan="2">
                                             <button type="button" onclick="key_enter(' ')"
-                                                class="btn btn-dark w-100 py-3">Space</button>
+                                                class="btnTzs btnTzs-info w-100 py-3">Space</button>
                                         </td>
                                         <td class="d-flex flex-column gap-1">
                                             <button type="button" onclick="key_enter('W')"
-                                                class="btn btn-secondary w-100 py-1">ပါ၀ါ</button>
+                                                class="btnTzs btnTzs-warning w-100 py-1">ပါ၀ါ</button>
                                             <button type="button" onclick="key_enter('X')"
-                                                class="btn btn-secondary w-100 py-1">ညီကို</button>
+                                                class="btnTzs btnTzs-warning w-100 py-1">ညီကို</button>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td colspan="2">
                                             <button type="button" onclick="key_enter('0')"
-                                                class="btn btn-light w-100 py-3">0</button>
+                                                class="btnTzs btnTzs-light w-100 py-3">0</button>
                                         </td>
                                         <td>
                                             <button type="button" onclick="key_enter('00')"
-                                                class="btn btn-light w-100 py-3">00</button>
+                                                class="btnTzs btnTzs-light w-100 py-3">00</button>
                                         </td>
                                         <td>
                                             <button type="button" onclick="key_enter('Z')"
-                                                class="btn btn-info w-100 py-3">ခွေ</button>
+                                                class="btnTzs btnTzs-warning w-100 py-3">ခွေ</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -266,7 +346,7 @@ $timezone = 'Asia/Yangon';
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-success w-100 py-4">သိမ်းမည်</button>
+                    <button type="submit" class="btnTzs btnTzs-success w-100 py-4">သိမ်းမည်</button>
                 </form>
                 @else
                 <div class="alert alert-danger text-center">
@@ -349,12 +429,12 @@ $timezone = 'Asia/Yangon';
                                     style="display:inline-block !important;">
                                     @csrf
                                     <input type="hidden" name="id" value="{{$order->id}}">
-                                    <button type="submit" class="btn btn-success btn-sm">
+                                    <button type="submit" class="btnTzs btnTzs-success btnTzs-sm">
 
                                         <i class="fas fa-check"></i>
                                     </button>
                                 </form>
-                                <a class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                <a class="btnTzs btnTzs-primary btnTzs-sm" data-bs-toggle="modal"
                                     data-bs-target="#orderDetailModal{{ $order->id }}">
                                     <i class="fas fa-info-circle"></i>
                                 </a>
@@ -362,12 +442,12 @@ $timezone = 'Asia/Yangon';
                                     style="display:inline-block !important;">
                                     @csrf
                                     <input type="hidden" name="id" value="{{$order->id}}">
-                                    <button type="submit" class="btn btn-danger btn-sm"
+                                    <button type="submit" class="btnTzs btnTzs-danger btnTzs-sm"
                                         onclick="return confirm('Are you sure you want to delete this order?')">
                                         <i class="fas fa-trash"></i>
                                         </a>
                                         @else
-                                        <a class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        <a class="btnTzs btnTzs-primary btnTzs-sm" data-bs-toggle="modal"
                                             data-bs-target="#orderDetailModal{{ $order->id }}">
                                             <i class="fas fa-info-circle"></i>
                                         </a>
