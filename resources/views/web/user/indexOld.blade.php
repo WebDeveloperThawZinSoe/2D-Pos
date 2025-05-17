@@ -1,3 +1,4 @@
+
 @extends('web.master')
 
 @section('body')
@@ -45,17 +46,61 @@ button {
         padding: 0 !important;
     }
 }
-
-
-
 </style>
-
 <?php
 use Carbon\Carbon;
 
 $timezone = 'Asia/Yangon';
 
+// Load settings
+$setting = App\Models\Setting::first();
+$am_open = $setting->open_time_am;  // example: '08:00:00'
+$am_close = $setting->close_time_am; // example: '11:59:59'
+$pm_open = $setting->open_time_pm;  // example: '13:00:00'
+$pm_close = $setting->close_time_pm; // example: '17:00:00'
 
+// Current time
+$now = Carbon::now($timezone);
+
+// Today’s open and close times
+$today_am_open = Carbon::createFromFormat('H:i:s', $am_open, $timezone)->setDate($now->year, $now->month, $now->day);
+$today_am_close = Carbon::createFromFormat('H:i:s', $am_close, $timezone)->setDate($now->year, $now->month, $now->day);
+$today_pm_open = Carbon::createFromFormat('H:i:s', $pm_open, $timezone)->setDate($now->year, $now->month, $now->day);
+$today_pm_close = Carbon::createFromFormat('H:i:s', $pm_close, $timezone)->setDate($now->year, $now->month, $now->day);
+
+$alert = null;
+
+// Check current section
+if ($now->between($today_am_open, $today_am_close)) {
+    $current_date = $now->toDateString();
+    $current_section = 'AM';
+} elseif ($now->between($today_pm_open, $today_pm_close)) {
+    $current_date = $now->toDateString();
+    $current_section = 'PM';
+} else {
+    // Time is outside of AM and PM
+    if ($now->lt($today_am_open)) {
+        // Before AM opens today
+        $current_date = $now->toDateString();
+        $current_section = 'AM';
+        $alert = 'Currently closed. Will open in AM session.';
+    } elseif ($now->gt($today_pm_close)) {
+        // After PM closes, move to next day AM
+        $current_date = $now->copy()->addDay()->toDateString();
+        $current_section = 'AM';
+        $alert = 'Closed for today. Will open tomorrow in AM session.';
+    } elseif ($now->gt($today_am_close) && $now->lt($today_pm_open)) {
+        // Between AM close and PM open (lunch break)
+        $current_date = $now->toDateString();
+        $current_section = 'PM';
+        $alert = 'Currently closed. Will open in PM session.';
+    } else {
+        // Fallback
+        $current_date = $now->toDateString();
+        $current_section = 'Closed';
+        $alert = 'Currently closed.';
+    }
+}
 
 
 ?>
@@ -71,102 +116,46 @@ $timezone = 'Asia/Yangon';
                     {{ $alert }}
                 </div>
                 @endif
-                @php
-                $date = session('selected_date');
-                $section = session('selected_section');
-                @endphp
+
                 <p><span style="padding:5px;background:green;color:white">နာမည်</span> - {{ Auth::user()->name }}
                     ({{ Auth::user()->email }})</p>
-                <p><span style="padding:5px;background:green;color:white">သွင်းမည့်အချိန်</span> - {{ $date }}
-                    {{ $section }} </p>
+                <p><span style="padding:5px;background:green;color:white">သွင်းမည့်အချိန်</span> - {{ $current_date }}
+                    {{ $current_section }}</p>
                 <p><span style="padding:5px;background:red;color:white">ပိတ်ချိန်</span> -
-                    @if($section == 'am')
-                    {{ \Carbon\Carbon::parse(Auth::user()->end_am)->format('h:i A') }}
+                    @if ($current_section == 'AM')
+                    {{ $setting->close_time_am }} AM
+                    @elseif ($current_section == 'PM')
+                    {{ $setting->close_time_pm }} PM
                     @else
-                    {{ \Carbon\Carbon::parse(Auth::user()->end_pm)->format('h:i A') }}
+                    ပိတ်နေပါသည်။
                     @endif
-
-
                 </p>
                 <p><span style="padding:5px;background:green;color:white">တစ်ကွက်အများဆုံးခွင့်ပြုငွေ</span> - <span
                         style="color:blue;">{{ number_format(Auth::user()->max_limit) }} Ks</span></p>
-                @php
-                $serverTime = now()->setTimezone('Asia/Yangon');
-                @endphp
+               
+                        @php 
+                            use Illuminate\Support\Facades\Auth;
+                            use App\Models\CloseNumber;
 
-                <p>
-                    Current Server Time:
-                    <span id="server-time" data-time="{{ $serverTime->format('Y-m-d H:i:s') }}">
-                        {{ $serverTime->format('Y-m-d H:i:s') }}
-                    </span>
-                </p>
+                            $blockNumbers = CloseNumber::where("date", $current_date)
+                                ->where("section", $current_section)
+                                ->where("manager_id", Auth::user()->manager->id)
+                                ->first();
+                        @endphp
 
-                <script>
-                // Parse initial server time
-                const serverTimeEl = document.getElementById('server-time');
-                let serverTime = new Date(serverTimeEl.dataset.time.replace(/-/g, '/'));
-
-                // Update the time every second
-                setInterval(() => {
-                    serverTime.setSeconds(serverTime.getSeconds() + 1);
-
-                    // Format to YYYY-MM-DD HH:mm:ss
-                    const formatted = serverTime.getFullYear() + '-' +
-                        String(serverTime.getMonth() + 1).padStart(2, '0') + '-' +
-                        String(serverTime.getDate()).padStart(2, '0') + ' ' +
-                        String(serverTime.getHours()).padStart(2, '0') + ':' +
-                        String(serverTime.getMinutes()).padStart(2, '0') + ':' +
-                        String(serverTime.getSeconds()).padStart(2, '0');
-
-                    serverTimeEl.textContent = formatted;
-                }, 1000);
-                </script>
-
-                @php
-                use Illuminate\Support\Facades\Auth;
-                use App\Models\CloseNumber;
-
-                $blockNumbers = CloseNumber::where("date", $date)
-                ->where("section", $section)
-                ->where("manager_id", Auth::user()->manager->id)
-                ->first();
-                @endphp
-
-                @if ($blockNumbers)
-                <p class="alert alert-info">
-                    ယခု Section အတွက်ဒိုင်မှပိတ်ထားသော <b>{{ $blockNumbers->number }}</b> ပိတ်သီးများမှာ အော်ဒါတင်ပါက
-                    System မှ အလိုအလျှောက်ဖြတ်ထုတ်သွားပါမည်။
-                </p>
-                @else
-                <p class="alert alert-info"><b>ယခု Section အတွက်ဒိုင်မှပိတ်ထားသော ပိတ်သီးမရှိပါ။</b></p>
-                @endif
+                        @if ($blockNumbers)
+                            <p class="alert alert-info">
+                                ယခု Section အတွက်ဒိုင်မှပိတ်ထားသော <b>{{ $blockNumbers->number }}</b> ပိတ်သီးများမှာ အော်ဒါတင်ပါက System မှ အလိုအလျှောက်ဖြတ်ထုတ်သွားပါမည်။
+                            </p>
+                        @else 
+                            <p class="alert alert-info"><b>ယခု Section အတွက်ဒိုင်မှပိတ်ထားသော ပိတ်သီးမရှိပါ။</b></p>
+                        @endif
 
 
-                @php
-            
-
-                    $now = Carbon::now('Asia/Yangon');
-                    $selectedDateTime = null;
-                    $isClosed = false;
-
-                    if ($date && $section) {
-                        $user = Auth::user();
-                        $end_am = $user->end_am ?? '11:30:00';
-                        $end_pm = $user->end_pm ?? '15:30:00';
-
-                        $selectedTime = $section === 'am' ? $end_am : $end_pm;
-
-                        if ($selectedTime) {
-                            $selectedDateTime = Carbon::parse($date . ' ' . $selectedTime, 'Asia/Yangon');
-                            $isClosed = $now->greaterThan($selectedDateTime);
-                        }
-                    }
-                @endphp
-                @if(!$isClosed)
                 <form id="submit_2d_form" action="/user/number_store" method="POST">
                     @csrf
-                    <input type="hidden" name="date" value="{{ $date }}">
-                    <input type="hidden" name="section" value="{{ $section }}">
+                    <input type="hidden" name="date" value="{{ $current_date }}">
+                    <input type="hidden" name="section" value="{{ $current_section }}">
 
                     <div class="row my-4 justify-content-center">
                         <div class="col-12">
@@ -268,11 +257,6 @@ $timezone = 'Asia/Yangon';
 
                     <button type="submit" class="btn btn-success w-100 py-4">သိမ်းမည်</button>
                 </form>
-                @else
-                <div class="alert alert-danger text-center">
-                    <h5>ပိတ်ချိန်ဖြစ်နေ၍ {{ $date }} {{ $section }} အတွက် အော်ဒါတင်၍မရပါ။</h5>
-                </div>
-                @endif
 
                 <script>
                 function key_enter(data) {
@@ -317,13 +301,13 @@ $timezone = 'Asia/Yangon';
 
 
                 <hr>
-                <h5> {{ $date }} {{ $section }} - @if (!empty($alert)) နောက် @else ယခု @endif Section
+                <h5> {{ $current_date }} {{ $current_section }} - @if (!empty($alert)) နောက် @else ယခု @endif Section
                     အတွက်အော်ဒါ</h5>
 
                 @php
                 $orders = App\Models\Order::where('user_id', Auth::id())
-                ->where('date', $date)
-                ->where('section', $section)
+                ->where('date', $current_date)
+                ->where('section', $current_section)
                 ->orderBy('id', 'desc')
                 ->get();
                 @endphp

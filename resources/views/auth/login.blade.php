@@ -98,10 +98,7 @@ input:focus {
                                         <!-- <a class="text-muted" href="#!">Forgot password?</a> -->
                                     </div>
 
-                                    <div class="d-flex align-items-center justify-content-center pb-4">
-                                        <p class="mb-0 me-2">Forget Your Account Password ?</p>
-                                        <a href="/forgot-password" class="btn btn-outline-danger">Forget Password</a>
-                                    </div>
+                                   
                                 </form>
 
 

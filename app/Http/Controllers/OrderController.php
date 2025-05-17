@@ -615,7 +615,7 @@ class OrderController extends Controller
         
             // Update orders
             foreach ($orders as $order) {
-                $order->update(['status' => 1]);
+                $order->update(['status' => 1, 'user_order_status' => 1,]);
         
                 // Update related OrderDetails
                 OrderDetail::where("order_id", $order->id)->update([
