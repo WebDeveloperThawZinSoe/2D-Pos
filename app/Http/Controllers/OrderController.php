@@ -638,7 +638,8 @@ class OrderController extends Controller
         public function order_status(Request $request){
             $id = $request->id;
             Order::where("id",$id)->update([
-                "user_order_status" => 1
+                "user_order_status" => 1,
+                "status" => 1
             ]);
 
             OrderDetail::where("order_id",$id)->update([

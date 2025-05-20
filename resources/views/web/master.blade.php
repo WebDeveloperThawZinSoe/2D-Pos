@@ -56,6 +56,19 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark fw-semibold" href="{{ route('user.my.order') }}">အရင်အော်ဒါများ</a>
                     </li>
+                     <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle  text-dark  fw-semibold" href="#" id="navbarDropdown2"
+                            role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                            စာရင်းချုပ်
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+
+                            <li><a class="dropdown-item" href="/client/report/daily">နေ့စဉ်</a></li>
+                            <li><a class="dropdown-item" href="/client/report/weekly">အပတ်စဉ်</a></li>
+                            <li><a class="dropdown-item" href="/client/report/monthly">လစဉ်</a></li>
+                            <li><a class="dropdown-item" href="/client/report/yearly">တနစ်စာ</a></li>
+                        </ul>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle  text-dark  fw-semibold" href="#" id="navbarDropdown"
                             role="button" data-mdb-toggle="dropdown" aria-expanded="false">

@@ -43,9 +43,9 @@ Route::middleware(['web'])->group(function () {
 
     Route::middleware(['role:user', 'require.date.section'])->prefix('user')->name('user.')->group(function () {
         Route::get('/', [UserPageController::class, 'index'])->name('index');
-        Route::post("/number_store",[UserPageController::class,"number_store"])->name("number.store");
-        Route::post("/order/status",[UserPageController::class,"order_status"])->name("order.status");
-        Route::post("/order/delete",[UserPageController::class,"order_delete"])->name("order.delete");
+        // Route::post("/number_store",[UserPageController::class,"number_store"])->name("number.store");
+        // Route::post("/order/status",[UserPageController::class,"order_status"])->name("order.status");
+        // Route::post("/order/delete",[UserPageController::class,"order_delete"])->name("order.delete");
         Route::get("/my/order",[UserPageController::class,"my_order"])->name("my.order");
         Route::get("/change/password",[UserPageController::class,"changePassword"])->name("changePassword");
         Route::post('/password/update', [UserPageController::class, 'updatePassword'])->name('password.update')->middleware('auth');
@@ -84,6 +84,13 @@ Route::middleware(['web'])->group(function () {
         Route::post("/win/store",[OrderController::class,"win_store"]);
     });
     
+    Route::middleware(['require.date.section','web'])->group(function () {
+        Route::post("/number_store",[OrderController::class,"number_store"])->name("number.store");
+        Route::post("/multi/number_store",[OrderController::class,"number_store_multi"])->name("number_store_multi.store");
+        Route::post("/order/status",[OrderController::class,"order_status"])->name("order.status");
+        Route::post("/order/delete",[OrderController::class,"order_delete"])->name("order.delete");
+        Route::post("/order/confirm/all",[OrderController::class,"order_cofirm_all"]);
+    });
 
     Route::get('/select-date-section', function (Request $request) {
         $date = Request::query('get_date');

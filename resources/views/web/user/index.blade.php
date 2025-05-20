@@ -159,6 +159,8 @@ $timezone = 'Asia/Yangon';
                     ({{ Auth::user()->email }})</p>
                 <p><span style="padding:5px;background:green;color:white">သွင်းမည့်အချိန်</span> - {{ $date }}
                     {{ $section }} </p>
+                <p><span style="padding:5px;background:green;color:white">ကော်မရှင် / ဆ</span> - {{ Auth::user()->commission }}%
+                    / {{ Auth::user()->rate ?? 0 }}  </p>
                 <p><span style="padding:5px;background:red;color:white">ပိတ်ချိန်</span> -
                     @if($section == 'am')
                     {{ \Carbon\Carbon::parse(Auth::user()->end_am)->format('h:i A') }}
@@ -169,7 +171,7 @@ $timezone = 'Asia/Yangon';
 
                 </p>
                 <p><span style="padding:5px;background:green;color:white">တစ်ကွက်အများဆုံးခွင့်ပြုငွေ</span> - <span
-                        style="color:blue;">{{ number_format(Auth::user()->max_limit) }} Ks</span></p>
+                        style="color:blue;">{{ number_format(Auth::user()->max_limit) }} </span></p>
                 @php
                 $serverTime = now()->setTimezone('Asia/Yangon');
                 @endphp
@@ -223,8 +225,16 @@ $timezone = 'Asia/Yangon';
 
 
                 @php
+                $winNumber = App\Models\WinNumber::where('manager_id',Auth::user()->manager->id)
+                ->where('section', session('selected_section'))
+                ->where('date', session('selected_date'))
+                ->first();
+
+                @endphp
 
 
+
+                @php
                 $now = Carbon::now('Asia/Yangon');
                 $selectedDateTime = null;
                 $isClosed = false;
@@ -242,12 +252,15 @@ $timezone = 'Asia/Yangon';
                 }
                 }
                 @endphp
+                @if(is_null($winNumber))
                 @if(!$isClosed)
-                <form id="submit_2d_form" action="/user/number_store" method="POST">
+                <form id="submit_2d_form" action="/number_store" method="POST">
                     @csrf
                     <input type="hidden" name="date" value="{{ $date }}">
                     <input type="hidden" name="section" value="{{ $section }}">
-
+                    <input type="hidden" name="buy_sell" value="sell">
+                    <input type="hidden" name="manager_id" value="{{Auth::user()->manager->id}}">
+                    <input type="hidden" name="client" value="{{Auth::user()->id}}">
                     <div class="row my-4 justify-content-center">
                         <div class="col-12">
                             <div class="mb-3 row">
@@ -346,14 +359,35 @@ $timezone = 'Asia/Yangon';
                         </div>
                     </div>
 
-                    <button type="submit" class="btnTzs btnTzs-success w-100 py-4">သိမ်းမည်</button>
+                    <button type="submit" class="btn btn-success w-100 py-4">သိမ်းမည်</button>
                 </form>
                 @else
                 <div class="alert alert-danger text-center">
                     <h5>ပိတ်ချိန်ဖြစ်နေ၍ {{ $date }} {{ $section }} အတွက် အော်ဒါတင်၍မရပါ။</h5>
                 </div>
                 @endif
+                @else
+                    @php
+                        $isWinOrNot = App\Models\OrderDetail::where('user_id', Auth::id())
+                        ->where('date', $date)
+                        ->where('section', $section)
+                        ->where('manager_id', Auth::user()->manager->id ?? null)
+                        ->where('number', $winNumber->number ?? null)
+                        ->count();
+                    @endphp
+                    <div class="alert alert-success text-center">
+                        <h5>ဂဏန်း <b> {{$winNumber->number}} </b> ပေါက်ပါပြီ။</h5>
+                    </div>
 
+                    @if ($isWinOrNot > 0)
+                    <div class="alert alert-success text-center">
+                        ဂုဏ်ယူပါတယ် သင်ပေါက်ပါပြီ။
+                    </div>
+                    @endif
+                @php
+
+                @endphp
+                @endif
                 <script>
                 function key_enter(data) {
                     const add_sound = new Audio("{{ asset('sound/type.mp3') }}");
@@ -418,15 +452,16 @@ $timezone = 'Asia/Yangon';
                         </tr>
                     </thead>
                     <tbody>
+                        @php $totalPrice = 0; @endphp
                         @foreach ($orders as $order)
+                        @php $totalPrice += $order->price; @endphp
                         <tr>
                             <td>{{ $order->order_type }}</td>
                             <td>{{ App\Models\OrderDetail::where('order_id', $order->id)->count() }}</td>
-                            <td>{{ number_format($order->price) }} Ks</td>
+                            <td>{{ number_format($order->price) }} </td>
                             <td>
                                 @if ($order->user_order_status == 0)
-                                <form action="/user/order/status" method="post"
-                                    style="display:inline-block !important;">
+                                <form action="/order/status" method="post" style="display:inline-block !important;">
                                     @csrf
                                     <input type="hidden" name="id" value="{{$order->id}}">
                                     <button type="submit" class="btnTzs btnTzs-success btnTzs-sm">
@@ -438,8 +473,7 @@ $timezone = 'Asia/Yangon';
                                     data-bs-target="#orderDetailModal{{ $order->id }}">
                                     <i class="fas fa-info-circle"></i>
                                 </a>
-                                <form action="/user/order/delete" method="post"
-                                    style="display:inline-block !important;">
+                                <form action="/order/delete" method="post" style="display:inline-block !important;">
                                     @csrf
                                     <input type="hidden" name="id" value="{{$order->id}}">
                                     <button type="submit" class="btnTzs btnTzs-danger btnTzs-sm"
@@ -455,13 +489,88 @@ $timezone = 'Asia/Yangon';
                                 @endif
                             </td>
                         </tr>
+                        <tr>
 
+
+                        </tr>
                         <!-- Modal for Order Details -->
                         @include('web.user.partials.order-detail-modal', ['order' => $order])
 
 
 
                         @endforeach
+
+                        <tr>
+                            <td colspan=2> စုစုပေါင်းထိုးငွေ </td>
+                            <td colspan=2> {{number_format($totalPrice)}} </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan=2> ဒဲ့ပေါက် </td>
+                            <td colspan=2>
+                                @if($isWinOrNot > 0)
+                                    @php 
+                                        $WinNumber = App\Models\OrderDetail::where('user_id', Auth::id())
+                                        ->where('date', $date)
+                                        ->where('section', $section)
+                                        ->where('manager_id', Auth::user()->manager->id ?? null)
+                                        ->where('number', $winNumber->number ?? null)
+                                        ->first();
+                                        $Price = $WinNumber->price ?? 0;
+                                        $Rate = Auth::user()->rate ?? 1;
+                                        $total = $Price * $Rate;
+                                        echo number_format($total);
+                                    @endphp
+                                @else 
+                                  0 
+                                @endif
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td colspan=2> ကော်မရှင် </td>
+                            <td colspan=2>
+                                @php 
+                                    $commission = Auth::user()->commission ?? 0;
+                                    $amount = $totalPrice * $commission / 100;
+                                    echo number_format($amount);
+                                @endphp
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td colspan=2> ကျသင့်ငွေ </td>
+                            <td colspan=2>
+                                @php 
+                                    $grandTotal = 0;
+                                    $grandTotal = $totalPrice - $total - $amount;
+                                    echo number_format($grandTotal);
+                                @endphp
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan=2>
+                                <button class="btn btn-primary w-100">စာရင်းချုပ် နေ့စဉ်</button>
+                            </td>
+
+                            <td colspan=2>
+                                <button class="btn btn-primary w-100">စာရင်းချုပ် အပတ်စဉ်</button>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan=2>
+                                <button class="btn btn-primary w-100">စာရင်းချုပ် လစဉ်</button>
+                            </td>
+
+                            <td colspan=2>
+                                <button class="btn btn-primary w-100">စာရင်းချုပ် နစ်စဉ်</button>
+                            </td>
+                        </tr>
+
                     </tbody>
                 </table>
 
