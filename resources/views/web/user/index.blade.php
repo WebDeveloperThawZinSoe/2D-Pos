@@ -159,8 +159,9 @@ $timezone = 'Asia/Yangon';
                     ({{ Auth::user()->email }})</p>
                 <p><span style="padding:5px;background:green;color:white">သွင်းမည့်အချိန်</span> - {{ $date }}
                     {{ $section }} </p>
-                <p><span style="padding:5px;background:green;color:white">ကော်မရှင် / ဆ</span> - {{ Auth::user()->commission }}%
-                    / {{ Auth::user()->rate ?? 0 }}  </p>
+                <p><span style="padding:5px;background:green;color:white">ကော်မရှင် / ဆ</span> -
+                    {{ Auth::user()->commission }}%
+                    / {{ Auth::user()->rate ?? 0 }} </p>
                 <p><span style="padding:5px;background:red;color:white">ပိတ်ချိန်</span> -
                     @if($section == 'am')
                     {{ \Carbon\Carbon::parse(Auth::user()->end_am)->format('h:i A') }}
@@ -367,23 +368,27 @@ $timezone = 'Asia/Yangon';
                 </div>
                 @endif
                 @else
-                    @php
-                        $isWinOrNot = App\Models\OrderDetail::where('user_id', Auth::id())
-                        ->where('date', $date)
-                        ->where('section', $section)
-                        ->where('manager_id', Auth::user()->manager->id ?? null)
-                        ->where('number', $winNumber->number ?? null)
-                        ->count();
-                    @endphp
-                    <div class="alert alert-success text-center">
-                        <h5>ဂဏန်း <b> {{$winNumber->number}} </b> ပေါက်ပါပြီ။</h5>
-                    </div>
+                @php
+                $isWinOrNot = App\Models\OrderDetail::where('user_id', Auth::id())
+                ->where('date', $date)
+                ->where('section', $section)
+                ->where('manager_id', Auth::user()->manager->id ?? null)
+                ->where('number', $winNumber->number ?? null)
+                ->count() ?? 0;
+                @endphp
 
+                @if ($winNumber)
+                <div class="alert alert-success text-center">
+                    <h5>ဂဏန်း <b>{{ $winNumber->number }}</b> ပေါက်ပါပြီ။</h5>
+                </div>
+                @endif
+                @if(isset($isWinOrNot))
                     @if ($isWinOrNot > 0)
                     <div class="alert alert-success text-center">
                         ဂုဏ်ယူပါတယ် သင်ပေါက်ပါပြီ။
                     </div>
                     @endif
+                @endif
                 @php
 
                 @endphp
@@ -454,7 +459,9 @@ $timezone = 'Asia/Yangon';
                     <tbody>
                         @php $totalPrice = 0; @endphp
                         @foreach ($orders as $order)
+                        @if($order->user_order_status == 1 && $order->status == 1)
                         @php $totalPrice += $order->price; @endphp
+                        @endif
                         <tr>
                             <td>{{ $order->order_type }}</td>
                             <td>{{ App\Models\OrderDetail::where('order_id', $order->id)->count() }}</td>
@@ -508,22 +515,31 @@ $timezone = 'Asia/Yangon';
                         <tr>
                             <td colspan=2> ဒဲ့ပေါက် </td>
                             <td colspan=2>
+                                @php
+                                    $isWinOrNot = App\Models\OrderDetail::where('user_id', Auth::id())
+                                    ->where('date', $date)
+                                    ->where('section', $section)
+                                    ->where('manager_id', Auth::user()->manager->id ?? null)
+                                    ->where('number', $winNumber->number ?? null)
+                                    ->count() ?? 0;
+                                @endphp
                                 @if($isWinOrNot > 0)
-                                    @php 
-                                        $WinNumber = App\Models\OrderDetail::where('user_id', Auth::id())
-                                        ->where('date', $date)
-                                        ->where('section', $section)
-                                        ->where('manager_id', Auth::user()->manager->id ?? null)
-                                        ->where('number', $winNumber->number ?? null)
-                                        ->first();
-                                        $Price = $WinNumber->price ?? 0;
-                                        $Rate = Auth::user()->rate ?? 1;
-                                        $total = $Price * $Rate;
-                                        echo number_format($total);
-                                    @endphp
-                                @else 
-                                  0 
+                                @php
+                                $WinNumber = App\Models\OrderDetail::where('user_id', Auth::id())
+                                ->where('date', $date)
+                                ->where('section', $section)
+                                ->where('manager_id', Auth::user()->manager->id ?? null)
+                                ->where('number', $winNumber->number ?? null)
+                                ->first();
+                                $Price = $WinNumber->price ?? 0;
+                                $Rate = Auth::user()->rate ?? 1;
+                                $total = $Price * $Rate;
+                                echo number_format($total);
+                                @endphp
+                                @else
+                                0
                                 @endif
+                            
                             </td>
                         </tr>
 
@@ -531,10 +547,10 @@ $timezone = 'Asia/Yangon';
                         <tr>
                             <td colspan=2> ကော်မရှင် </td>
                             <td colspan=2>
-                                @php 
-                                    $commission = Auth::user()->commission ?? 0;
-                                    $amount = $totalPrice * $commission / 100;
-                                    echo number_format($amount);
+                                @php
+                                $commission = Auth::user()->commission ?? 0;
+                                $amount = $totalPrice * $commission / 100;
+                                echo number_format($amount);
                                 @endphp
                             </td>
                         </tr>
@@ -543,10 +559,21 @@ $timezone = 'Asia/Yangon';
                         <tr>
                             <td colspan=2> ကျသင့်ငွေ </td>
                             <td colspan=2>
-                                @php 
-                                    $grandTotal = 0;
-                                    $grandTotal = $totalPrice - $total - $amount;
-                                    echo number_format($grandTotal);
+                                
+                                @php
+                                $WinNumber = App\Models\OrderDetail::where('user_id', Auth::id())
+                                ->where('date', $date)
+                                ->where('section', $section)
+                                ->where('manager_id', Auth::user()->manager->id ?? null)
+                                ->where('number', $winNumber->number ?? null)
+                                ->first();
+                                $Price = $WinNumber->price ?? 0;
+                                $Rate = Auth::user()->rate ?? 1;
+                                $total = $Price * $Rate;
+                                $grandTotal = 0;
+                                $grandTotal = $totalPrice - $total - $amount;
+                                $grandTotal =  $grandTotal * -1;
+                                echo number_format($grandTotal);
                                 @endphp
                             </td>
                         </tr>
