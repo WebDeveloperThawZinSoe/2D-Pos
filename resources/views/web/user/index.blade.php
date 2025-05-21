@@ -580,21 +580,21 @@ $timezone = 'Asia/Yangon';
 
                         <tr>
                             <td colspan=2>
-                                <button class="btn btn-primary w-100">စာရင်းချုပ် နေ့စဉ်</button>
+                                <a href="/user/report/daily" class="btn btn-primary w-100">စာရင်းချုပ် နေ့စဉ်</a>
                             </td>
 
                             <td colspan=2>
-                                <button class="btn btn-primary w-100">စာရင်းချုပ် အပတ်စဉ်</button>
+                                <a href="/user/report/weekly" class="btn btn-primary w-100">စာရင်းချုပ် အပတ်စဉ်</a>
                             </td>
                         </tr>
 
                         <tr>
                             <td colspan=2>
-                                <button class="btn btn-primary w-100">စာရင်းချုပ် လစဉ်</button>
+                                <a href="/user/report/monthly" class="btn btn-primary w-100">စာရင်းချုပ် လစဉ်</a>
                             </td>
 
                             <td colspan=2>
-                                <button class="btn btn-primary w-100">စာရင်းချုပ် နစ်စဉ်</button>
+                                <a href="/user/report/yearly" class="btn btn-primary w-100">စာရင်းချုပ် နစ်စဉ်</a>
                             </td>
                         </tr>
 

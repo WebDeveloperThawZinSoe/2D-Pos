@@ -8,6 +8,9 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use Illuminate\Support\Facades\Hash;
 use App\Models\CloseNumber;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\DB;
 
 
 class UserPageController extends Controller
@@ -232,6 +235,109 @@ class UserPageController extends Controller
 
         return back()->with('success', 'စကားဝှက် ပြောင်းပြီးပါပြီ။');
     }
+
+    //report
+    public function report($type)
+    {
+        $user_id = Auth::user()->id;
+
+        // Calculate date range based on $type
+        $date = session('selected_date') ?? now()->toDateString();
+
+        $startDate = $endDate = Carbon::parse($date);
+
+        switch ($type) {
+           case 'daily':
+                $startDate = Carbon::parse($date)->startOfDay();
+                $endDate = Carbon::parse($date)->endOfDay();
+              
+                break;
+
+            case 'weekly':
+                $startDate = Carbon::parse($date)->startOfWeek(Carbon::MONDAY);
+                $endDate = Carbon::parse($date)->endOfWeek(Carbon::SUNDAY);
+                break;
+
+            case 'monthly':
+                $startDate = Carbon::parse($date)->startOfMonth();
+                $endDate = Carbon::parse($date)->endOfMonth();
+                break;
+
+            case 'yearly':
+                $startDate = Carbon::parse($date)->startOfYear();
+                $endDate = Carbon::parse($date)->endOfYear();
+                break;
+
+            default:
+                abort(400, 'Invalid report type.');
+        }
+
+        if($type != "daily"){
+          
+
+            // ✅ Sell Orders
+            $sellOrders = Order::select('user_id', DB::raw('SUM(price) as total_amount'), 'users.name as user_name')
+                ->join('users', 'orders.user_id', '=', 'users.id')
+                ->where('orders.user_id', $user_id)
+                ->where('orders.status', 1)
+                ->whereBetween('orders.date', [$startDate, $endDate])
+                ->where('orders.buy_sell_type', 'sell')
+                ->groupBy('user_id', 'users.name')
+                ->get();
+            foreach ($sellOrders as $order) {
+                $user = \App\Models\User::find($order->user_id);
+
+                $winningDetails = OrderDetail::where('user_id', $user_id)
+                    ->where('user_id', $order->user_id)
+                    ->whereBetween('date', [$startDate, $endDate])
+                    ->where('buy_sell_type', 'sell')
+                    ->where('win_lose', 1)
+                    ->get();
+
+                $rate = $user->rate ?? 0;
+                $totalNumber = $winningDetails->sum('price');
+                $dethPauk = $totalNumber * $rate;
+
+                $order->deth_pauk = $dethPauk;
+                $order->user = $user;
+            }
+        }else{
+            
+
+            // ✅ Sell orders grouped by user_id with user name
+            $sellOrders = Order::select('user_id', DB::raw('SUM(price) as total_amount'), 'users.name as user_name')
+                ->join('users', 'orders.user_id', '=', 'users.id')
+                ->where("orders.user_id", Auth::user()->id)
+                ->where("orders.status", 1)
+                ->where("orders.date", $date)
+                ->where("orders.buy_sell_type", "sell")
+                ->groupBy('user_id', 'users.name')
+                ->get();
+
+            // ✅ Calculate Deth Pauk & attach user
+            foreach ($sellOrders as $order) {
+                $user = \App\Models\User::find($order->user_id);
+
+                $winningDetails = OrderDetail::where('manager_id', Auth::user()->id)
+                    ->where('user_id', $order->user_id)
+                    ->where('date', $date)
+                    ->where('buy_sell_type', 'sell')
+                    ->where('win_lose', 1)
+                    ->get();
+
+                $rate = $user->rate ?? 0;
+                $totalNumber = $winningDetails->sum('price');
+                $dethPauk = $totalNumber * $rate;
+
+                $order->deth_pauk = $dethPauk;
+                $order->user = $user;
+            }
+        }
+
+
+        return view("web.user.report", compact( "sellOrders", "type", "startDate", "endDate"));
+    }
+
 
 
     

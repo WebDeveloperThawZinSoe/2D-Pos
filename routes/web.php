@@ -49,6 +49,8 @@ Route::middleware(['web'])->group(function () {
         Route::get("/my/order",[UserPageController::class,"my_order"])->name("my.order");
         Route::get("/change/password",[UserPageController::class,"changePassword"])->name("changePassword");
         Route::post('/password/update', [UserPageController::class, 'updatePassword'])->name('password.update')->middleware('auth');
+        /* Report */
+        Route::get("/report/{type}",[UserPageController::class,"report"]);
     });
 
 

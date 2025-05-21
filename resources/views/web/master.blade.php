@@ -63,10 +63,10 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
 
-                            <li><a class="dropdown-item" href="/client/report/daily">နေ့စဉ်</a></li>
-                            <li><a class="dropdown-item" href="/client/report/weekly">အပတ်စဉ်</a></li>
-                            <li><a class="dropdown-item" href="/client/report/monthly">လစဉ်</a></li>
-                            <li><a class="dropdown-item" href="/client/report/yearly">တနစ်စာ</a></li>
+                            <li><a class="dropdown-item" href="/user/report/daily">နေ့စဉ်</a></li>
+                            <li><a class="dropdown-item" href="/user/report/weekly">အပတ်စဉ်</a></li>
+                            <li><a class="dropdown-item" href="/user/report/monthly">လစဉ်</a></li>
+                            <li><a class="dropdown-item" href="/user/report/yearly">တနစ်စာ</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
