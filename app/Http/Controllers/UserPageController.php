@@ -297,7 +297,6 @@ class UserPageController extends Controller
                 $rate = $user->rate ?? 0;
                 $totalNumber = $winningDetails->sum('price');
                 $dethPauk = $totalNumber * $rate;
-
                 $order->deth_pauk = $dethPauk;
                 $order->user = $user;
             }
@@ -318,7 +317,7 @@ class UserPageController extends Controller
             foreach ($sellOrders as $order) {
                 $user = \App\Models\User::find($order->user_id);
 
-                $winningDetails = OrderDetail::where('manager_id', Auth::user()->id)
+                $winningDetails = OrderDetail::where('user_id', Auth::user()->id)
                     ->where('user_id', $order->user_id)
                     ->where('date', $date)
                     ->where('buy_sell_type', 'sell')
@@ -328,7 +327,7 @@ class UserPageController extends Controller
                 $rate = $user->rate ?? 0;
                 $totalNumber = $winningDetails->sum('price');
                 $dethPauk = $totalNumber * $rate;
-
+                dd($dethPauk);
                 $order->deth_pauk = $dethPauk;
                 $order->user = $user;
             }

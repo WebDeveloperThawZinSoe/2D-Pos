@@ -27,10 +27,12 @@ class UsersRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('rate'),
                 Tables\Columns\TextColumn::make('commission'),
                 Tables\Columns\TextColumn::make('max_limit'),
-                Tables\Columns\TextColumn::make('open_time_am'),
-                Tables\Columns\TextColumn::make('close_time_am'),
-                Tables\Columns\TextColumn::make('open_time_pm'),
-                Tables\Columns\TextColumn::make('close_time_pm'),
+                Tables\Columns\TextColumn::make('end_am'),
+                Tables\Columns\TextColumn::make('end_pm'),
+                // Tables\Columns\TextColumn::make('open_time_am'),
+                // Tables\Columns\TextColumn::make('close_time_am'),
+                // Tables\Columns\TextColumn::make('open_time_pm'),
+                // Tables\Columns\TextColumn::make('close_time_pm'),
             ])
             ->actions([
                 // Tables\Actions\ViewAction::make(),
