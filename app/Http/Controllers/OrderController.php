@@ -177,193 +177,195 @@ class OrderController extends Controller
         // }
 
 
-    public function number_store(Request $request)
-    {
-        $request->validate([
-            'number' => 'required',
-        ]);
+public function number_store(Request $request)
+{
+    $request->validate([
+        'number' => 'required',
+    ]);
 
-        $userId = $request->client;
-        $rawInput = str_replace(' ', '', $request->input('number'));
+    $userId = $request->client;
+    $rawInput = str_replace(' ', '', $request->input('number'));
 
-        $lettersDigits = '';
-        $digitsOnly = '';
-        $price = 0;
-        $isReverse = false;
+    if (!preg_match('/^([A-Za-z\d]+?)(\d{2,})$/', $rawInput, $matches)) {
+        return back()->withErrors(['number' => 'တင်ငွေရိုက်ထည့်ပါ။ ဥပမာ - N600 သို့မဟုတ် 281000']);
+    }
 
-        // ✅ Handle 2DigitPrice format like "341000"
-        if (preg_match('/^(\d{2})(\d{2,})$/', $rawInput, $matches)) {
-            $lettersDigits = $matches[1]; // 2-digit number
-            $digitsOnly = $matches[2];    // price
+    $lettersDigits = $matches[1] ?? '';
+    $digitsOnly = $matches[2];
+
+    if (!is_numeric($digitsOnly) || intval($digitsOnly) <= 0) {
+        return back()->withErrors(['number' => 'မှန်ကန်သော ငွေပမာဏ ရိုက်ထည့်ပါ။']);
+    }
+
+    $price = (int) $digitsOnly;
+
+    $rules = [
+        'A' => ["00", "11", "22", "33", "44", "55", "66", "77", "88", "99"],
+        'X' => ["01", "09", "10", "12", "21", "23", "32", "34", "43", "45", "54", "56", "65", "67", "76", "78", "87", "89", "90", "98"],
+        'N' => ["07", "18", "24", "35", "42", "53", "69", "70", "81", "96"],
+        'W' => ["05", "16", "27", "38", "49", "50", "61", "72", "83", "94"],
+    ];
+
+    $finalResult = [];
+    $isReverse = false;
+
+    // P rule
+    if (preg_match('/^(\d)[Pp]$/', $lettersDigits, $pMatches)) {
+        $pDigit = $pMatches[1];
+        for ($i = 0; $i <= 9; $i++) {
+            $finalResult[] = str_pad($pDigit . $i, 2, '0', STR_PAD_LEFT);
+            $finalResult[] = str_pad($i . $pDigit, 2, '0', STR_PAD_LEFT);
         }
-        // Handle formats like "N600", "X2000", etc.
-        elseif (preg_match('/^([A-Za-z\d]+?)(\d{2,})$/', $rawInput, $matches)) {
-            $lettersDigits = $matches[1];
-            $digitsOnly = $matches[2];
-        } else {
-            return back()->withErrors(['number' => 'တင်ငွေရိုက်ထည့်ပါ။ ဥပမာ - N600 သို့မဟုတ် 341000']);
-        }
+        $finalResult = array_unique($finalResult);
+    }
+    // F/f rule
+    elseif (preg_match('/^(\d)([Ff])$/', $lettersDigits, $fMatches)) {
+        $digit = $fMatches[1];
+        $letter = $fMatches[2];
 
-        if (!is_numeric($digitsOnly) || intval($digitsOnly) <= 0) {
-            return back()->withErrors(['number' => 'မှန်ကန်သော ငွေပမာဏ ရိုက်ထည့်ပါ။']);
-        }
-
-        $price = (int) $digitsOnly;
-
-        $rules = [
-            'A' => ["00", "11", "22", "33", "44", "55", "66", "77", "88", "99"],
-            'X' => ["01", "09", "10", "12", "21", "23", "32", "34", "43", "45", "54", "56", "65", "67", "76", "78", "87", "89", "90", "98"],
-            'N' => ["07", "18", "24", "35", "42", "53", "69", "70", "81", "96"],
-            'W' => ["05", "16", "27", "38", "49", "50", "61", "72", "83", "94"],
-        ];
-
-        $finalResult = [];
-
-        // P rule: OneDigit + P
-        if (preg_match('/^(\d)[Pp]$/', $lettersDigits, $pMatches)) {
-            $pDigit = $pMatches[1];
-            for ($i = 0; $i <= 9; $i++) {
-                $finalResult[] = str_pad($pDigit . $i, 2, '0', STR_PAD_LEFT);
-                $finalResult[] = str_pad($i . $pDigit, 2, '0', STR_PAD_LEFT);
+        for ($i = 0; $i <= 9; $i++) {
+            if ($letter === 'F') {
+                $finalResult[] = str_pad($digit . $i, 2, '0', STR_PAD_LEFT);
+            } else {
+                $finalResult[] = str_pad($i . $digit, 2, '0', STR_PAD_LEFT);
             }
-            $finalResult = array_unique($finalResult);
         }
-        // F or f rule: Digit + F/f
-        elseif (preg_match('/^(\d)([Ff])$/', $lettersDigits, $fMatches)) {
-            $digit = $fMatches[1];
-            $letter = $fMatches[2];
-
-            for ($i = 0; $i <= 9; $i++) {
-                if ($letter === 'F') {
-                    $finalResult[] = str_pad($digit . $i, 2, '0', STR_PAD_LEFT);
-                } else {
-                    $finalResult[] = str_pad($i . $digit, 2, '0', STR_PAD_LEFT);
+    }
+    // B rule
+    elseif (preg_match('/^(\d)[Bb]$/', $lettersDigits, $bMatches)) {
+        $targetSum = intval($bMatches[1]);
+        for ($i = 0; $i <= 9; $i++) {
+            for ($j = 0; $j <= 9; $j++) {
+                if ($i + $j === $targetSum) {
+                    $finalResult[] = "{$i}{$j}";
                 }
             }
-        } else {
-            $letters = str_split($lettersDigits);
-            foreach ($letters as $letter) {
-                $upper = strtoupper($letter);
-                if ($upper === 'R') {
-                    $isReverse = true;
-                    continue;
-                }
-
-                if (isset($rules[$upper])) {
-                    $finalResult = array_merge($finalResult, $rules[$upper]);
-                } elseif ($upper === 'S') {
-                    for ($i = 0; $i <= 99; $i += 2) {
-                        $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
-                    }
-                } elseif ($upper === 'M') {
-                    for ($i = 1; $i <= 99; $i += 2) {
-                        $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
-                    }
-                }
+        }
+    }
+    else {
+        $letters = str_split($lettersDigits);
+        foreach ($letters as $letter) {
+            $upper = strtoupper($letter);
+            if ($upper === 'R') {
+                $isReverse = true;
+                continue;
             }
 
-            if (empty($finalResult)) {
-                if (preg_match('/^(\d{2})R$/i', $lettersDigits, $match)) {
-                    $number = $match[1];
+            if (isset($rules[$upper])) {
+                $finalResult = array_merge($finalResult, $rules[$upper]);
+            } elseif ($upper === 'S') {
+                for ($i = 0; $i <= 99; $i += 2) {
+                    $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
+                }
+            } elseif ($upper === 'M') {
+                for ($i = 1; $i <= 99; $i += 2) {
+                    $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
+                }
+            }
+        }
+
+        if (empty($finalResult)) {
+            if (preg_match('/^(\d{2})R$/i', $lettersDigits, $match)) {
+                $number = $match[1];
+                $rev = strrev($number);
+                $finalResult[] = $number;
+                if ($rev !== $number) {
+                    $finalResult[] = $rev;
+                }
+            } elseif (strlen($lettersDigits) >= 2 && is_numeric($lettersDigits)) {
+                $number = substr($lettersDigits, 0, 2);
+                $finalResult[] = $number;
+                if ($isReverse) {
                     $rev = strrev($number);
-                    $finalResult[] = $number;
                     if ($rev !== $number) {
                         $finalResult[] = $rev;
                     }
-                } elseif (strlen($lettersDigits) >= 2 && is_numeric($lettersDigits)) {
-                    $number = substr($lettersDigits, 0, 2);
-                    $finalResult[] = $number;
-                    if ($isReverse) {
-                        $rev = strrev($number);
-                        if ($rev !== $number) {
-                            $finalResult[] = $rev;
-                        }
-                    }
                 }
             }
         }
+    }
 
-        // User and order processing
-        $user = $userId ? User::find($userId) : null;
+    $user = $userId ? User::find($userId) : null;
 
-        if ($userId && !$user) {
-            return redirect()->back()->with("error", "User not found.");
+    if ($userId && !$user) {
+        return redirect()->back()->with("error", "User not found.");
+    }
+
+    if ($user && $user->max_limit < $price) {
+        return redirect()->back()->with("error", "တင်ငွေသည်သက်မှတ်ထားသော တကွက်အများဆုံးခွင့်ပြုငွေထက်ကျော်လွန်နေပါသည်။");
+    }
+
+    $dineId = $request->dine;
+    $blocked = [];
+
+    if (!($userId && $dineId)) {
+        $blockNumbers = CloseNumber::where("date", $request->input("date"))
+            ->where("section", $request->input("section"))
+            ->where("manager_id", $user->manager_id ?? null)
+            ->first();
+
+        if ($blockNumbers && $blockNumbers->number) {
+            $blocked = array_map('trim', explode(',', $blockNumbers->number));
         }
+    }
 
-        if ($user && $user->max_limit < $price) {
-            return redirect()->back()->with("error", "တင်ငွေသည်သက်မှတ်ထားသော တကွက်အများဆုံးခွင့်ပြုငွေထက်ကျော်လွန်နေပါသည်။");
+    $filteredResult = array_values(array_unique(array_filter($finalResult, fn($n) => !in_array($n, $blocked))));
+
+    if (empty($filteredResult)) {
+        return redirect()->back()->with("error", "No valid numbers found to place the order.");
+    }
+
+    $totalPrice = count($filteredResult) * $price;
+    $commission = $user->commission ?? 0;
+    $rate = $user->rate ?? 80;
+
+    if ($dineId) {
+        $dine = ReDine::find($dineId);
+        if ($dine) {
+            $commission = $dine->commission;
+            $rate = $dine->rate;
         }
+    }
 
-        $dineId = $request->dine;
-        $blocked = [];
+    $order = Order::create([
+        'order_number' => $this->generateOrderNumber(),
+        'user_id' => $userId,
+        'manager_id' => $request->manager_id ?? null,
+        'commission' => $commission,
+        'rate' => $rate,
+        'order_type' => $rawInput,
+        'price' => $totalPrice,
+        'status' => 0,
+        'user_order_status' => 0,
+        'date' => $request->input("date"),
+        'section' => $request->input("section"),
+        'created_by' => Auth::id(),
+        'buy_sell_type' => $request->buy_sell ?? "sell",
+        'dine_id' => $dineId,
+    ]);
 
-        if (!($userId && $dineId)) {
-            $blockNumbers = CloseNumber::where("date", $request->input("date"))
-                ->where("section", $request->input("section"))
-                ->where("manager_id", $user->manager_id ?? null)
-                ->first();
-
-            if ($blockNumbers && $blockNumbers->number) {
-                $blocked = array_map('trim', explode(',', $blockNumbers->number));
-            }
-        }
-
-        $filteredResult = array_values(array_unique(array_filter($finalResult, fn($n) => !in_array($n, $blocked))));
-
-        if (empty($filteredResult)) {
-            return redirect()->back()->with("error", "No valid numbers found to place the order.");
-        }
-
-        $totalPrice = count($filteredResult) * $price;
-        $commission = $user->commission ?? 0;
-        $rate = $user->rate ?? 80;
-
-        if ($dineId) {
-            $dine = ReDine::find($dineId);
-            if ($dine) {
-                $commission = $dine->commission;
-                $rate = $dine->rate;
-            }
-        }
-
-        $order = Order::create([
+    foreach ($filteredResult as $value) {
+        OrderDetail::create([
             'order_number' => $this->generateOrderNumber(),
+            'order_id' => $order->id,
             'user_id' => $userId,
             'manager_id' => $request->manager_id ?? null,
-            'commission' => $commission,
-            'rate' => $rate,
+            'number' => $value,
             'order_type' => $rawInput,
-            'price' => $totalPrice,
-            'status' => 0,
-            'user_order_status' => 0,
+            'price' => $price,
+            'user_order_status' => 'pending',
             'date' => $request->input("date"),
             'section' => $request->input("section"),
-            'created_by' => Auth::id(),
             'buy_sell_type' => $request->buy_sell ?? "sell",
+            'commission' => $commission,
+            'rate' => $rate,
             'dine_id' => $dineId,
         ]);
-
-        foreach ($filteredResult as $value) {
-            OrderDetail::create([
-                'order_number' => $this->generateOrderNumber(),
-                'order_id' => $order->id,
-                'user_id' => $userId,
-                'manager_id' => $request->manager_id ?? null,
-                'number' => $value,
-                'order_type' => $rawInput,
-                'price' => $price,
-                'user_order_status' => 'pending',
-                'date' => $request->input("date"),
-                'section' => $request->input("section"),
-                'buy_sell_type' => $request->buy_sell ?? "sell",
-                'commission' => $commission,
-                'rate' => $rate,
-                'dine_id' => $dineId,
-            ]);
-        }
-
-        return redirect()->back()->with("success", "Order placed successfully!");
     }
+
+    return redirect()->back()->with("success", "Order placed successfully!");
+}
+
 
 
 
