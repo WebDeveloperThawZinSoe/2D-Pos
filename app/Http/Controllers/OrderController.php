@@ -186,34 +186,77 @@ class OrderController extends Controller
             $userId = $request->client;
             $rawInput = strtoupper(str_replace(' ', '', $request->input('number')));
 
-            // Separate leading letters and trailing digits
-            preg_match('/^([A-Z]+)?(\d+)$/', $rawInput, $matches);
-
-            if (count($matches) < 3) {
-                return back()->withErrors(['number' => 'တင်ငွေရိုက်ထည့်ပါ။ဥပမာ N600 သို့မဟုတ် 281000']);
+            // Fix parsing: get rule part and price
+            if (!preg_match('/^([A-Z\d]+?)(\d{2,})$/i', $rawInput, $matches)) {
+                return back()->withErrors(['number' => 'တင်ငွေရိုက်ထည့်ပါ။ ဥပမာ - N600 သို့မဟုတ် 281000']);
             }
 
-            $letters = str_split($matches[1] ?? '');
+            $lettersDigits = $matches[1] ?? '';
             $digitsOnly = $matches[2];
 
-            if (!$digitsOnly || intval($digitsOnly) <= 0) {
+            if (!is_numeric($digitsOnly) || intval($digitsOnly) <= 0) {
                 return back()->withErrors(['number' => 'မှန်ကန်သော ငွေပမာဏ ရိုက်ထည့်ပါ။']);
             }
+            $price = (int) $digitsOnly;
+            $number = null;
+            $rules = [
+                'A' => ["00", "11", "22", "33", "44", "55", "66", "77", "88", "99"],
+                'X' => ["01", "09", "10", "12", "21", "23", "32", "34", "43", "45", "54", "56", "65", "67", "76", "78", "87", "89", "90", "98"],
+                'N' => ["07", "18", "24", "35", "42", "53", "69", "70", "81", "96"],
+                'W' => ["05", "16", "27", "38", "49", "50", "61", "72", "83", "94"],
+            ];
 
-            // If no rule letters, use first 2 digits as number
-            if (empty($letters)) {
-                if (strlen($digitsOnly) < 3) {
-                    return back()->withErrors(['number' => 'နံပါတ်နှင့် တင်ငွေ တို့ကို မှန်ကန်စွာ ရိုက်ထည့်ပါ။']);
+            $finalResult = [];
+            $isReverse = false;
+            $isPFormat = false;
+
+            // Check for P rule: format should be OneDigit + P
+            if (preg_match('/^(\d)P$/', $lettersDigits, $pMatches)) {
+                $isPFormat = true;
+                $pDigit = $pMatches[1];
+                for ($i = 0; $i <= 9; $i++) {
+                    $num1 = $pDigit . $i; // starts with digit
+                    $num2 = $i . $pDigit; // ends with digit
+                    $finalResult[] = str_pad($num1, 2, '0', STR_PAD_LEFT);
+                    $finalResult[] = str_pad($num2, 2, '0', STR_PAD_LEFT);
                 }
-                $number = substr($digitsOnly, 0, 2);
-                $price = (int) substr($digitsOnly, 2);
+                // Remove duplicates like 33
+                $finalResult = array_unique($finalResult);
             } else {
-                $number = null; // no specific number if rule letters are used
-                $price = (int) $digitsOnly;
-            }
+                // Handle other letter-based rules
+                $letters = str_split($lettersDigits);
+                foreach ($letters as $letter) {
+                    if ($letter === 'R') {
+                        $isReverse = true;
+                        continue;
+                    }
 
-            if ($price <= 0) {
-                return back()->withErrors(['number' => 'မှန်ကန်သော ငွေပမာဏ ရိုက်ထည့်ပါ။']);
+                    if (isset($rules[$letter])) {
+                        $finalResult = array_merge($finalResult, $rules[$letter]);
+                    } elseif ($letter === 'S') {
+                        for ($i = 0; $i <= 99; $i += 2) {
+                            $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
+                        }
+                    } elseif ($letter === 'M') {
+                        for ($i = 1; $i <= 99; $i += 2) {
+                            $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
+                        }
+                    }
+                }
+
+                // If no valid letter rule, extract number from digits
+                if (empty($finalResult)) {
+                    if (strlen($lettersDigits) >= 2 && is_numeric($lettersDigits)) {
+                        $number = substr($lettersDigits, 0, 2);
+                        $finalResult[] = $number;
+                        if ($isReverse) {
+                            $rev = strrev($number);
+                            if ($rev !== $number) {
+                                $finalResult[] = $rev;
+                            }
+                        }
+                    }
+                }
             }
 
             $user = $userId ? User::find($userId) : null;
@@ -224,41 +267,6 @@ class OrderController extends Controller
 
             if ($user && $user->max_limit < $price) {
                 return redirect()->back()->with("error", "တင်ငွေသည်သက်မှတ်ထားသော တကွက်အများဆုံးခွင့်ပြုငွေထက်ကျော်လွန်နေပါသည်။");
-            }
-
-            $rules = [
-                'A' => ["00", "11", "22", "33", "44", "55", "66", "77", "88", "99"],
-                'X' => ["01", "09", "10", "12", "21", "23", "32", "34", "43", "45", "54", "56", "65", "67", "76", "78", "87", "89", "90", "98"],
-                'N' => ["07", "18", "24", "35", "42", "53", "69", "70", "81", "96"],
-                'W' => ["05", "16", "27", "38", "49", "50", "61", "72", "83", "94"],
-            ];
-
-            $finalResult = [];
-            $isReverse = in_array('R', $letters);
-
-            foreach ($letters as $letter) {
-                if (isset($rules[$letter])) {
-                    $finalResult = array_merge($finalResult, $rules[$letter]);
-                } elseif ($letter === 'S') {
-                    for ($i = 0; $i <= 99; $i += 2) {
-                        $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
-                    }
-                } elseif ($letter === 'M') {
-                    for ($i = 1; $i <= 99; $i += 2) {
-                        $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
-                    }
-                }
-            }
-
-            // If no rule letters, add the number itself (+ reverse if needed)
-            if (empty($finalResult) && $number !== null) {
-                $finalResult[] = $number;
-                if ($isReverse) {
-                    $rev = strrev($number);
-                    if ($rev !== $number) {
-                        $finalResult[] = $rev;
-                    }
-                }
             }
 
             $dineId = $request->dine;
@@ -331,6 +339,7 @@ class OrderController extends Controller
 
             return redirect()->back()->with("success", "Order placed successfully!");
         }
+
 
 
         
