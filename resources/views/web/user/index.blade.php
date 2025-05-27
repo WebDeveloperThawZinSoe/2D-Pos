@@ -331,8 +331,11 @@ $timezone = 'Asia/Yangon';
                                         <td><button type="button" onclick="key_enter('3')"
                                                 class="btnTzs btnTzs-light w-100 py-3">3</button></td>
                                         <td rowspan="2">
-                                            <button type="button" onclick="key_enter(' ')"
-                                                class="btnTzs btnTzs-info w-100 py-3">Space</button>
+                                            <button type="button" class="btnTzs btnTzs-info w-100 py-3"
+                                                data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                အကွက်မတူငွေတူ
+                                            </button>
+
                                         </td>
                                         <td class="d-flex flex-column gap-1">
                                             <button type="button" onclick="key_enter('W')"
@@ -383,11 +386,11 @@ $timezone = 'Asia/Yangon';
                 </div>
                 @endif
                 @if(isset($isWinOrNot))
-                    @if ($isWinOrNot > 0)
-                    <div class="alert alert-success text-center">
-                        ဂုဏ်ယူပါတယ် သင်ပေါက်ပါပြီ။
-                    </div>
-                    @endif
+                @if ($isWinOrNot > 0)
+                <div class="alert alert-success text-center">
+                    ဂုဏ်ယူပါတယ် သင်ပေါက်ပါပြီ။
+                </div>
+                @endif
                 @endif
                 @php
 
@@ -516,12 +519,12 @@ $timezone = 'Asia/Yangon';
                             <td colspan=2> ဒဲ့ပေါက် </td>
                             <td colspan=2>
                                 @php
-                                    $isWinOrNot = App\Models\OrderDetail::where('user_id', Auth::id())
-                                    ->where('date', $date)
-                                    ->where('section', $section)
-                                    ->where('manager_id', Auth::user()->manager->id ?? null)
-                                    ->where('number', $winNumber->number ?? null)
-                                    ->count() ?? 0;
+                                $isWinOrNot = App\Models\OrderDetail::where('user_id', Auth::id())
+                                ->where('date', $date)
+                                ->where('section', $section)
+                                ->where('manager_id', Auth::user()->manager->id ?? null)
+                                ->where('number', $winNumber->number ?? null)
+                                ->count() ?? 0;
                                 @endphp
                                 @if($isWinOrNot > 0)
                                 @php
@@ -539,7 +542,7 @@ $timezone = 'Asia/Yangon';
                                 @else
                                 0
                                 @endif
-                            
+
                             </td>
                         </tr>
 
@@ -559,7 +562,7 @@ $timezone = 'Asia/Yangon';
                         <tr>
                             <td colspan=2> ကျသင့်ငွေ </td>
                             <td colspan=2>
-                                
+
                                 @php
                                 $WinNumber = App\Models\OrderDetail::where('user_id', Auth::id())
                                 ->where('date', $date)
@@ -572,7 +575,7 @@ $timezone = 'Asia/Yangon';
                                 $total = $Price * $Rate;
                                 $grandTotal = 0;
                                 $grandTotal = $totalPrice - $total - $amount;
-                                $grandTotal =  $grandTotal * -1;
+                                $grandTotal = $grandTotal * -1;
                                 echo number_format($grandTotal);
                                 @endphp
                             </td>
@@ -606,6 +609,63 @@ $timezone = 'Asia/Yangon';
     </div>
 </section>
 
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">အကွက်မတူငွေတူ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title" id="customModalLabel">အကွက်မတူငွေတူ <br> ရွှေးထားသည့်အချိန် -
+                        {{ session('selected_date', 'Not set') }} <span style="color:blue;">
+                            {{ ucfirst(session('selected_section', 'Not set')) }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
+                <div class="modal-body pt-0">
+                    <form action="/multi/number_store" method="post">
+                        @csrf
+                        <input type="hidden" name="date" value="{{ session('selected_date', 'Not set') }}">
+                        <input type="hidden" name="section" value="{{ session('selected_section', 'Not set') }}">
+                        <input type="hidden" name="buy_sell" value="sell">
+                        <input type="hidden" name="manager_id" value="{{Auth::user()->manager->id}}">
+                        <input type="hidden" name="client" value="{{Auth::user()->id}}">
+
+                        <div class="mb-3">
+                            <label class="form-label">အကွက်များ * </label>
+                            <input type="text" id="patternInput" class="form-control" placeholder="ဥပမာ: 34-23-32-45-32"
+                                name="numbers" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">ငွေပမာဏ * </label>
+                            <input type="number" class="form-control" name="amount" required
+                                placeholder="ငွေပမာဏထည့်ပါ">
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary px-4">ရွှေးသည်</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ပိတ်မယ်</button>
+                <button type="button" class="btn btn-primary">အိုကေ</button>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+
+    <script>
+    document.getElementById('patternInput').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/[^0-9]/g, ''); // Remove non-digits
+        let formatted = value.match(/.{1,2}/g)?.join('-') || '';
+        e.target.value = formatted;
+    });
+    </script>
 
 @endsection
