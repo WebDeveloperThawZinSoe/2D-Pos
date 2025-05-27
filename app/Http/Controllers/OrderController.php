@@ -702,7 +702,7 @@ public function number_store(Request $request)
      
             
         
-           if ($request->number == "" || $request->number == 0) {
+           if ($request->number == "" ) {
                 if ($existing) {
                     $existing->delete();
                      OrderDetail::where('manager_id', $validated['manager_id'])

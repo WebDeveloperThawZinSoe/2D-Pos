@@ -327,7 +327,7 @@ class UserPageController extends Controller
                 $rate = $user->rate ?? 0;
                 $totalNumber = $winningDetails->sum('price');
                 $dethPauk = $totalNumber * $rate;
-                dd($dethPauk);
+                // dd($dethPauk);
                 $order->deth_pauk = $dethPauk;
                 $order->user = $user;
             }
