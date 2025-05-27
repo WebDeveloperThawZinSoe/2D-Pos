@@ -311,7 +311,7 @@
         အရောင်းစာရင်း
     </a>
     <br> <br>
-    <a href="/" class="btn btn-primary btn-lg w-100">
+    <!-- <a href="/" class="btn btn-primary btn-lg w-100">
         အဝယ်စာရင်း
-    </a>
+    </a> -->
 </div>

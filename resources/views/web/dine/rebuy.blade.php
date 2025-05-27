@@ -63,7 +63,7 @@
 
                     $limitHeadPrice = $limitHead->amount ?? 0;
                     @endphp
-
+                    @if($limitHeadPrice > 0)
                     @foreach ($sellDetails as $number => $sellItems)
                     @php
                     $sellTotal = $sellItems->sum('price');
@@ -109,11 +109,103 @@
                                 <button type="submit" class="btn btn-sm btn-primary">ပြန်ဝယ်မည်</button>
                             </td>
                         </tr>
+                        @else 
+                        <tr>
+                            <td colspan="4">ခေါင်ကျော်သောအကွက်များမရှိပါ</td>
+                        </tr>
+                        @endif
                 </tbody>
             </table>
         </form>
     </div>
 
+    <div class="col-md-5 col-12">
+           <div class="table-responsive">
+        <p><b>အဝယ်စာရင်း</b></p>
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                  
+                   
+                    <th>ဒိုင်အမည်</th>
+                    <th>ထိုးကွက်စုစုပေါင်း</th>
+                    <th>ထိုးငွေ</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($buyOrders as $key => $order)
+                <tr>
+               
+                  
+                    <td>{{ $order->dine->name }}</td>
+                    <td>
+                        {{ \App\Models\OrderDetail::where('order_id', $order->id)->count() }}
+                    </td>
+                    <td>{{ number_format($order->price) }}   </td>
+                    <td>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#orderModal{{ $order->id }}">အသေးစိတ်</button>
+                        <form id="delete-form-{{ $order->id }}" action="{{ route('order.delete') }}" method="POST"
+                            class="d-inline">
+                            @csrf
+                            <input type="hidden" name="id" value="{{ $order->id }}">
+                            <button type="button" class="btn btn-danger btn-sm"
+                                onclick="confirmDelete({{ $order->id }})">
+                                ဖြတ်မည်
+                            </button>
+                        </form>
+
+                    </td>
+                </tr>
+
+                <!-- Modal -->
+                <div class="modal fade" id="orderModal{{ $order->id }}" tabindex="-1"
+                    aria-labelledby="orderModalLabel{{ $order->id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Type:</strong> {{ $order->order_type }}</p>
+                                <p><strong>Client:</strong> {{$order->dine->name ?? ""}} </p>
+                                <p><strong>Total Amount:</strong> {{ $order->price }}   </p>
+                                <p><strong>Date:</strong> {{ $order->date }}</p>
+                                <p><strong>Section:</strong> {{ $order->section }}</p>
+                                <p><a target="_blank" href="/print/{{$order->id}}" class="btn btn-primary">Print</a></p>
+                                @php
+                                $OrderDetail = App\Models\OrderDetail::where("order_id",$order->id)->get();
+                                @endphp
+
+                                @foreach($OrderDetail as $key => $detail)
+                                <div class="border rounded p-2 mb-2">
+                                    <p class="mb-1"><strong>စဉ်:</strong> {{ $key + 1 }}</p>
+                                    <p class="mb-1"><strong>နံပါတ်:</strong> {{ $detail->number }}</p>
+                                    <p class="mb-0"><strong>ဈေးနှုန်း:</strong> {{ number_format($detail->price) }}   
+                                    </p>
+                                </div>
+                                @endforeach
+                             
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                @endforeach
+
+                <!-- Summary row -->
+                <tr class="fw-bold bg-light">
+                    <td colspan="3" class="text-end">ထိုးငွေစုစုပေါင်း</td>
+                    <td colspan="2">{{ number_format($buyOrders->sum('price')) }}   </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>    
+    </div>    
 
 </div>
 

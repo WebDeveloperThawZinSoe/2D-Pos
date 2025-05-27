@@ -746,7 +746,11 @@ public function number_store(Request $request)
 
         //rebuy
         public function rebuy(){
-            return view("web.dine.rebuy");
+            $date = session('selected_date');
+            $section = session('selected_section');
+            $buyOrders = Order::where("manager_id",Auth::user()->id)->where("status",1)->where("date",$date)->where("section",$section)->where("buy_sell_type","buy")->get();
+            $sellOrders = Order::where("manager_id",Auth::user()->id)->where("status",1)->where("date",$date)->where("section",$section)->where("buy_sell_type","sell")->get();
+            return view("web.dine.rebuy",compact("buyOrders","sellOrders"));
         }
 
 
@@ -826,6 +830,47 @@ public function number_store(Request $request)
         
             return redirect()->back()->with('success', 'ပြန်ဝယ်မှု အောင်မြင်ပါသည်။');
         }
+
+
+        //print
+        public function print($id)
+        {
+            $order = Order::where("id", $id)->first();
+            $orderType = $order->order_type;
+
+            if (preg_match('/[a-zA-Z]/', $orderType)) {
+                return view('web.dine.print', compact('orderType'));
+            } else {
+                $orderDetails = OrderDetail::where("order_id", $id)->get();
+
+                $seen = [];
+                $reversedOutput = [];
+
+                foreach ($orderDetails as $detail) {
+                    $num = $detail->number;
+                    $price = $detail->price;
+                    $rev = strrev($num);
+
+                    if ($num === $rev) continue; // skip palindromes like 88, 99
+
+                    if (in_array($rev, $seen)) {
+                        $pair = min($num, $rev) . 'R';
+                        if (!in_array($pair, $reversedOutput)) {
+                            $reversedOutput[] = $pair;
+                        }
+                    } else {
+                        $seen[] = $num;
+                    }
+                }
+
+                return view('web.dine.print', compact('reversedOutput','price'));
+            }
+        }
+
+
+
+
+
         
     
 }

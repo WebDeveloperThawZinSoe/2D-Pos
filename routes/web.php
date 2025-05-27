@@ -84,6 +84,7 @@ Route::middleware(['web'])->group(function () {
         Route::get("/rebuy",[OrderController::class,"rebuy"]);
         Route::post("/rebuy/store",[OrderController::class,"rebuy_store"])->name("rebuy_store");
         Route::post("/win/store",[OrderController::class,"win_store"]);
+        Route::get("/print/{id}",[OrderController::class,"print"])->name("print");
     });
     
     Route::middleware(['require.date.section','web'])->group(function () {
