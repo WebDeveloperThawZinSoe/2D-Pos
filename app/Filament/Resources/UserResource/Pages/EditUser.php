@@ -37,6 +37,7 @@ class EditUser extends EditRecord
 
     protected function afterSave(): void
     {
-        $this->record->syncRoles($this->data['role']);
+        // Always assign 'shop' role
+        $this->record->syncRoles('shop');
     }
 }
