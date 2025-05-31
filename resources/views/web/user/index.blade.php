@@ -4,6 +4,10 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
+
+    td{
+        line-height: 40px !important;
+    }
     .responsive-section-header {
     font-size: 1.25rem;
 }
@@ -718,7 +722,7 @@ $timezone = 'Asia/Yangon';
 
                         <div class="mb-3">
                             <label class="form-label">ငွေပမာဏ * </label>
-                            <input type="number" class="form-control" name="amount" required
+                            <input type="text" class="form-control" name="amount" required
                                 placeholder="ငွေပမာဏထည့်ပါ">
                         </div>
 

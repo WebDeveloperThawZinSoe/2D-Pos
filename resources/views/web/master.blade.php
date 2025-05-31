@@ -166,6 +166,9 @@
                     <a class="nav-link text-dark fw-semibold" href="{{ route('routeCheck') }}">ပင်မစာမျက်နှာ</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold" href="{{ route('select.date.section') }}">ရက်ရွှေးမည်</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link text-dark fw-semibold" href="{{ route('user.my.order') }}">အရင်အော်ဒါများ</a>
                 </li>
                 <li class="nav-item">

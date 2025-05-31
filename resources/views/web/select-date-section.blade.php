@@ -19,10 +19,11 @@
                                     value="{{ request('get_date', now()->toDateString()) }}" required>
                             </div>
                             @php
-                            $currentHour = now()->format('H'); // 24-hour format
-                            $currentMinute = now()->format('i'); // minutes
-                            $autoPm = ($currentHour >= 12 || ($currentHour == 12 && $currentMinute > 01)) ? 'pm' : 'am';
-                            $selectedAmPm = request('get_am_pm', $autoPm);
+                                // Now using correct timezone
+                              $currentHour = now()->setTimezone('Asia/Yangon')->format('H');
+                                $currentMinute = now()->format('i');
+                                $autoPm = ($currentHour >= 12) ? 'pm' : 'am';
+                                $selectedAmPm = request('get_am_pm', $autoPm);
                             @endphp
 
                             <div class="col-3">
@@ -32,6 +33,7 @@
                                     <option value="pm" {{ $selectedAmPm == 'pm' ? 'selected' : '' }}>PM</option>
                                 </select>
                             </div>
+
 
                         </div>
                     </div>
