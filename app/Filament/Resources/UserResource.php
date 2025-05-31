@@ -17,6 +17,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class UserResource extends Resource
 {
@@ -92,6 +93,20 @@ class UserResource extends Resource
                 TextColumn::make('name')->sortable()->searchable(),
                 TextColumn::make('email')->sortable()->searchable(),
                 TextColumn::make('plain_password')->sortable()->searchable(),
+            TextColumn::make('end_date')
+                ->label('End Date')
+                ->badge() // Enables visible color
+                ->date()
+                ->color(function ($state) {
+                    if (!$state) return null;
+
+                    // Make sure $state is a Carbon instance
+                    $date = $state instanceof \Carbon\Carbon ? $state : Carbon::parse($state);
+
+                    return $date->isBetween(now(), now()->addMonth())
+                        ? 'danger' // Red
+                        : 'success'; // Green or default
+                }),
                 BadgeColumn::make('status')
                     ->label('Status')
                     ->getStateUsing(fn (User $user) => $user->status == 1 ? 'Active' : 'Inactive')
@@ -106,7 +121,7 @@ class UserResource extends Resource
                     ->dateTime()
                     ->sortable(),
             ])
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('end_date', 'asc')
             ->filters([
                 Filter::make('Shop')
                     ->query(fn (Builder $query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'shop'))),
