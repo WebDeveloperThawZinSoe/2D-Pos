@@ -242,17 +242,35 @@ class OrderController extends Controller
                     }
                 }
             }
-            // Z/z rule
-            elseif (preg_match('/^(\d{2,})[Zz]$/', $lettersDigits, $zMatches)) {
-                $allowedDigits = str_split($zMatches[1]);
+            // ZZ / zz rule
+            elseif (preg_match('/^(\d{2,})(ZZ|zz)$/', $lettersDigits, $zMatches)) {
+                $allowedDigits = str_split($zMatches[1]); // Extract digits before ZZ
                 for ($i = 0; $i <= 9; $i++) {
                     for ($j = 0; $j <= 9; $j++) {
                         if (in_array((string)$i, $allowedDigits) && in_array((string)$j, $allowedDigits)) {
+                            $finalResult[] = "{$i}{$j}"; // Allow same digit pairs
+                        }
+                    }
+                }
+            }
+
+            // Z / z rule (no same digit combinations)
+            elseif (preg_match('/^(\d{2,})(Z|z)$/', $lettersDigits, $zMatches)) {
+                $allowedDigits = str_split($zMatches[1]); // Extract digits before Z
+                for ($i = 0; $i <= 9; $i++) {
+                    for ($j = 0; $j <= 9; $j++) {
+                        if (
+                            $i !== $j && // No same digit (e.g. 11, 22)
+                            in_array((string)$i, $allowedDigits) &&
+                            in_array((string)$j, $allowedDigits)
+                        ) {
                             $finalResult[] = "{$i}{$j}";
                         }
                     }
                 }
             }
+
+
             // B/b rule
             elseif (preg_match('/^(\d)[Bb]$/', $lettersDigits, $bMatches)) {
                 $targetSum = intval($bMatches[1]);
@@ -265,22 +283,39 @@ class OrderController extends Controller
                 }
             }
             else {
-                $letters = str_split($lettersDigits);
-                foreach ($letters as $letter) {
-                    $upper = strtoupper($letter);
+                $tokens = explode(',', $lettersDigits); // e.g., 'SS,MM,S,M,R'
+                foreach ($tokens as $token) {
+                    $upper = strtoupper(trim($token));
                     if ($upper === 'R') {
                         $isReverse = true;
                         continue;
                     }
+
                     if (isset($rules[$upper])) {
                         $finalResult = array_merge($finalResult, $rules[$upper]);
-                    } elseif ($upper === 'S') {
-                        for ($i = 0; $i <= 99; $i += 2) {
-                            $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
-                        }
-                    } elseif ($upper === 'M') {
+                    } elseif ($upper === 'SS') {
+                       for ($i = 0; $i <= 99; $i += 2) {
+                             $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
+                         }
+                    } elseif ($upper === 'MM') {
                         for ($i = 1; $i <= 99; $i += 2) {
                             $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
+                        }
+                    } elseif ($upper === 'S') {
+                        // First digit even, second digit odd
+                        for ($i = 0; $i <= 99; $i++) {
+                            $str = str_pad($i, 2, '0', STR_PAD_LEFT);
+                            if ((int)$str[0] % 2 === 0 && (int)$str[1] % 2 === 1) {
+                                $finalResult[] = $str;
+                            }
+                        }
+                    } elseif ($upper === 'M') {
+                        // First digit odd, second digit even
+                        for ($i = 0; $i <= 99; $i++) {
+                            $str = str_pad($i, 2, '0', STR_PAD_LEFT);
+                            if ((int)$str[0] % 2 === 1 && (int)$str[1] % 2 === 0) {
+                                $finalResult[] = $str;
+                            }
                         }
                     }
                 }
@@ -505,6 +540,8 @@ class OrderController extends Controller
         //   return redirect()->back();
         //     // return redirect()->back()->with("success", "အော်ဒါတင်ခြင်း အောင်မြင်ပါသည်။");
         // }
+
+        
         public function number_store_multi(Request $request)
         {
             $clientId = $request->client;
@@ -613,19 +650,7 @@ class OrderController extends Controller
             $numberType = implode('-', $validNumbers) . "_" . $rawAmount;
             $totalPrice = ($price * count($finalNumbers)) + ($hasReverse ? $reversePrice * count($reverseNumbers) : 0);
 
-            // ✅ Show parsed result for debugging
-            // dd([
-            //     'Input Amount' => $rawAmount,
-            //     'Price' => $price,
-            //     'Reverse Price' => $reversePrice,
-            //     'Has Reverse' => $hasReverse,
-            //     'Valid Numbers' => $validNumbers,
-            //     'Reverse Numbers' => $reverseNumbers,
-            //     'Final Combined Numbers' => $combinedNumbers,
-            //     'Blocked Numbers' => $blockedNumbers,
-            //     'Total Price' => $totalPrice,
-            //     'User Max Limit' => $user->max_limit ?? null,
-            // ]);
+
 
             // Step 6: Create main order (remove dd() to continue)
             $order = Order::create([

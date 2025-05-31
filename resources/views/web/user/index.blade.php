@@ -4,11 +4,11 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
+td {
+    line-height: 40px !important;
+}
 
-    td{
-        line-height: 40px !important;
-    }
-    .responsive-section-header {
+.responsive-section-header {
     font-size: 1.25rem;
 }
 
@@ -17,6 +17,7 @@
         font-size: 1rem;
     }
 }
+
 /* Base Button */
 .btnTzs {
     display: inline-block;
@@ -188,41 +189,41 @@ $timezone = 'Asia/Yangon';
                         </p>
                     </span>
 
-                              @php
-                $serverTime = now()->setTimezone('Asia/Yangon');
-                @endphp
+                    @php
+                    $serverTime = now()->setTimezone('Asia/Yangon');
+                    @endphp
 
-                <p>
-                    Current Server Time:
-                    <span id="server-time" data-time="{{ $serverTime->format('Y-m-d H:i:s') }}">
-                        {{ $serverTime->format('Y-m-d H:i:s') }}
-                    </span>
-                </p>
+                    <p>
+                        Current Server Time:
+                        <span id="server-time" data-time="{{ $serverTime->format('Y-m-d H:i:s') }}">
+                            {{ $serverTime->format('Y-m-d H:i:s') }}
+                        </span>
+                    </p>
 
-                <script>
-                // Parse initial server time
-                const serverTimeEl = document.getElementById('server-time');
-                let serverTime = new Date(serverTimeEl.dataset.time.replace(/-/g, '/'));
+                    <script>
+                    // Parse initial server time
+                    const serverTimeEl = document.getElementById('server-time');
+                    let serverTime = new Date(serverTimeEl.dataset.time.replace(/-/g, '/'));
 
-                // Update the time every second
-                setInterval(() => {
-                    serverTime.setSeconds(serverTime.getSeconds() + 1);
+                    // Update the time every second
+                    setInterval(() => {
+                        serverTime.setSeconds(serverTime.getSeconds() + 1);
 
-                    // Format to YYYY-MM-DD HH:mm:ss
-                    const formatted = serverTime.getFullYear() + '-' +
-                        String(serverTime.getMonth() + 1).padStart(2, '0') + '-' +
-                        String(serverTime.getDate()).padStart(2, '0') + ' ' +
-                        String(serverTime.getHours()).padStart(2, '0') + ':' +
-                        String(serverTime.getMinutes()).padStart(2, '0') + ':' +
-                        String(serverTime.getSeconds()).padStart(2, '0');
+                        // Format to YYYY-MM-DD HH:mm:ss
+                        const formatted = serverTime.getFullYear() + '-' +
+                            String(serverTime.getMonth() + 1).padStart(2, '0') + '-' +
+                            String(serverTime.getDate()).padStart(2, '0') + ' ' +
+                            String(serverTime.getHours()).padStart(2, '0') + ':' +
+                            String(serverTime.getMinutes()).padStart(2, '0') + ':' +
+                            String(serverTime.getSeconds()).padStart(2, '0');
 
-                    serverTimeEl.textContent = formatted;
-                }, 1000);
-                </script>
+                        serverTimeEl.textContent = formatted;
+                    }, 1000);
+                    </script>
                 </div>
 
 
-      
+
 
                 @php
                 use Illuminate\Support\Facades\Auth;
@@ -240,7 +241,8 @@ $timezone = 'Asia/Yangon';
                     System မှ အလိုအလျှောက်ဖြတ်ထုတ်သွားပါမည်။
                 </p>
                 @else
-               <p class="alert alert-info d-none d-sm-block"><b>ယခု Section အတွက်ဒိုင်မှပိတ်ထားသော ပိတ်သီးမရှိပါ။</b></p>
+                <p class="alert alert-info d-none d-sm-block"><b>ယခု Section အတွက်ဒိုင်မှပိတ်ထားသော ပိတ်သီးမရှိပါ။</b>
+                </p>
                 @endif
 
 
@@ -321,8 +323,19 @@ $timezone = 'Asia/Yangon';
                                                 class="btnTzs btnTzs-light w-100 py-3">8</button></td>
                                         <td><button type="button" onclick="key_enter('9')"
                                                 class="btnTzs btnTzs-light w-100 py-3">9</button></td>
-                                        <td><button type="button" onclick="key_enter('S')"
-                                                class="btnTzs btnTzs-info w-100 py-3">စုံ</button></td>
+                                        <td>
+                                            <div style="display: flex; gap: 5px;">
+                                                <button type="button" onclick="key_enter('SS')"
+                                                    class="btnTzs btnTzs-info w-100 py-3">
+                                                    စုံစုံ
+                                                </button>
+                                                <button type="button" onclick="key_enter('S')"
+                                                    class="btnTzs btnTzs-info w-100 py-3">
+                                                    စုံမ
+                                                </button>
+                                            </div>
+                                        </td>
+
                                         <td><button type="button" onclick="key_enter('f')"
                                                 class="btnTzs btnTzs-warning w-100 py-3">နောက်</button></td>
                                     </tr>
@@ -333,8 +346,19 @@ $timezone = 'Asia/Yangon';
                                                 class="btnTzs btnTzs-light w-100 py-3">5</button></td>
                                         <td><button type="button" onclick="key_enter('6')"
                                                 class="btnTzs btnTzs-light w-100 py-3">6</button></td>
-                                        <td><button type="button" onclick="key_enter('M')"
-                                                class="btnTzs btnTzs-info w-100 py-3">မ</button></td>
+                                        <td>
+                                            <div style="display: flex; gap: 5px;">
+                                                <button type="button" onclick="key_enter('MM')"
+                                                    class="btnTzs btnTzs-info w-100 py-3">
+                                                    မမ
+                                                </button>
+                                                <button type="button" onclick="key_enter('M')"
+                                                    class="btnTzs btnTzs-info w-100 py-3">
+                                                    မစုံ
+                                                </button>
+                                            </div>
+                                        </td>
+
                                         <td class="d-flex flex-column gap-1">
                                             <button type="button" onclick="key_enter('B')"
                                                 class="btnTzs btnTzs-warning w-100 py-1">ဘရိတ်</button>
@@ -355,6 +379,12 @@ $timezone = 'Asia/Yangon';
                                                 အကွက်မတူငွေတူ
                                             </button>
 
+                                            <br>
+
+                                            <button onclick="key_enter('singleDel')" type="button" class="btnTzs btnTzs-danger w-100 py-3 mt-4">
+                                                Del.
+                                            </button>
+
                                         </td>
                                         <td class="d-flex flex-column gap-1">
                                             <button type="button" onclick="key_enter('W')"
@@ -372,9 +402,17 @@ $timezone = 'Asia/Yangon';
                                             <button type="button" onclick="key_enter('00')"
                                                 class="btnTzs btnTzs-light w-100 py-3">00</button>
                                         </td>
-                                        <td>
-                                            <button type="button" onclick="key_enter('Z')"
+                                        <!-- <td>
+                                            <button type="button" onclick="key_enter('ZZ')"
+                                                class="btnTzs btnTzs-warning w-100 py-3">ခွေပူး</button>
+                                                 <button type="button" onclick="key_enter('Z')"
                                                 class="btnTzs btnTzs-warning w-100 py-3">ခွေ</button>
+                                        </td> -->
+                                        <td class="d-flex flex-column gap-1">
+                                            <button type="button" onclick="key_enter('ZZ')"
+                                                class="btnTzs btnTzs-warning w-100 py-1">ခွေပူး</button>
+                                            <button type="button" onclick="key_enter('Z')"
+                                                class="btnTzs btnTzs-warning w-100 py-1">ခွေ</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -425,6 +463,10 @@ $timezone = 'Asia/Yangon';
                     if (data === "del") {
                         inputField.value = "";
                         if (inputField2) inputField2.value = "";
+                    } else if (data === "singleDel") {
+                        // Delete last character from input
+                        inputField.value = inputField.value.slice(0, -1);
+                        if (inputField2) inputField2.value = inputField2.value.slice(0, -1);
                     } else {
                         inputField.value += data;
                     }
@@ -459,8 +501,9 @@ $timezone = 'Asia/Yangon';
 
                 <hr>
 
-             
-               <h5 class="responsive-section-header"> {{ $date }} {{ $section }} - @if (!empty($alert)) နောက် @else ယခု @endif Section အတွက်အော်ဒါ</h5>
+
+                <h5 class="responsive-section-header"> {{ $date }} {{ $section }} - @if (!empty($alert)) နောက် @else ယခု
+                    @endif Section အတွက်အော်ဒါ</h5>
 
 
                 @php
@@ -626,8 +669,9 @@ $timezone = 'Asia/Yangon';
                 </table>
 
 
-                   <div class="d-block d-sm-none">
-                    <br> <hr>
+                <div class="d-block d-sm-none">
+                    <br>
+                    <hr>
                     <span>
                         <p><span style="padding:5px;background:green;color:white">နာမည်</span> -
                             {{ Auth::user()->name }} ({{ Auth::user()->email }})</p>
@@ -647,44 +691,44 @@ $timezone = 'Asia/Yangon';
                         </p>
                     </span>
 
-                              @php
-                $serverTime = now()->setTimezone('Asia/Yangon');
-                @endphp
+                    @php
+                    $serverTime = now()->setTimezone('Asia/Yangon');
+                    @endphp
 
-                <p>
-                    Current Server Time:
-                    <span id="server-time" data-time="{{ $serverTime->format('Y-m-d H:i:s') }}">
-                        {{ $serverTime->format('Y-m-d H:i:s') }}
-                    </span>
-                </p>
+                    <p>
+                        Current Server Time:
+                        <span id="server-time" data-time="{{ $serverTime->format('Y-m-d H:i:s') }}">
+                            {{ $serverTime->format('Y-m-d H:i:s') }}
+                        </span>
+                    </p>
 
-                <script>
-                // Parse initial server time
-                const serverTimeEl = document.getElementById('server-time');
-                let serverTime = new Date(serverTimeEl.dataset.time.replace(/-/g, '/'));
+                    <script>
+                    // Parse initial server time
+                    const serverTimeEl = document.getElementById('server-time');
+                    let serverTime = new Date(serverTimeEl.dataset.time.replace(/-/g, '/'));
 
-                // Update the time every second
-                setInterval(() => {
-                    serverTime.setSeconds(serverTime.getSeconds() + 1);
+                    // Update the time every second
+                    setInterval(() => {
+                        serverTime.setSeconds(serverTime.getSeconds() + 1);
 
-                    // Format to YYYY-MM-DD HH:mm:ss
-                    const formatted = serverTime.getFullYear() + '-' +
-                        String(serverTime.getMonth() + 1).padStart(2, '0') + '-' +
-                        String(serverTime.getDate()).padStart(2, '0') + ' ' +
-                        String(serverTime.getHours()).padStart(2, '0') + ':' +
-                        String(serverTime.getMinutes()).padStart(2, '0') + ':' +
-                        String(serverTime.getSeconds()).padStart(2, '0');
+                        // Format to YYYY-MM-DD HH:mm:ss
+                        const formatted = serverTime.getFullYear() + '-' +
+                            String(serverTime.getMonth() + 1).padStart(2, '0') + '-' +
+                            String(serverTime.getDate()).padStart(2, '0') + ' ' +
+                            String(serverTime.getHours()).padStart(2, '0') + ':' +
+                            String(serverTime.getMinutes()).padStart(2, '0') + ':' +
+                            String(serverTime.getSeconds()).padStart(2, '0');
 
-                    serverTimeEl.textContent = formatted;
-                }, 1000);
-                </script>
+                        serverTimeEl.textContent = formatted;
+                    }, 1000);
+                    </script>
                 </div>
 
             </div>
         </div>
     </div>
 
-    
+
 </section>
 
 
@@ -722,8 +766,7 @@ $timezone = 'Asia/Yangon';
 
                         <div class="mb-3">
                             <label class="form-label">ငွေပမာဏ * </label>
-                            <input type="text" class="form-control" name="amount" required
-                                placeholder="ငွေပမာဏထည့်ပါ">
+                            <input type="text" class="form-control" name="amount" required placeholder="ငွေပမာဏထည့်ပါ">
                         </div>
 
                         <div class="text-end">
