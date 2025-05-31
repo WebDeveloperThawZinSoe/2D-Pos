@@ -197,7 +197,7 @@ class OrderController extends Controller
                 $lettersDigits = substr($rawInput, 0, 2);
                 $digitsOnly = substr($rawInput, 2);
             } else {
-                // Existing pattern for letters+digits
+                // Letters+digits pattern
                 if (!preg_match('/^([A-Za-z\d]+?)(\d{2,})$/', $rawInput, $matches)) {
                     return back()->withErrors(['number' => 'တင်ငွေရိုက်ထည့်ပါ။ ဥပမာ - N600 သို့မဟုတ် 281000']);
                 }
@@ -219,9 +219,8 @@ class OrderController extends Controller
             ];
 
             $finalResult = [];
-            $isReverse = false;
 
-            // P rule
+            // Handle P rule (e.g. 6P)
             if (preg_match('/^(\d)[Pp]$/', $lettersDigits, $pMatches)) {
                 $pDigit = $pMatches[1];
                 for ($i = 0; $i <= 9; $i++) {
@@ -230,18 +229,42 @@ class OrderController extends Controller
                 }
                 $finalResult = array_unique($finalResult);
             }
-            // F/f rule
-            elseif (preg_match('/^(\d)([Ff])$/', $lettersDigits, $fMatches)) {
+            // Handle digit + F/f (e.g. 6F)
+            elseif (preg_match('/^(\d)[Ff]$/', $lettersDigits, $fMatches)) {
                 $digit = $fMatches[1];
-                $letter = $fMatches[2];
                 for ($i = 0; $i <= 9; $i++) {
-                    if ($letter === 'F') {
-                        $finalResult[] = str_pad($digit . $i, 2, '0', STR_PAD_LEFT);
-                    } else {
-                        $finalResult[] = str_pad($i . $digit, 2, '0', STR_PAD_LEFT);
-                    }
+                    $finalResult[] = str_pad($digit . $i, 2, '0', STR_PAD_LEFT);
                 }
             }
+            // Handle F/f + digit (e.g. F6)
+            elseif (preg_match('/^[Ff](\d)$/', $lettersDigits, $fMatches)) {
+                $digit = $fMatches[1];
+                for ($i = 0; $i <= 9; $i++) {
+                    $finalResult[] = str_pad($i . $digit, 2, '0', STR_PAD_LEFT);
+                }
+            }
+            // Handle special case: F + digit + price together (e.g. F6100)
+            elseif (preg_match('/^[Ff](\d)(\d{2,})$/', $rawInput, $fFullMatches)) {
+                $digit = $fFullMatches[1];
+                $price = (int) $fFullMatches[2];
+                for ($i = 0; $i <= 9; $i++) {
+                    $finalResult[] = str_pad($i . $digit, 2, '0', STR_PAD_LEFT);
+                }
+            }
+            // Handle digit + F + price together (e.g. 6F100)
+            elseif (preg_match('/^(\d)[Ff](\d{2,})$/', $rawInput, $fFullMatches)) {
+                $digit = $fFullMatches[1];
+                $price = (int) $fFullMatches[2];
+                for ($i = 0; $i <= 9; $i++) {
+                    $finalResult[] = str_pad($digit . $i, 2, '0', STR_PAD_LEFT);
+                }
+            }
+
+
+         
+
+
+
             // ZZ / zz rule
             elseif (preg_match('/^(\d{2,})(ZZ|zz)$/', $lettersDigits, $zMatches)) {
                 $allowedDigits = str_split($zMatches[1]); // Extract digits before ZZ
@@ -423,9 +446,10 @@ class OrderController extends Controller
                 ]);
             }
             return redirect()->back();
-            // return redirect()->back()->with("success", "Order placed successfully!");
+           
         }
 
+        
 
 
 
