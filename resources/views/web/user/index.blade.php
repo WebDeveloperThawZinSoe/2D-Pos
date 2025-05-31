@@ -329,7 +329,7 @@ $timezone = 'Asia/Yangon';
                                                     class="btnTzs btnTzs-info w-100 py-3">
                                                     စုံစုံ
                                                 </button>
-                                                <button type="button" onclick="key_enter('S')"
+                                                <button type="button" onclick="key_enter('SM')"
                                                     class="btnTzs btnTzs-info w-100 py-3">
                                                     စုံမ
                                                 </button>
@@ -352,7 +352,7 @@ $timezone = 'Asia/Yangon';
                                                     class="btnTzs btnTzs-info w-100 py-3">
                                                     မမ
                                                 </button>
-                                                <button type="button" onclick="key_enter('M')"
+                                                <button type="button" onclick="key_enter('MS')"
                                                     class="btnTzs btnTzs-info w-100 py-3">
                                                     မစုံ
                                                 </button>
@@ -454,10 +454,13 @@ $timezone = 'Asia/Yangon';
 
                 @endphp
                 @endif
+
+
                 <script>
                 function key_enter(data) {
                     const add_sound = new Audio("{{ asset('sound/type.mp3') }}");
                     add_sound.play();
+
                     let inputField = document.getElementById('add_2D_number_input');
                     let inputField2 = document.getElementById('add_2D_number_input_price');
 
@@ -465,15 +468,94 @@ $timezone = 'Asia/Yangon';
                         inputField.value = "";
                         if (inputField2) inputField2.value = "";
                     } else if (data === "singleDel") {
-                        // Delete last character from input
                         inputField.value = inputField.value.slice(0, -1);
                         if (inputField2) inputField2.value = inputField2.value.slice(0, -1);
                     } else {
                         inputField.value += data;
+                        applyCustomReplacements(inputField);
                     }
 
-                    // ✅ After adding data, validate the format
                     validate2DNumber(inputField);
+                }
+
+                // ✅ Handle direct typing with keyboard
+                document.addEventListener("DOMContentLoaded", function() {
+                    const inputField = document.getElementById('add_2D_number_input');
+
+                    inputField.addEventListener('input', function() {
+                        applyCustomReplacements(inputField);
+                        validate2DNumber(inputField);
+                    });
+                });
+
+                // ✅ Custom pattern replacements
+                function applyCustomReplacements(inputField) {
+                    const replacements = [{
+                            pattern: /^\/\//,
+                            replacement: 'W'
+                        },
+                        {
+                            pattern: /^\*\*/,
+                            replacement: 'N'
+                        },
+                        {
+                            pattern: /^\/\*/,
+                            replacement: 'X'
+                        },
+                        {
+                            pattern: /^(\d{2})\*$/,
+                            replacement: '$1R'
+                        }, // e.g. 12* -> 12R
+                        {
+                            pattern: /^(\d)\*$/,
+                            replacement: '$1F'
+                        }, // e.g. 1* -> 1F
+                        {
+                            pattern: /^\*(\d)$/,
+                            replacement: 'F$1'
+                        }, // e.g. *1 -> F1
+                        {
+                            pattern: /^(\d)\+$/,
+                            replacement: '$1B'
+                        }, // e.g. 1+ -> 1B
+                        {
+                            pattern: /^(\d{2})\+$/,
+                            replacement: '$1B'
+                        }, // e.g. 12+ -> 12B
+                        {
+                            pattern: /^(\d{3})\+$/,
+                            replacement: '$1Z'
+                        }, // e.g. 123+ -> 123Z
+                        {
+                            pattern: /^(\d{3})\+\+$/,
+                            replacement: '$1ZZ'
+                        }, // e.g. 123++ -> 123ZZ
+                        {
+                            pattern: /^\+\+$/,
+                            replacement: 'SS'
+                        },
+                        {
+                            pattern: /^\-\-$/,
+                            replacement: 'MM'
+                        },
+                        {
+                            pattern: /^\+\-$/,
+                            replacement: 'SM'
+                        },
+                        {
+                            pattern: /^\-\+$/,
+                            replacement: 'MS'
+                        },
+                    ];
+
+                    let value = inputField.value;
+
+                    for (let rule of replacements) {
+                        if (rule.pattern.test(value)) {
+                            inputField.value = value.replace(rule.pattern, rule.replacement);
+                            break; // stop at first match
+                        }
+                    }
                 }
                 </script>
 
@@ -541,13 +623,13 @@ $timezone = 'Asia/Yangon';
                                         @csrf
                                         <input type="hidden" name="id" value="{{ $order->id }}">
                                         <button type="submit" class="btnTzs btnTzs-success btnTzs-sm w-100 py-2">
-                                            <i class="fas fa-check"></i> 
+                                            <i class="fas fa-check"></i>
                                         </button>
                                     </form>
 
                                     <a class="btnTzs btnTzs-primary btnTzs-sm w-100 py-2" data-bs-toggle="modal"
                                         data-bs-target="#orderDetailModal{{ $order->id }}">
-                                        <i class="fas fa-info-circle"></i> 
+                                        <i class="fas fa-info-circle"></i>
                                     </a>
 
                                     <form action="/order/delete" method="post" class="m-0"
@@ -555,13 +637,13 @@ $timezone = 'Asia/Yangon';
                                         @csrf
                                         <input type="hidden" name="id" value="{{ $order->id }}">
                                         <button type="submit" class="btnTzs btnTzs-danger btnTzs-sm w-100 py-2">
-                                            <i class="fas fa-trash"></i> 
+                                            <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
                                     @else
                                     <a class="btnTzs btnTzs-primary btnTzs-sm w-100 py-2" data-bs-toggle="modal"
                                         data-bs-target="#orderDetailModal{{ $order->id }}">
-                                        <i class="fas fa-info-circle"></i> 
+                                        <i class="fas fa-info-circle"></i>
                                     </a>
                                     @endif
                                 </div>

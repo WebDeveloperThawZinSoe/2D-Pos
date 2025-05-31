@@ -328,7 +328,7 @@ class OrderController extends Controller
                         for ($i = 1; $i <= 99; $i += 2) {
                             $finalResult[] = str_pad($i, 2, '0', STR_PAD_LEFT);
                         }
-                    } elseif ($upper === 'S') {
+                    } elseif ($upper === 'SM') {
                         // First digit even, second digit odd
                         for ($i = 0; $i <= 99; $i++) {
                             $str = str_pad($i, 2, '0', STR_PAD_LEFT);
@@ -336,7 +336,7 @@ class OrderController extends Controller
                                 $finalResult[] = $str;
                             }
                         }
-                    } elseif ($upper === 'M') {
+                    } elseif ($upper === 'MS') {
                         // First digit odd, second digit even
                         for ($i = 0; $i <= 99; $i++) {
                             $str = str_pad($i, 2, '0', STR_PAD_LEFT);
