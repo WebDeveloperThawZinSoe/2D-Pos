@@ -21,7 +21,7 @@
                             @php
                             $currentHour = now()->format('H'); // 24-hour format
                             $currentMinute = now()->format('i'); // minutes
-                            $autoPm = ($currentHour > 11 || ($currentHour == 11 && $currentMinute > 51)) ? 'pm' : 'am';
+                            $autoPm = ($currentHour >= 12 || ($currentHour == 12 && $currentMinute > 01)) ? 'pm' : 'am';
                             $selectedAmPm = request('get_am_pm', $autoPm);
                             @endphp
 

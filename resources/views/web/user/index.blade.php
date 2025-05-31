@@ -4,6 +4,15 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
+    .responsive-section-header {
+    font-size: 1.25rem;
+}
+
+@media (max-width: 600px) {
+    .responsive-section-header {
+        font-size: 1rem;
+    }
+}
 /* Base Button */
 .btnTzs {
     display: inline-block;
@@ -155,25 +164,27 @@ $timezone = 'Asia/Yangon';
                 $date = session('selected_date');
                 $section = session('selected_section');
                 @endphp
-                <p><span style="padding:5px;background:green;color:white">နာမည်</span> - {{ Auth::user()->name }}
-                    ({{ Auth::user()->email }})</p>
-                <p><span style="padding:5px;background:green;color:white">သွင်းမည့်အချိန်</span> - {{ $date }}
-                    {{ $section }} </p>
-                <p><span style="padding:5px;background:green;color:white">ကော်မရှင် / ဆ</span> -
-                    {{ Auth::user()->commission }}%
-                    / {{ Auth::user()->rate ?? 0 }} </p>
-                <p><span style="padding:5px;background:red;color:white">ပိတ်ချိန်</span> -
-                    @if($section == 'am')
-                    {{ \Carbon\Carbon::parse(Auth::user()->end_am)->format('h:i A') }}
-                    @else
-                    {{ \Carbon\Carbon::parse(Auth::user()->end_pm)->format('h:i A') }}
-                    @endif
+                <div class="d-none d-sm-block">
+                    <span>
+                        <p><span style="padding:5px;background:green;color:white">နာမည်</span> -
+                            {{ Auth::user()->name }} ({{ Auth::user()->email }})</p>
+                        <p><span style="padding:5px;background:green;color:white">သွင်းမည့်အချိန်</span> - {{ $date }}
+                            {{ $section }} </p>
+                        <p><span style="padding:5px;background:green;color:white">ကော်မရှင် / ဆ</span> -
+                            {{ Auth::user()->commission }}% / {{ Auth::user()->rate ?? 0 }} </p>
+                        <p><span style="padding:5px;background:red;color:white">ပိတ်ချိန်</span> -
+                            @if($section == 'am')
+                            {{ \Carbon\Carbon::parse(Auth::user()->end_am)->format('h:i A') }}
+                            @else
+                            {{ \Carbon\Carbon::parse(Auth::user()->end_pm)->format('h:i A') }}
+                            @endif
+                        </p>
+                        <p><span style="padding:5px;background:green;color:white">တစ်ကွက်အများဆုံးခွင့်ပြုငွေ</span> -
+                            <span style="color:blue;">{{ number_format(Auth::user()->max_limit) }}</span>
+                        </p>
+                    </span>
 
-
-                </p>
-                <p><span style="padding:5px;background:green;color:white">တစ်ကွက်အများဆုံးခွင့်ပြုငွေ</span> - <span
-                        style="color:blue;">{{ number_format(Auth::user()->max_limit) }} </span></p>
-                @php
+                              @php
                 $serverTime = now()->setTimezone('Asia/Yangon');
                 @endphp
 
@@ -204,6 +215,10 @@ $timezone = 'Asia/Yangon';
                     serverTimeEl.textContent = formatted;
                 }, 1000);
                 </script>
+                </div>
+
+
+      
 
                 @php
                 use Illuminate\Support\Facades\Auth;
@@ -221,7 +236,7 @@ $timezone = 'Asia/Yangon';
                     System မှ အလိုအလျှောက်ဖြတ်ထုတ်သွားပါမည်။
                 </p>
                 @else
-                <p class="alert alert-info"><b>ယခု Section အတွက်ဒိုင်မှပိတ်ထားသော ပိတ်သီးမရှိပါ။</b></p>
+               <p class="alert alert-info d-none d-sm-block"><b>ယခု Section အတွက်ဒိုင်မှပိတ်ထားသော ပိတ်သီးမရှိပါ။</b></p>
                 @endif
 
 
@@ -367,7 +382,7 @@ $timezone = 'Asia/Yangon';
                 </form>
                 @else
                 <div class="alert alert-danger text-center">
-                    <h5>ပိတ်ချိန်ဖြစ်နေ၍ {{ $date }} {{ $section }} အတွက် အော်ဒါတင်၍မရပါ။</h5>
+                    <p>ပိတ်ချိန်ဖြစ်နေ၍ {{ $date }} {{ $section }} အတွက် အော်ဒါတင်၍မရပါ။</p>
                 </div>
                 @endif
                 @else
@@ -439,8 +454,10 @@ $timezone = 'Asia/Yangon';
 
 
                 <hr>
-                <h5> {{ $date }} {{ $section }} - @if (!empty($alert)) နောက် @else ယခု @endif Section
-                    အတွက်အော်ဒါ</h5>
+
+             
+               <h5 class="responsive-section-header"> {{ $date }} {{ $section }} - @if (!empty($alert)) နောက် @else ယခု @endif Section အတွက်အော်ဒါ</h5>
+
 
                 @php
                 $orders = App\Models\Order::where('user_id', Auth::id())
@@ -604,10 +621,70 @@ $timezone = 'Asia/Yangon';
                     </tbody>
                 </table>
 
+
+                   <div class="d-block d-sm-none">
+                    <br> <hr>
+                    <span>
+                        <p><span style="padding:5px;background:green;color:white">နာမည်</span> -
+                            {{ Auth::user()->name }} ({{ Auth::user()->email }})</p>
+                        <p><span style="padding:5px;background:green;color:white">သွင်းမည့်အချိန်</span> - {{ $date }}
+                            {{ $section }} </p>
+                        <p><span style="padding:5px;background:green;color:white">ကော်မရှင် / ဆ</span> -
+                            {{ Auth::user()->commission }}% / {{ Auth::user()->rate ?? 0 }} </p>
+                        <p><span style="padding:5px;background:red;color:white">ပိတ်ချိန်</span> -
+                            @if($section == 'am')
+                            {{ \Carbon\Carbon::parse(Auth::user()->end_am)->format('h:i A') }}
+                            @else
+                            {{ \Carbon\Carbon::parse(Auth::user()->end_pm)->format('h:i A') }}
+                            @endif
+                        </p>
+                        <p><span style="padding:5px;background:green;color:white">တစ်ကွက်အများဆုံးခွင့်ပြုငွေ</span> -
+                            <span style="color:blue;">{{ number_format(Auth::user()->max_limit) }}</span>
+                        </p>
+                    </span>
+
+                              @php
+                $serverTime = now()->setTimezone('Asia/Yangon');
+                @endphp
+
+                <p>
+                    Current Server Time:
+                    <span id="server-time" data-time="{{ $serverTime->format('Y-m-d H:i:s') }}">
+                        {{ $serverTime->format('Y-m-d H:i:s') }}
+                    </span>
+                </p>
+
+                <script>
+                // Parse initial server time
+                const serverTimeEl = document.getElementById('server-time');
+                let serverTime = new Date(serverTimeEl.dataset.time.replace(/-/g, '/'));
+
+                // Update the time every second
+                setInterval(() => {
+                    serverTime.setSeconds(serverTime.getSeconds() + 1);
+
+                    // Format to YYYY-MM-DD HH:mm:ss
+                    const formatted = serverTime.getFullYear() + '-' +
+                        String(serverTime.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(serverTime.getDate()).padStart(2, '0') + ' ' +
+                        String(serverTime.getHours()).padStart(2, '0') + ':' +
+                        String(serverTime.getMinutes()).padStart(2, '0') + ':' +
+                        String(serverTime.getSeconds()).padStart(2, '0');
+
+                    serverTimeEl.textContent = formatted;
+                }, 1000);
+                </script>
+                </div>
+
             </div>
         </div>
     </div>
+
+    
 </section>
+
+
+
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -651,21 +728,18 @@ $timezone = 'Asia/Yangon';
                     </form>
                 </div>
             </div>
-            <!-- <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ပိတ်မယ်</button>
-                <button type="button" class="btn btn-primary">အိုကေ</button>
-            </div> -->
+
         </div>
     </div>
 </div>
 
 
-    <script>
-    document.getElementById('patternInput').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/[^0-9]/g, ''); // Remove non-digits
-        let formatted = value.match(/.{1,2}/g)?.join('-') || '';
-        e.target.value = formatted;
-    });
-    </script>
+<script>
+document.getElementById('patternInput').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/[^0-9]/g, ''); // Remove non-digits
+    let formatted = value.match(/.{1,2}/g)?.join('-') || '';
+    e.target.value = formatted;
+});
+</script>
 
 @endsection

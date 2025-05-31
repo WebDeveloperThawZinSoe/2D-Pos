@@ -383,8 +383,8 @@ public function number_store(Request $request)
             'dine_id' => $dineId,
         ]);
     }
-
-    return redirect()->back()->with("success", "Order placed successfully!");
+    return redirect()->back();
+    // return redirect()->back()->with("success", "Order placed successfully!");
 }
 
 
@@ -502,8 +502,8 @@ public function number_store(Request $request)
                     'dine_id' => $dineId,
                 ]);
             }
-        
-            return redirect()->back()->with("success", "အော်ဒါတင်ခြင်း အောင်မြင်ပါသည်။");
+          return redirect()->back();
+            // return redirect()->back()->with("success", "အော်ဒါတင်ခြင်း အောင်မြင်ပါသည်။");
         }
         
 
@@ -534,8 +534,8 @@ public function number_store(Request $request)
                     "user_order_status" => 1
                 ]);
             }
-        
-            return redirect()->back()->with("success", "Order(s) confirmed successfully!");
+          return redirect()->back();
+            // return redirect()->back()->with("success", "Order(s) confirmed successfully!");
         }
         
         
@@ -557,7 +557,8 @@ public function number_store(Request $request)
             OrderDetail::where("order_id",$id)->update([
                 "user_order_status" => 1
             ]);
-            return redirect()->back()->with("success", "Order Confirm successfully!");
+             return redirect()->back();
+            //return redirect()->back()->with("success", "Order Confirm successfully!");
 
         }
 
