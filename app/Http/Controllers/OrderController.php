@@ -273,15 +273,19 @@ class OrderController extends Controller
 
             // B/b rule
             elseif (preg_match('/^(\d)[Bb]$/', $lettersDigits, $bMatches)) {
-                $targetSum = intval($bMatches[1]);
+                $targetSum1 = intval($bMatches[1]);
+                $targetSum2 = $targetSum1 + 10;
+                
                 for ($i = 0; $i <= 9; $i++) {
                     for ($j = 0; $j <= 9; $j++) {
-                        if ($i + $j === $targetSum) {
+                        $sum = $i + $j;
+                        if ($sum === $targetSum1 || $sum === $targetSum2) {
                             $finalResult[] = "{$i}{$j}";
                         }
                     }
                 }
             }
+
             else {
                 $tokens = explode(',', $lettersDigits); // e.g., 'SS,MM,S,M,R'
                 foreach ($tokens as $token) {

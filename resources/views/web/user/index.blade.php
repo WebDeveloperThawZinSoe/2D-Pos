@@ -381,7 +381,8 @@ $timezone = 'Asia/Yangon';
 
                                             <br>
 
-                                            <button onclick="key_enter('singleDel')" type="button" class="btnTzs btnTzs-danger w-100 py-3 mt-4">
+                                            <button onclick="key_enter('singleDel')" type="button"
+                                                class="btnTzs btnTzs-danger w-100 py-3 mt-4">
                                                 Del.
                                             </button>
 
@@ -534,34 +535,38 @@ $timezone = 'Asia/Yangon';
                             <td>{{ App\Models\OrderDetail::where('order_id', $order->id)->count() }}</td>
                             <td>{{ number_format($order->price) }} </td>
                             <td>
-                                @if ($order->user_order_status == 0)
-                                <form action="/order/status" method="post" style="display:inline-block !important;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="{{$order->id}}">
-                                    <button type="submit" class="btnTzs btnTzs-success btnTzs-sm">
+                                <div class="d-grid gap-2">
+                                    @if ($order->user_order_status == 0)
+                                    <form action="/order/status" method="post" class="m-0">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{ $order->id }}">
+                                        <button type="submit" class="btnTzs btnTzs-success btnTzs-sm w-100 py-2">
+                                            <i class="fas fa-check"></i> 
+                                        </button>
+                                    </form>
 
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                </form>
-                                <a class="btnTzs btnTzs-primary btnTzs-sm" data-bs-toggle="modal"
-                                    data-bs-target="#orderDetailModal{{ $order->id }}">
-                                    <i class="fas fa-info-circle"></i>
-                                </a>
-                                <form action="/order/delete" method="post" style="display:inline-block !important;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="{{$order->id}}">
-                                    <button type="submit" class="btnTzs btnTzs-danger btnTzs-sm"
-                                        onclick="return confirm('Are you sure you want to delete this order?')">
-                                        <i class="fas fa-trash"></i>
-                                        </a>
-                                        @else
-                                        <a class="btnTzs btnTzs-primary btnTzs-sm" data-bs-toggle="modal"
-                                            data-bs-target="#orderDetailModal{{ $order->id }}">
-                                            <i class="fas fa-info-circle"></i>
-                                        </a>
-                                </form>
-                                @endif
+                                    <a class="btnTzs btnTzs-primary btnTzs-sm w-100 py-2" data-bs-toggle="modal"
+                                        data-bs-target="#orderDetailModal{{ $order->id }}">
+                                        <i class="fas fa-info-circle"></i> 
+                                    </a>
+
+                                    <form action="/order/delete" method="post" class="m-0"
+                                        onsubmit="return confirm('Are you sure you want to delete this order?')">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{ $order->id }}">
+                                        <button type="submit" class="btnTzs btnTzs-danger btnTzs-sm w-100 py-2">
+                                            <i class="fas fa-trash"></i> 
+                                        </button>
+                                    </form>
+                                    @else
+                                    <a class="btnTzs btnTzs-primary btnTzs-sm w-100 py-2" data-bs-toggle="modal"
+                                        data-bs-target="#orderDetailModal{{ $order->id }}">
+                                        <i class="fas fa-info-circle"></i> 
+                                    </a>
+                                    @endif
+                                </div>
                             </td>
+
                         </tr>
                         <tr>
 
