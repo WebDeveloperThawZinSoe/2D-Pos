@@ -445,6 +445,7 @@ class OrderController extends Controller
                     'dine_id' => $dineId,
                 ]);
             }
+            session()->put('selected_client', $request->client);
             return redirect()->back();
            
         }
@@ -718,7 +719,7 @@ class OrderController extends Controller
                     'dine_id' => $dineId,
                 ]);
             }
-
+            session()->put('selected_client', $request->client);
             // return redirect()->back()->with("success", "အော်ဒါတင်ခြင်း အောင်မြင်ပါသည်။");
             return redirect()->back();
         }

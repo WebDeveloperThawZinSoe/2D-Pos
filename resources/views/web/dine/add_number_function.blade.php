@@ -177,9 +177,12 @@
                     @php
                     $parent_id = Auth::user()->id;
                     $clients = App\Models\User::where("manager_id", $parent_id)->get();
+                    $selectedClient = old('client', session('selected_client'));
                     @endphp
                     @foreach($clients as $client)
-                    <option value="{{ $client->id }}">{{ $client->name }}</option>
+                    <option value="{{ $client->id }}" {{ $client->id == $selectedClient ? 'selected' : '' }}>
+                        {{ $client->name }}
+                    </option>
                     @endforeach
                 </select>
             </div>
@@ -188,7 +191,7 @@
                     <a href="{{ route('dine.agents') }}">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                             <path
-                                d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z" />
+                                d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512h388.6c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304h-91.4z" />
                         </svg>
                     </a>
                 </div>
@@ -238,11 +241,14 @@
                         <input type="hidden" name="manager_id" value="{{ Auth::user()->id }}">
 
                         <div class="mb-3" style="display: none;">
-                            <label for="modal_client" class="form-label">ထိုးသားကိုရွှေးပါ * </label>
+                            <label for="modal_client" class="form-label">ထိုးသားကိုရွေးပါ * </label>
                             <select name="client" required id="modal_client" class="form-select">
-                                <option value="">ထိုးသားကိုရွှေးပါ။</option>
+                                <option value="">ထိုးသားကိုရွေးပါ။</option>
                                 @foreach($clients as $client)
-                                <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                <option value="{{ $client->id }}"
+                                    {{ $client->id == $selectedClient ? 'selected' : '' }}>
+                                    {{ $client->name }}
+                                </option>
                                 @endforeach
                             </select>
                         </div>
@@ -270,14 +276,12 @@
 
     <!-- 🔵 Script Section -->
     <script>
-    // Format number input
     document.getElementById('patternInput').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/[^0-9]/g, ''); // Remove non-digits
+        let value = e.target.value.replace(/[^0-9]/g, '');
         let formatted = value.match(/.{1,2}/g)?.join('-') || '';
         e.target.value = formatted;
     });
 
-    // Prevent modal if no client selected
     document.getElementById('openCustomModal').addEventListener('click', function() {
         const clientSelect = document.getElementById('client');
         const selectedValue = clientSelect.value;
@@ -287,17 +291,16 @@
             return;
         }
 
-        // Set modal's client select to same value
+        // Set modal's client to the same
         document.getElementById('modal_client').value = selectedValue;
 
-        // Show modal manually
         const modal = new bootstrap.Modal(document.getElementById('customModal'));
         modal.show();
     });
     </script>
 
+    <br><br>
 
-    <br> <br>
 
 
     <div class="row" style="background-color:azure;">
