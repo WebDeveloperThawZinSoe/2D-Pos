@@ -787,7 +787,8 @@ class OrderController extends Controller
             Order::where("id",$id)->delete();
 
             OrderDetail::where("order_id",$id)->delete();
-            return redirect()->back()->with("success", "Order Cancel successfully!");
+              return redirect()->back();
+         //   return redirect()->back()->with("success", "Order Cancel successfully!");
         }
 
 
@@ -836,7 +837,7 @@ class OrderController extends Controller
                 ->where("date", $date)
                 ->where("section", $section)
                 ->delete();
-        
+            
             return redirect()->back()->with("success", "All cleared successfully!");
         }
 
@@ -869,8 +870,8 @@ class OrderController extends Controller
             $date = $request->date;
             $section = $request->section;
             CloseNumber::where("manager_id", Auth::user()->id)->where("date",$date)->where("section",$section)->delete();
-
-            return redirect()->back()->with("success", "ပိတ်သီးဖြတ်ခြင်းအောင်မြင်ပါသည်။");
+         return redirect()->back();
+            // return redirect()->back()->with("success", "ပိတ်သီးဖြတ်ခြင်းအောင်မြင်ပါသည်။");
         }
         
 

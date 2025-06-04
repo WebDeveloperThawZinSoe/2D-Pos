@@ -5,7 +5,7 @@
 <div style="background-color:beige;" class="p-2">
 
 
-    <div class="row">
+    <!-- <div class="row">
         <div class="col-12">
             ရွှေးထားသည့်အချိန် - {{ session('selected_date', 'Not set') }} <span style="color:blue;">
                 {{ ucfirst(session('selected_section', 'Not set')) }}
@@ -74,13 +74,12 @@
 
     <hr>
 
-    <!-- Button trigger -->
     <button type="button" class="btn btn-primary btn-full btn-lg w-100" data-bs-toggle="modal"
         data-bs-target="#customModal">
         အကွက်မတူငွေတူ
     </button>
 
-    <!-- Modal -->
+
     <div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="customModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-4 shadow-lg">
@@ -141,7 +140,161 @@
     });
     </script>
 
-    <br> <br>
+    <br> <br> -->
+
+    <div class="row">
+        <div class="col-12">
+            ရွှေးထားသည့်အချိန် - {{ session('selected_date', 'Not set') }} <span style="color:blue;">
+                {{ ucfirst(session('selected_section', 'Not set')) }}
+            </span>
+        </div>
+
+        <div class="col-8">
+            <input type="text" class="form-control" hidden value="{{ request()->get('get_date') }}" name="get_date"
+                id="get_date">
+        </div>
+
+        <div class="col-4">
+            <input type="text" class="form-control" hidden value="{{ request()->get('get_am_pm') }}" name="get_am_pm"
+                id="get_am_pm">
+        </div>
+    </div>
+
+    <form action="/number_store" method="post">
+        @csrf
+        <input type="hidden" name="date" value="{{ session('selected_date', 'Not set') }}">
+        <input type="hidden" name="section" value="{{ session('selected_section', 'Not set') }}">
+        <input type="hidden" name="buy_sell" value="buy">
+        <input type="hidden" name="manager_id" value="{{ Auth::user()->id }}">
+        <div class="row gx-0 my-2">
+            <div class="col-2 d-flex align-items-center">
+                <div> ဒိုင် </div>
+            </div>
+            <div class="col">
+                <select name="dine" id="client" required class="form-control">
+                    <option value="">ဒိုင်ကိုရွှေးမည်။</option>
+                    @php
+                        $parent_id = Auth::user()->id;
+                        $clients = App\Models\ReDine::where("manager_id", $parent_id)->get();
+                    @endphp
+                    @foreach ($clients as $client)
+                        <option value="{{ $client->id }}" data-name="{{ $client->name }}">{{ $client->name }}</option>
+                    @endforeach
+                </select>
+
+            </div>
+            <div class="col-1 ms-2">
+                <div style="width:30px;height:30px;">
+                    <a href="{{ route('dine.redine') }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                            <path
+                                d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row my-3" id="normal_input">
+            <div class="col-9">
+                <input type="text" class="form-control @error('number') is-invalid @enderror" name="number" required
+                    placeholder="နံပါတ် တင်ငွေရိုက် ထည့်ပါ...">
+                @error('number')
+                <div class="invalid-feedback text-start">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-3">
+                <button type="submit" class="btn btn-primary form-control">ရွှေးသည်</button>
+            </div>
+        </div>
+    </form>
+
+    <hr>
+
+    <!-- Modal Trigger -->
+    <button type="button" class="btn btn-primary btn-full btn-lg w-100" id="openModalButton">
+        အကွက်မတူငွေတူ
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="customModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow-lg">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title" id="customModalLabel">အကွက်မတူငွေတူ <br> ရွှေးထားသည့်အချိန် -
+                        {{ session('selected_date', 'Not set') }}
+                        <span style="color:blue;">{{ ucfirst(session('selected_section', 'Not set')) }}</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body pt-0">
+                    <form action="/multi/number_store" method="post">
+                        @csrf
+                        <input type="hidden" name="date" value="{{ session('selected_date', 'Not set') }}">
+                        <input type="hidden" name="section" value="{{ session('selected_section', 'Not set') }}">
+                        <input type="hidden" name="buy_sell" value="buy">
+                        <input type="hidden" name="manager_id" value="{{ Auth::user()->id }}">
+
+                        <div class="mb-3" style="display: none;">
+                            <label for="dine" class="form-label">ဒိုင်ကိုရွှေးမည်။ *</label>
+                            <select name="dine" required id="modalDine" class="form-select">
+                                <option value="">ဒိုင်ကိုရွှေးမည်။</option>
+                                @foreach ($clients as $client)
+                                <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">အကွက်များ *</label>
+                            <input type="text" id="patternInput" class="form-control" placeholder="ဥပမာ: 34-23-32-45-32"
+                                name="numbers" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">ငွေပမာဏ *</label>
+                            <input type="number" class="form-control" name="amount" required
+                                placeholder="ငွေပမာဏထည့်ပါ">
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary px-4">ရွှေးသည်</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+    document.getElementById('patternInput').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/[^0-9]/g, '');
+        let formatted = value.match(/.{1,2}/g)?.join('-') || '';
+        e.target.value = formatted;
+    });
+
+    document.getElementById('openModalButton').addEventListener('click', function() {
+        const selectedDine = document.getElementById('client').value;
+        if (!selectedDine) {
+            alert('ကျေးဇူးပြုပြီး ဒိုင်ကိုရွေးပါ။');
+            return;
+        }
+
+        // Set the selected dine in the modal
+        const modalDine = document.getElementById('modalDine');
+        modalDine.value = selectedDine;
+
+        // Open the modal manually using Bootstrap modal JS
+        const modal = new bootstrap.Modal(document.getElementById('customModal'));
+        modal.show();
+    });
+    </script>
+
+    <br><br>
+
+
 
 
     <div class="row" style="background-color:azure;">
@@ -192,7 +345,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <p><strong>Type:</strong> {{ $order->order_type }}</p>
-                                    <p><strong>Client:</strong> {{$order->user->name ?? ""}} </p>
+                                    <p><strong>Dine:</strong> {{$order->dine->name ?? ""}} </p>
                                     <p><strong>Total Amount:</strong> {{ $order->price }} Ks</p>
                                     <p><strong>Date:</strong> {{ $order->date }}</p>
                                     <p><strong>Section:</strong> {{ $order->section }}</p>
