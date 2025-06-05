@@ -1091,8 +1091,31 @@ class OrderController extends Controller
 
 
 
+        public function bulkAction(Request $request){
+            $action = $request->input('action');
+            if($action == "delete"){
+               $order_ids  = $request->input('order_ids', []);
+               foreach($order_ids as $id){
+                Order::where("id",$id)->delete();
+                OrderDetail::where("order_id",$id)->delete();
+               }
+               return redirect()->back();
+            }else{
+                $order_ids  = $request->input('order_ids', []);
+                foreach($order_ids as $id){
+                            Order::where("id",$id)->update([
+                        "user_order_status" => 1,
+                        "status" => 1
+                    ]);
 
+                    OrderDetail::where("order_id",$id)->update([
+                        "user_order_status" => 1
+                    ]);
+                }
+                return redirect()->back();
+            }
+        }
 
-        
+       
     
 }

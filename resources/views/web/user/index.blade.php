@@ -597,163 +597,194 @@ $timezone = 'Asia/Yangon';
                 ->get();
                 @endphp
 
-                <table class="table table-bordered text-center bg-white shadow-sm">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Total Number</th>
-                            <th>Total Price</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php $totalPrice = 0; @endphp
-                        @foreach ($orders as $order)
-                        @if($order->user_order_status == 1 && $order->status == 1)
-                        @php $totalPrice += $order->price; @endphp
-                        @endif
-                        <tr>
-                            <td>{{ $order->order_type }}</td>
-                            <td>{{ App\Models\OrderDetail::where('order_id', $order->id)->count() }}</td>
-                            <td>{{ number_format($order->price) }} </td>
-                            <td>
-                                <div class="d-grid gap-2">
-                                    @if ($order->user_order_status == 0)
-                                    <form action="/order/status" method="post" class="m-0">
-                                        @csrf
-                                        <input type="hidden" name="id" value="{{ $order->id }}">
-                                        <button type="submit" class="btnTzs btnTzs-success btnTzs-sm w-100 py-2">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
+                <form id="bulk-action-form" action="/orders/bulk-action" method="POST">
+                    @csrf
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" name="action" value="confirm"
+                            class="btn btn-success btn-sm rounded-pill shadow-sm px-4">
+                            ✅ Bulk Confirm
+                        </button>
+                        <button type="submit" name="action" value="delete"
+                            class="btn btn-danger btn-sm rounded-pill shadow-sm px-4"
+                            onclick="return confirm('Are you sure you want to delete selected orders?')">
+                            🗑️ Bulk Delete
+                        </button>
+                    </div>
+                    <br>
+                    <table class="table table-bordered text-center bg-white shadow-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th><input type="checkbox" id="select-all"></th>
+                                <th>Type</th>
+                                <th>Total Price</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $totalPrice = 0; @endphp
+                            @foreach ($orders as $order)
+                            @if($order->user_order_status == 1 && $order->status == 1)
+                            @php $totalPrice += $order->price; @endphp
+                            @endif
+                            <tr>
+                                <td>
+                                     @if ($order->user_order_status == 0)
+                                    <input type="checkbox" class="order-checkbox" name="order_ids[]"
+                                        value="{{ $order->id }}">
+                                        @endif
+                                    </td>
+                                <td>{{ $order->order_type }}
+                                    ({{ App\Models\OrderDetail::where('order_id', $order->id)->count() }})</td>
+                                <td>{{ number_format($order->price) }}</td>
+                                <td>
+                                    <div class="d-flex flex-column gap-1 align-items-center">
+                                        @if ($order->user_order_status == 0)
+                                        <form action="/order/status" method="post" class="m-0">
+                                            @csrf
+                                            <input type="hidden" name="id" value="{{ $order->id }}">
+                                            <button type="submit"
+                                                class="btn btn-success btn-sm rounded-pill shadow-sm px-3"
+                                                style="min-width: 90px;">
+                                                <i class="fas fa-check me-1"></i> Confirm
+                                            </button>
+                                        </form>
 
-                                    <a class="btnTzs btnTzs-primary btnTzs-sm w-100 py-2" data-bs-toggle="modal"
-                                        data-bs-target="#orderDetailModal{{ $order->id }}">
-                                        <i class="fas fa-info-circle"></i>
-                                    </a>
+                                        <a class="btn btn-info btn-sm rounded-pill shadow-sm text-white px-3"
+                                            data-bs-toggle="modal" data-bs-target="#orderDetailModal{{ $order->id }}"
+                                            style="min-width: 90px;">
+                                            <i class="fas fa-info-circle me-1"></i> Details
+                                        </a>
 
-                                    <form action="/order/delete" method="post" class="m-0"
-                                        onsubmit="return confirm('Are you sure you want to delete this order?')">
-                                        @csrf
-                                        <input type="hidden" name="id" value="{{ $order->id }}">
-                                        <button type="submit" class="btnTzs btnTzs-danger btnTzs-sm w-100 py-2">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                        <form action="/order/delete" method="post" class="m-0"
+                                            onsubmit="return confirm('Are you sure you want to delete this order?')">
+                                            @csrf
+                                            <input type="hidden" name="id" value="{{ $order->id }}">
+                                            <button type="submit"
+                                                class="btn btn-danger btn-sm rounded-pill shadow-sm px-3"
+                                                style="min-width: 90px;">
+                                                <i class="fas fa-trash-alt me-1"></i> Delete
+                                            </button>
+                                        </form>
+                                        @else
+                                        <a class="btn btn-info btn-sm rounded-pill shadow-sm text-white px-3"
+                                            data-bs-toggle="modal" data-bs-target="#orderDetailModal{{ $order->id }}"
+                                            style="min-width: 90px;">
+                                            <i class="fas fa-info-circle me-1"></i> Details
+                                        </a>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+
+                            @include('web.user.partials.order-detail-modal', ['order' => $order])
+                            @endforeach
+
+                            <tr>
+                                <td colspan="2">စုစုပေါင်းထိုးငွေ</td>
+                                <td colspan="2">{{ number_format($totalPrice) }}</td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">ဒဲ့ပေါက်</td>
+                                <td colspan="2">
+                                    @php
+                                    $isWinOrNot = App\Models\OrderDetail::where('user_id', Auth::id())
+                                    ->where('date', $date)
+                                    ->where('section', $section)
+                                    ->where('manager_id', Auth::user()->manager->id ?? null)
+                                    ->where('number', $winNumber->number ?? null)
+                                    ->count() ?? 0;
+                                    @endphp
+                                    @if($isWinOrNot > 0)
+                                    @php
+                                    $WinNumber = App\Models\OrderDetail::where('user_id', Auth::id())
+                                    ->where('date', $date)
+                                    ->where('section', $section)
+                                    ->where('manager_id', Auth::user()->manager->id ?? null)
+                                    ->where('number', $winNumber->number ?? null)
+                                    ->first();
+                                    $Price = $WinNumber->price ?? 0;
+                                    $Rate = Auth::user()->rate ?? 1;
+                                    $total = $Price * $Rate;
+                                    echo number_format($total);
+                                    @endphp
                                     @else
-                                    <a class="btnTzs btnTzs-primary btnTzs-sm w-100 py-2" data-bs-toggle="modal"
-                                        data-bs-target="#orderDetailModal{{ $order->id }}">
-                                        <i class="fas fa-info-circle"></i>
-                                    </a>
+                                    0
                                     @endif
-                                </div>
-                            </td>
+                                </td>
+                            </tr>
 
-                        </tr>
-                        <tr>
+                            <tr>
+                                <td colspan="2">ကော်မရှင်</td>
+                                <td colspan="2">
+                                    @php
+                                    $commission = Auth::user()->commission ?? 0;
+                                    $amount = $totalPrice * $commission / 100;
+                                    echo number_format($amount);
+                                    @endphp
+                                </td>
+                            </tr>
 
+                            <tr>
+                                <td colspan="2">ကျသင့်ငွေ</td>
+                                <td colspan="2">
+                                    @php
+                                    $WinNumber = App\Models\OrderDetail::where('user_id', Auth::id())
+                                    ->where('date', $date)
+                                    ->where('section', $section)
+                                    ->where('manager_id', Auth::user()->manager->id ?? null)
+                                    ->where('number', $winNumber->number ?? null)
+                                    ->first();
+                                    $Price = $WinNumber->price ?? 0;
+                                    $Rate = Auth::user()->rate ?? 1;
+                                    $total = $Price * $Rate;
+                                    $grandTotal = $totalPrice - $total - $amount;
+                                    echo number_format($grandTotal * -1);
+                                    @endphp
+                                </td>
+                            </tr>
 
-                        </tr>
-                        <!-- Modal for Order Details -->
-                        @include('web.user.partials.order-detail-modal', ['order' => $order])
+                            <tr>
+                                <td colspan="2">
+                                    <a href="/user/report/daily"
+                                        class="btn btn-outline-primary w-100 rounded-pill shadow-sm">
+                                        📅 စာရင်းချုပ် နေ့စဉ်
+                                    </a>
+                                </td>
+                                <td colspan="2">
+                                    <a href="/user/report/weekly"
+                                        class="btn btn-outline-primary w-100 rounded-pill shadow-sm">
+                                        📆 စာရင်းချုပ် အပတ်စဉ်
+                                    </a>
+                                </td>
+                            </tr>
 
+                            <tr>
+                                <td colspan="2">
+                                    <a href="/user/report/monthly"
+                                        class="btn btn-outline-primary w-100 rounded-pill shadow-sm">
+                                        🗓️ စာရင်းချုပ် လစဉ်
+                                    </a>
+                                </td>
+                                <td colspan="2">
+                                    <a href="/user/report/yearly"
+                                        class="btn btn-outline-primary w-100 rounded-pill shadow-sm">
+                                        🗓️ စာရင်းချုပ် နစ်စဉ်
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
+                    
+                </form>
 
-                        @endforeach
-
-                        <tr>
-                            <td colspan=2> စုစုပေါင်းထိုးငွေ </td>
-                            <td colspan=2> {{number_format($totalPrice)}} </td>
-                        </tr>
-
-                        <tr>
-                            <td colspan=2> ဒဲ့ပေါက် </td>
-                            <td colspan=2>
-                                @php
-                                $isWinOrNot = App\Models\OrderDetail::where('user_id', Auth::id())
-                                ->where('date', $date)
-                                ->where('section', $section)
-                                ->where('manager_id', Auth::user()->manager->id ?? null)
-                                ->where('number', $winNumber->number ?? null)
-                                ->count() ?? 0;
-                                @endphp
-                                @if($isWinOrNot > 0)
-                                @php
-                                $WinNumber = App\Models\OrderDetail::where('user_id', Auth::id())
-                                ->where('date', $date)
-                                ->where('section', $section)
-                                ->where('manager_id', Auth::user()->manager->id ?? null)
-                                ->where('number', $winNumber->number ?? null)
-                                ->first();
-                                $Price = $WinNumber->price ?? 0;
-                                $Rate = Auth::user()->rate ?? 1;
-                                $total = $Price * $Rate;
-                                echo number_format($total);
-                                @endphp
-                                @else
-                                0
-                                @endif
-
-                            </td>
-                        </tr>
-
-
-                        <tr>
-                            <td colspan=2> ကော်မရှင် </td>
-                            <td colspan=2>
-                                @php
-                                $commission = Auth::user()->commission ?? 0;
-                                $amount = $totalPrice * $commission / 100;
-                                echo number_format($amount);
-                                @endphp
-                            </td>
-                        </tr>
-
-
-                        <tr>
-                            <td colspan=2> ကျသင့်ငွေ </td>
-                            <td colspan=2>
-
-                                @php
-                                $WinNumber = App\Models\OrderDetail::where('user_id', Auth::id())
-                                ->where('date', $date)
-                                ->where('section', $section)
-                                ->where('manager_id', Auth::user()->manager->id ?? null)
-                                ->where('number', $winNumber->number ?? null)
-                                ->first();
-                                $Price = $WinNumber->price ?? 0;
-                                $Rate = Auth::user()->rate ?? 1;
-                                $total = $Price * $Rate;
-                                $grandTotal = 0;
-                                $grandTotal = $totalPrice - $total - $amount;
-                                $grandTotal = $grandTotal * -1;
-                                echo number_format($grandTotal);
-                                @endphp
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td colspan=2>
-                                <a href="/user/report/daily" class="btn btn-primary w-100">စာရင်းချုပ် နေ့စဉ်</a>
-                            </td>
-
-                            <td colspan=2>
-                                <a href="/user/report/weekly" class="btn btn-primary w-100">စာရင်းချုပ် အပတ်စဉ်</a>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td colspan=2>
-                                <a href="/user/report/monthly" class="btn btn-primary w-100">စာရင်းချုပ် လစဉ်</a>
-                            </td>
-
-                            <td colspan=2>
-                                <a href="/user/report/yearly" class="btn btn-primary w-100">စာရင်းချုပ် နစ်စဉ်</a>
-                            </td>
-                        </tr>
-
-                    </tbody>
-                </table>
+                <script>
+                document.getElementById('select-all').addEventListener('change', function() {
+                    const checkboxes = document.querySelectorAll('.order-checkbox');
+                    checkboxes.forEach(cb => cb.checked = this.checked);
+                });
+                </script>
 
 
                 <div class="d-block d-sm-none">

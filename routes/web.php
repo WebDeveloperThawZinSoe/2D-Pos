@@ -85,6 +85,7 @@ Route::middleware(['web'])->group(function () {
         Route::post("/rebuy/store",[OrderController::class,"rebuy_store"])->name("rebuy_store");
         Route::post("/win/store",[OrderController::class,"win_store"]);
         Route::get("/print/{id}",[OrderController::class,"print"])->name("print");
+       
     });
     
     Route::middleware(['require.date.section','web'])->group(function () {
@@ -93,6 +94,7 @@ Route::middleware(['web'])->group(function () {
         Route::post("/order/status",[OrderController::class,"order_status"])->name("order.status");
         Route::post("/order/delete",[OrderController::class,"order_delete"])->name("order.delete");
         Route::post("/order/confirm/all",[OrderController::class,"order_cofirm_all"]);
+        Route::post("/orders/bulk-action", [OrderController::class, 'bulkAction'])->name('orders.bulk.action');
     });
 
     Route::get('/select-date-section', function (Request $request) {
