@@ -1049,6 +1049,7 @@ class OrderController extends Controller
                 'order_type' => implode('-', $rebuyNumberTexts) . '_' . $rebuyPercent . '%',
             ]);
         
+             session()->put('selected_client', $request->dine);
             return redirect()->back()->with('success', 'ပြန်ဝယ်မှု အောင်မြင်ပါသည်။');
         }
 

@@ -302,7 +302,7 @@
                     $final = $sellTotal - $buyTotal;
                     @endphp
 
-                    <div class="mb-2">
+                    <!-- <div class="mb-2">
                         <span class="badge p-2 
         {{ $isWinner ? 'bg-success' : 'bg-primary' }}" style="cursor:pointer;" data-bs-toggle="modal"
                             data-bs-target="#modal-{{ $number }}">
@@ -310,8 +310,33 @@
                         </span>
 
                         <span>{{ number_format($final) }}</span>
+                    </div> -->
+
+                    @php
+                    $badgeClass = $isWinner ? 'bg-success' : 'bg-primary';
+                    @endphp
+
+                    <div class="mb-2 {{ $orderDetailsBuy->count() > 0 ? 'bg-blue-custom text-white' : '' }}">
+                        <span class="badge p-2 {{ $badgeClass }} cursor-pointer" data-bs-toggle="modal"
+                            data-bs-target="#modal-{{ $number }}">
+                            {{ $number }}
+                        </span>
+
+                        <span class="ms-2">{{ number_format($final) }}</span>
                     </div>
 
+                    <style>
+                    .bg-blue-custom {
+                        background-color: #007bff !important;
+                        /* Bootstrap blue or your custom */
+                        border-radius: 6px;
+                        /* padding: 10px; */
+                    }
+
+                    .cursor-pointer {
+                        cursor: pointer;
+                    }
+                    </style>
 
 
                     <!-- Modal -->
@@ -428,18 +453,18 @@
     <a href="/rebuy" class="btn btn-primary w-100">ပြန်ဝယ်မည်။</a>
     <br> <br>
     <a href="/dine/buy/sell/log" class="btn btn-primary w-100">အရောင်းအဝယ်စာရင်း</a>
-        <br> <br>
-        
-                            <!-- <li><a class="dropdown-item" href="#">နေ့စဉ်</a></li>
+    <br> <br>
+
+    <!-- <li><a class="dropdown-item" href="#">နေ့စဉ်</a></li>
                             <li><a class="dropdown-item" href="#">အပတ်စဉ်</a></li>
                             <li><a class="dropdown-item" href="#">လစဉ်</a></li>
                             <li><a class="dropdown-item" href="#">တနစ်စာ</a></li> -->
     <a href="/dine/report/daily" class="btn btn-primary w-100">စာရင်းချုပ် ( နေ့စဉ် ) </a>
-    <br>  <br>
+    <br> <br>
     <a href="/dine/report/weekly" class="btn btn-primary w-100">စာရင်းချုပ် ( အပတ်စဉ် ) </a>
-    <br>  <br>
+    <br> <br>
     <a href="/dine/report/monthly" class="btn btn-primary w-100">စာရင်းချုပ် ( လစဉ် ) </a>
-    <br>  <br>
+    <br> <br>
     <a href="/dine/report/yearly" class="btn btn-primary w-100">စာရင်းချုပ် ( တနစ်စာ ) </a>
     <br>
 </div>
